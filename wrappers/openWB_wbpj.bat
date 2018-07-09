@@ -1,0 +1,1 @@
+"C:\Program Files\ANSYS Inc\v181\Framework\bin\Win64\RunWB2.exe" -F "C:\Projects\data\workbench_files\test1.wbpj"

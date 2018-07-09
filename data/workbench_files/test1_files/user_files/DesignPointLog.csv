@@ -1,0 +1,12 @@
+﻿# 
+# This file contains the parameter values of the Design Points successfully updated by ANSYS Workbench.
+# Project name: test1
+# Creation date: 07/09/2018 18:12:21
+# 
+# 07/09/2018 18:12:21
+# The parameters defined in the project are:
+# ,P1 - x [m]
+# 
+# The following header line defines the name of the columns by reference to the parameters.
+Name,P1
+DP 0,3

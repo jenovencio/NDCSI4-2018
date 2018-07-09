@@ -1,0 +1,4 @@
+﻿# encoding: utf-8
+# Release 18.1
+SetScriptVersion(Version="18.1.463")
+Open(FilePath="C:/Projects/data/workbench_files/test1.wbpj")
