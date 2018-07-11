@@ -1,8 +1,8 @@
 ﻿dp0/Geom/DM/Geom.agdb
 dp0/global/MECH/SYS.engd
 dp0/global/MECH/SYS.mechdb
-dp0/SYS/ENGD/material.engd
 dp0/SYS/ENGD/EngineeringData.xml
+dp0/SYS/ENGD/material.engd
 dp0/SYS/MECH/CAERep.xml
 dp0/SYS/MECH/CAERepOutput.xml
 dp0/SYS/MECH/ds.dat
@@ -17,9 +17,10 @@ dp0/SYS/MECH/solve.out
 dp0/act.dat
 dp0/designPoint.wbdp
 session_files/journal1.wbjn
+session_files/journal2.wbjn
 dp0/
-session_files/
 dpall/
+session_files/
 dp0/Geom/
 dp0/global/
 dp0/SYS/
