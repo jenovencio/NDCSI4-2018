@@ -160,9 +160,10 @@ def parse_nset(nsets_str_list):
     
     
 
-#if '__name__'=='__main__':
-filepath = r'C:\Projects\data\beampl.inp'
-nodes_dict, elem_dict, nset_dict  = read_inp(filepath)
-
-teste = 1
+if __name__ == "__main__":
+    import os
+    local = os.chdir('..')
+    filepath = r'data\beampl.inp'
+    nodes_dict, elem_list, nset_list  = read_inp(filepath)
+    
 
