@@ -1,0 +1,22 @@
+﻿# encoding: utf-8
+# Release 18.2
+SetScriptVersion(Version="18.2.109")
+template1 = GetTemplate(TemplateName="Mesh")
+system1 = GetSystem(Name="SYS")
+system2 = template1.CreateSystem(
+    Position="Below",
+    RelativeTo=system1)
+geometry1 = system2.GetContainer(ComponentName="Geometry")
+geometry1.Edit(IsSpaceClaimGeometry=True)
+geometry1.Exit()
+meshComponent1 = system2.GetComponent(Name="Mesh")
+meshComponent1.Refresh()
+mesh1 = system2.GetContainer(ComponentName="Mesh")
+mesh1.Edit()
+template2 = GetTemplate(TemplateName="ICEMCFD")
+system3 = template2.CreateSystem(
+    Position="Right",
+    RelativeTo=system2)
+iCM1 = system3.GetContainer(ComponentName="ICM")
+iCM1.Open()
+ICEMCFD.Refresh(Container=iCM1)
