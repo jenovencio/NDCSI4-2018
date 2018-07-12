@@ -1,0 +1,16 @@
+# family_boco file written for AI*Environment on Thu Jul 12 15:38:38 Central Europe Daylight Time 2018
+# solver Abaqus
+"SYS-1_1_1_SOLID"
+"SYS-1_2_1_SOLID"
+"SYS-1_3_1_SOLID"
+"SYS-1_1_1"
+"SYS-1_2_1"
+"SYS-1_3_1"
+
+"SYS-1_1_1_SOLID" "SOLID3D" 0 0
+"SYS-1_2_1_SOLID" "SOLID3D" 0 0
+"SYS-1_3_1_SOLID" "SOLID3D" 0 0
+"SYS-1_1_1" "SHELL" 0 0 0 0
+"SYS-1_2_1" "SHELL" 0 0 0 0
+"SYS-1_3_1" "SHELL" 0 0 0 0
+

@@ -1,0 +1,26 @@
+# Written by ICEM CFD 18.2, user SIV0021, Thu Jul 12 14:07:45 Central Europe Daylight Time 2018
+
+begin family SYS_1_1_SOLID
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS_1_1_SOLID
+
+begin family FACEWITHFORCES
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family FACEWITHFORCES
+
+begin family FACEDIRICHLETBOUNDARY
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family FACEDIRICHLETBOUNDARY
+
+begin family FACEFORCEFORPRESTRESS
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family FACEFORCEFORPRESTRESS
+
+begin family SYS_1_1
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS_1_1

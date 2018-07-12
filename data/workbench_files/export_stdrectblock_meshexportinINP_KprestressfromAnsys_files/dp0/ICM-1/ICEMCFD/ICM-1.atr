@@ -1,0 +1,36 @@
+# Written by ICEM CFD 18.2, user SIV0021, Thu Jul 12 15:38:24 Central Europe Daylight Time 2018
+
+begin family SYS-1_1_1_SOLID
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS-1_1_1_SOLID
+
+begin family SYS-1_2_1_SOLID
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS-1_2_1_SOLID
+
+begin family SYS-1_3_1_SOLID
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS-1_3_1_SOLID
+
+begin family SYS-1_1_1
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS-1_1_1
+
+begin family SYS-1_2_1
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS-1_2_1
+
+begin family SYS-1_3_1
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SYS-1_3_1
+
+begin family PART0
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family PART0

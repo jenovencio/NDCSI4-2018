@@ -1,0 +1,8 @@
+# family_boco file written by ICEM CFD by SIV0021 on Thu Jul 12 14:07:45 Central Europe Daylight Time 2018
+## solver ANSYS Fluent
+"SYS_1_1_SOLID"
+"FACEWITHFORCES"
+"FACEDIRICHLETBOUNDARY"
+"FACEFORCEFORPRESTRESS"
+"SYS_1_1"
+
