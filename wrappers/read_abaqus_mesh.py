@@ -25,6 +25,32 @@ abaq2amfe = {'C3D10M' : 'Tet10',
              'CONN3D2' : None,
             }
 
+def map_nodeid_abaq2amfe(node_id):
+    ''' maps a node id in abaqus to node id
+    in amfe
+
+    argument 
+        node_id : int
+            node id in abaqus
+        return
+            int
+            node id in AMfe
+    '''
+    return node_id - 1
+
+def map_nodeid_amfe2abaq(node_id):
+    ''' maps a node id in amfe to node id
+    in Abaqus
+
+    argument 
+        node_id : int
+            node id in AMfe
+        return
+            int
+            node id in Abaqus
+    '''
+    return node_id + 1
+
 def read_inp(filepath):
     ''' This function parse Abaqus input file
     
