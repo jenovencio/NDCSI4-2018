@@ -45,7 +45,7 @@ def read_inp(filepath):
     '''
     
     file_labels = {}    
-    file_key_words = ['ELEMENT','NSET','NODE']
+    file_key_words = ['ELEMENT','NSET','NODE','ELSET']
     with open(filepath) as f:
         for line in f:            
             try:
@@ -55,18 +55,26 @@ def read_inp(filepath):
                 continue
             
 
-            if first_word[1:] == file_key_words[0]:
+            if first_word[1:].lower() == file_key_words[0].lower():
                 elem_type = words_list[1].split('=')[1].replace(' ','')
                 elem_set = words_list[2].split('=')[1].replace(' ','').replace('\n','')
-                dict_key = (first_word[1:], elem_type, elem_set) 
+                dict_key = (file_key_words[0], elem_type, elem_set) 
                 
-            elif first_word[1:] == file_key_words[1]: 
+            elif first_word[1:].lower() == file_key_words[1].lower(): 
                 nset_key = words_list[1].split('=')[1].replace(' ','').replace('\n','')
-                dict_key = (first_word[1:], nset_key) 
+                dict_key = (file_key_words[1], nset_key) 
             
-            elif first_word[1:] == file_key_words[2]:
-                dict_key = first_word[1:] 
+            elif first_word[1:].lower() == file_key_words[2].lower():
+                dict_key = file_key_words[2]
             
+            elif first_word[1:].lower() == file_key_words[3].lower():
+                elset_key = words_list[1].split('=')[1].replace(' ','').replace('\n','')
+                dict_key = (file_key_words[3], elset_key) 
+
+            elif '*' in line:
+                dict_key = 'other_labels'
+                continue
+
             try:
                 if dict_key not in file_labels:
                     file_labels[dict_key] = []   
@@ -79,6 +87,7 @@ def read_inp(filepath):
     # parsing list to to dict date structure   
     elem_list = []
     nset_list = []    
+    elset_list = []
     for key,values in file_labels.items():
         if file_key_words[0] in key:
             
@@ -96,14 +105,41 @@ def read_inp(filepath):
             
         elif file_key_words[2] in key:
             nodes_dict = parse_list(values)
-            
+           
+        elif file_key_words[3] in key:
+            elem_set_data = {}
+            elem_set_data['elem_set'] = key[1]
+            elem_set_data['elem_list'] =  parse_elemset(values)
+            elset_list.append(elem_set_data)
+
         else:
-            raise('Error parsing file')
+            print('Can not read the given string list')
     
     
-    return nodes_dict, elem_list, nset_list 
+    return nodes_dict, elem_list, nset_list, elset_list
     
+def parse_elemset(list_with_strings):
+    '''  create a list with elements given a 
+    list of strings
+
+   argument:
+       list_with_strings : list
     
+    return:
+        elem_list : list
+            list with element ids
+    '''
+    elem_list = []
+    for line in list_with_strings[1:]:
+        try:
+            values = line[0].replace('\n','').split(',')    
+            elem_list.extend([int(i) for i in values])
+                
+        except:
+            continue
+        
+    return elem_list
+
 def parse_list(list_with_strings):
     ''' receives a string list with nodes and
         return a dict with maps node number to coordinates
@@ -136,15 +172,25 @@ def parse_elem_list(list_with_strings):
     
     '''
     local_dict = {}
+    continuation_line = False
     for line in list_with_strings[1:]:
-        values = line[0].split(',')        
-        if line[0][-2] == ',':
-            node_list = [int(i) for i in values[1:-1]]
-            elem_key  = int(values[0])
-        else:  
-            node_list.extend([int(i) for i in values])
-            local_dict[elem_key] = node_list
-    
+        values = line[0].split(',')  
+        try:
+            if not continuation_line:
+                elem_key  = int(values[0])
+                node_list = [int(i) for i in values[1:-1]]              
+                local_dict[elem_key] = node_list
+            
+                if line[0][-2] == ',':
+                    # Next line will be a continuation
+                    continuation_line = True
+            else:  
+                local_dict[elem_key].extend([int(i) for i in values])
+                continuation_line = False
+            
+        except:
+            continue
+
     return local_dict       
     
 def parse_nset(nsets_str_list):
@@ -159,11 +205,12 @@ def parse_nset(nsets_str_list):
         
     
     '''
+    node_list = []
     for line in nsets_str_list[1:]:
         try:
             values = line[0].replace('\n','').split(',')    
             if line[0][-2] == ',':
-                node_list = [int(i) for i in values[1:-1]]           
+                node_list.extend([int(i) for i in values[1:-1]])           
             else:  
                 node_list.extend([int(i) for i in values])
                 
@@ -237,23 +284,4 @@ if __name__ == "__main__":
     el_df, node_idx = create_amfe_elem_data_frame(elem_list)
     nodes = create_amfe_node_array(nodes_dict)
 
-    import sys 
-    sys.path.append(r'C:\AMfe')
-    
-    import amfe
-    import matplotlib.pyplot as plt
-    import mpl_toolkits.mplot3d as a3
-    m2 = amfe.Mesh()
-    m2.el_df = el_df
-    m2.node_idx = node_idx
-    m2.nodes = nodes
-    
-    fig = plt.figure(figsize=(30, 30), dpi= 30, facecolor='w', edgecolor='k')
-    ax = a3.Axes3D(fig)
-    ax = amfe.plot3Dmesh(m2,ax,alpha=0.2, plot_nodes=False)
-    #ax.set_axis_off()
-    #ax.view_init(90, -90)
-    #ax.set_xlim([-80,80])
-    #ax.set_ylim([90,250])
-    #ax.set_zlim([-80,80])
-    plt.show()
+
