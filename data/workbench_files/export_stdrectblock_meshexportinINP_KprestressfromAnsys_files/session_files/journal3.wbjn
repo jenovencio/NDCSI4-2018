@@ -20,3 +20,4 @@ system3 = template2.CreateSystem(
 iCM1 = system3.GetContainer(ComponentName="ICM")
 iCM1.Open()
 ICEMCFD.Refresh(Container=iCM1)
+Save(Overwrite=True)

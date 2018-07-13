@@ -1,4 +1,4 @@
-# Written by ICEM CFD 18.2, user SIV0021, Thu Jul 12 14:07:45 Central Europe Daylight Time 2018
+# Written by ICEM CFD 18.2, user SIV0021, Thu Jul 12 18:55:52 Central Europe Daylight Time 2018
 
 begin family SYS_1_1_SOLID
     begin solver "ANSYS Fluent"

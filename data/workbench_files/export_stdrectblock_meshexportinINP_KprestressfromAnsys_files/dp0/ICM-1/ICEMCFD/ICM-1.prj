@@ -1,5 +1,5 @@
 # ICEM CFD Project Settings
-# Saved by SIV0021 on SIV0021 on Thu Jul 12 15:38:38 Central Europe Daylight Time 2018
+# Saved by SIV0021 on SIV0021 on Thu Jul 12 15:47:20 Central Europe Daylight Time 2018
 # ICEM CFD - version 18.2 - Release date: Jul 17 2017
 
 array set file_name {
@@ -23,7 +23,7 @@ array set file_name {
     attributes ICM-1.atr
     domain ICM-1.uns
     domains_dir D:/NDCSI/framework/data/workbench_files/export_stdrectblock_meshexportinINP_KprestressfromAnsys_files/dp0/ICM-1/ICEMCFD
-    settings_loaded 0
+    settings_loaded 1
     settings ICM-1.prj
     blocking {}
     hexa_replay {}

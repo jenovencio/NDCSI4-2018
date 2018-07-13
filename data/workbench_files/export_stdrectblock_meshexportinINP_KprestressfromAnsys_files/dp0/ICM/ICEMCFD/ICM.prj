@@ -1,5 +1,5 @@
 # ICEM CFD Project Settings
-# Saved by SIV0021 on SIV0021 on Thu Jul 12 14:07:45 Central Europe Daylight Time 2018
+# Saved by SIV0021 on SIV0021 on Thu Jul 12 18:55:52 Central Europe Daylight Time 2018
 # ICEM CFD - version 18.2 - Release date: Jul 17 2017
 
 array set file_name {
@@ -14,7 +14,7 @@ array set file_name {
     topology_dir D:/NDCSI/framework/data/workbench_files/export_stdrectblock_meshexportinINP_KprestressfromAnsys_files/dp0/ICM/ICEMCFD
     ugparts_dir D:/NDCSI/framework/data/workbench_files/export_stdrectblock_meshexportinINP_KprestressfromAnsys_files/dp0/ICM/ICEMCFD
     icons {{$env(ICEM_ACN)/lib/ai_env/icons} {$env(ICEM_ACN)/lib/va/EZCAD/icons} {$env(ICEM_ACN)/lib/icons} {$env(ICEM_ACN)/lib/va/CABIN/icons}}
-    tetin {}
+    tetin ICM.tin
     family_boco ICM.fbc
     prism_params {}
     iges_dir D:/NDCSI/framework/data/workbench_files/export_stdrectblock_meshexportinINP_KprestressfromAnsys_files/dp0/ICM/ICEMCFD
@@ -33,7 +33,7 @@ array set file_name {
     family_topo {}
     gemsparts_dir D:/NDCSI/framework/data/workbench_files/export_stdrectblock_meshexportinINP_KprestressfromAnsys_files/dp0/ICM/ICEMCFD
     family_boco_loaded 1
-    tetin_loaded 0
+    tetin_loaded 1
     project_dir D:/NDCSI/framework/data/workbench_files/export_stdrectblock_meshexportinINP_KprestressfromAnsys_files/dp0/ICM/ICEMCFD
     topo_mulcad_out {}
     solver_params {}
@@ -242,8 +242,8 @@ array set vid_options {
     wb_import_sel_pre {}
     wb_import_cad_associativity 0
 }
-set savedTreeVisibility {meshNode 2 mesh_subsetNode 2 meshShellNode 2 meshQuadNode 2 meshVolumeNode 2 meshHexaNode 2 partNode 2 part-FACEDIRICHLETBOUNDARY 2 part-FACEFORCEFORPRESTRESS 2 part-FACEWITHFORCES 2 part-SYS_1_1 2 part-SYS_1_1_SOLID 2}
-set last_view {rot {-0.535523727301 -0.0448512617457 0.230906892297 0.81110092401} scale {23102.0461586 23102.0461586 23102.0461586} center {0.01 0.005 0.0025} pos {0 0 0}}
+set savedTreeVisibility {geomNode 2 geom_subsetNode 2 geomSurfNode 2 geomBodyNode 2 meshNode 1 mesh_subsetNode 2 meshShellNode 0 meshQuadNode 0 meshVolumeNode 2 meshHexaNode 2 partNode 1 part-FACEDIRICHLETBOUNDARY 0 part-FACEFORCEFORPRESTRESS 0 part-FACEWITHFORCES 0 part-SYS_1_1 0 part-SYS_1_1_SOLID 2}
+set last_view {rot {-0.704727295521 0.0150269454593 0.0195748747959 0.709048978692} scale {49689.6588894 49689.6588894 49689.6588894} center {0.01 0.005 0.0025} pos {-104.646514118 -25.6785025716 0}}
 array set cut_info {
     active 0
 }
