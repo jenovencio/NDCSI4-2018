@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Functions.h"
+#include "ProblemInterface.h"
 
 int main(int argc, char **argv)
 {
@@ -20,11 +21,15 @@ int main(int argc, char **argv)
         Config lConfig = LoadConfig(lConfigPath);
         PrintConfig(lConfig);
         
-        NOX::LAPACK::Matrix<double> lMassMatrix = LoadSquareMatrix(lConfig.MassMatrixFilePath);
-        
-        std::cout << lMassMatrix << std::endl;
+        ProblemInterface lInterface(lConfig);
     }
     catch (std::string aEx)
+    {
+        std::cout << "Exception: " << std::endl;
+        std::cout << aEx << std::endl;
+        return 1;
+    }
+    catch (char const* aEx)
     {
         std::cout << "Exception: " << std::endl;
         std::cout << aEx << std::endl;
