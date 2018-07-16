@@ -83,6 +83,8 @@ link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src-lapack)
 
 add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "HBMCont.exe")
+
 target_link_libraries(generalhbmcontinuation ${MPI_LIBRARIES} 
 	ml zoltan loca localapack nox noxepetra noxlapack epetra ml aztecoo
 	epetraext teuchoscore 

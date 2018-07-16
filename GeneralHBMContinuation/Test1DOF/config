@@ -1,0 +1,25 @@
+
+# Mass matrix file path
+mass
+
+# Damping matrix file path
+damping
+
+# Stiffness matrix file path
+stiffness
+
+# Excitation force file path
+excitation
+
+# Number of harmonic waves
+5
+
+# Min frequency
+0.4
+
+# Max frequency
+3
+
+# Number of integration points
+20
+

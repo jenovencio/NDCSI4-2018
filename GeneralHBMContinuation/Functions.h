@@ -1,5 +1,7 @@
 
 #pragma once
+#include <fstream>
+
 #include "NOX_LAPACK_Matrix.H"
 #include "NOX_LAPACK_Vector.H"
 #include "Config.h"
@@ -9,7 +11,11 @@ void PrintConfig(const Config& aConfig);
 // nox lapack matrices are stored as col major      
 // Access the (i,j) entry of A
 // T& operator()(int i, int j) { return entries[i + (p*j)]; }
-NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath);
+NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, int& aDim);
+// aCheckHarmCount - total number of harmonic coefficients per physical dof
+std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount);
+// skips comment lines and returns the next valid (non comment) line in the file
+std::string GetNextValidLine(std::ifstream& aFile);
 
 // aHarmonicCount here means total number of waves, so cosines and sines together
 // aHarmonicIndex goes between 0 and aHarmonicCount - 1

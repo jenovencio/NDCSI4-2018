@@ -1,3 +1,5 @@
 .kdev/
 build/
 *.kdev4
+*.out
+*.exe
