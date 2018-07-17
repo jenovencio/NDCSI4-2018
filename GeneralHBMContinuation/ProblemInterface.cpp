@@ -8,8 +8,8 @@
 
 const std::string ProblemInterface::cFrequencyName = "frequency";
 
-ProblemInterface::ProblemInterface(const Config& aConfig)
- : cHarmonicCount(2 * aConfig.HarmonicWaveCount - 1)
+ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities, bool aSaveWholeSolutions)
+ : cHarmonicCount(2 * aConfig.HarmonicWaveCount - 1), cNonlinearities(aNonlinearities), cSaveWholeSolutions(aSaveWholeSolutions)
 {
     int lDummy;
     mMassMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrixFilePath, mDOFCount);
@@ -43,7 +43,31 @@ ProblemInterface::ProblemInterface(const Config& aConfig)
         lCurrentPos += lRelativeStep;
     }
     
-    mBProducts = new double[lIntPointCount * lIntPointCount * cHarmonicCount];
+    double* lTempArray1 = new double[lIntPointCount * cHarmonicCount];
+    
+    std::function<double(double)> lB;
+    
+    for (int i = 0; i < cHarmonicCount; i++)
+    {
+        int lWaveNumber = (i + 1) / 2;
+        
+        if (i == 0)             lB = [](double aX) { return 1.0; };
+        else if (i % 2 == 1)    lB = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
+        else                    lB = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
+        
+        for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
+        {
+            int lIndex = GetBValuesIndex(i, iIntPoint, cHarmonicCount, lIntPointCount);
+            double lIntPointPos = mIntPointsRelative[iIntPoint];
+            
+            double lValue = lB(lIntPointPos);
+            
+            lTempArray1[lIndex] = lValue;
+        }
+    }
+    mBValues.assign(lTempArray1, lTempArray1 + lIntPointCount * cHarmonicCount);
+    
+    double* lTempArray2 = new double[lIntPointCount * cHarmonicCount * cHarmonicCount];
     
     std::function<double(double)> lB1;
     std::function<double(double)> lB2;
@@ -53,26 +77,32 @@ ProblemInterface::ProblemInterface(const Config& aConfig)
         int lWaveNumber = (i + 1) / 2;
         
         if (i == 0)             lB1 = [](double aX) { return 1.0; };
-        else if (i % 2 == 1)    lB1 = [](double aX) { return std::cos(2 * PI * aX); };
-        else                    lB1 = [](double aX) { return std::sin(2 * PI * aX); };
+        else if (i % 2 == 1)    lB1 = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
+        else                    lB1 = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
         
         for (int j = 0; j < cHarmonicCount; j++)
         {
             int lWaveNumber2 = (j + 1) / 2;
             
             if (j == 0)             lB2 = [](double aX) { return 1.0; };
-            else if (j % 2 == 1)    lB2 = [](double aX) { return std::cos(2 * PI * aX); };
-            else                    lB2 = [](double aX) { return std::sin(2 * PI * aX); };
-        
+            else if (j % 2 == 1)    lB2 = [lWaveNumber2](double aX) { return std::cos(2 * PI * lWaveNumber2 * aX); };
+            else                    lB2 = [lWaveNumber2](double aX) { return std::sin(2 * PI * lWaveNumber2 * aX); };
+            
             for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
             {
                 int lIndex = GetBProductIndex(i, j, iIntPoint, cHarmonicCount, lIntPointCount);
                 double lIntPointPos = mIntPointsRelative[iIntPoint];
                 
-                double lProduct = lB1(lIntPointPos * lWaveNumber) * lB2(lIntPointPos * lWaveNumber2);
-                mBProducts[lIndex] = lProduct;
+                double lProduct = lB1(lIntPointPos) * lB2(lIntPointPos);
+                lTempArray2[lIndex] = lProduct;
             }
         }
+    }
+    mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
+    
+    for (int i = 0; i < cNonlinearities.size(); i++)
+    {
+        cNonlinearities[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount);
     }
     
     std::cout << "Problem interface successfully initialised" << std::endl;
@@ -85,8 +115,6 @@ ProblemInterface::ProblemInterface(const Config& aConfig)
 
 ProblemInterface::~ProblemInterface()
 {
-    if (mBProducts != nullptr)
-        delete[] mBProducts;
     if (mDynamicStiffnessMatrix != nullptr)
         delete mDynamicStiffnessMatrix;
     if (mExcitationRHS != nullptr)
@@ -96,12 +124,10 @@ ProblemInterface::~ProblemInterface()
 
 const NOX::LAPACK::Vector& ProblemInterface::getInitialGuess()
 {
-    std::cout << "getInitialGuess called" << std::endl;
-    std::cout << mInitGuess << std::endl;
     return mInitGuess;
 }
 bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Vector& aX)
-{    
+{
     if (mRecomputeDynamicStiffness)
     {
         delete mDynamicStiffnessMatrix;
@@ -118,13 +144,25 @@ bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Ve
         mRecomputeExcitationRHS = false;
     }
     
+    // linear part
     aRhs = NOX::LAPACK::Vector(*mExcitationRHS);
         
     aRhs = aRhs.scale(-1.0);
     
+    // dynamic stiffness matrix multiplication
     for (int i = 0; i < mDynamicStiffnessMatrix->numRows(); i++)
         for (int j = 0; j < mDynamicStiffnessMatrix->numCols(); j++)
             aRhs(i) += (*mDynamicStiffnessMatrix)(i, j) * aX(j);
+        
+    // nonlinear part
+        
+    for (int iNonlin = 0; iNonlin < cNonlinearities.size(); iNonlin++)
+    {
+        NOX::LAPACK::Vector lNonlinContrib = cNonlinearities[iNonlin]->ComputeRHS(aX, mFrequency);
+        
+        for (int i = 0; i < aRhs.length(); i++)
+            aRhs(i) += lNonlinContrib(i);
+    }
     
     return true;
 }
@@ -138,7 +176,19 @@ bool ProblemInterface::computeJacobian(NOX::LAPACK::Matrix<double>& aJ, const NO
         mRecomputeDynamicStiffness = false;
     }
     
+    // linear part
     aJ = NOX::LAPACK::Matrix<double>(*mDynamicStiffnessMatrix);
+    
+    // nonlinear part
+    
+    for (int iNonlin = 0; iNonlin < cNonlinearities.size(); iNonlin++)
+    {
+        NOX::LAPACK::Matrix<double> lNonlinContrib = cNonlinearities[iNonlin]->ComputeJacobian(aX, mFrequency);
+        
+        for (int j = 0; j < aJ.numCols(); j++)
+            for (int i = 0; i < aJ.numRows(); i++)
+                aJ(i, j) += lNonlinContrib(i, j);
+    }
     
     return true;
 }
@@ -158,23 +208,34 @@ void ProblemInterface::printSolution(const NOX::LAPACK::Vector& aX, const double
     
     mSolutionFrequencies.push_back(aConParam);
     mSolutionNorms.push_back(lNorm);
+    
+    if (cSaveWholeSolutions) mSolutions.push_back(aX);
 }
 void ProblemInterface::ClearSolutions()
 {
     mSolutionFrequencies.clear();
     mSolutionNorms.clear();
+    mSolutions.clear();
 }
-void ProblemInterface::WriteSolutions(std::ostream& aStream)
+void ProblemInterface::WriteSolutionNorms(std::ostream& aStream)
 {
     for (int i = 0; i < mSolutionFrequencies.size(); i++)
     {
         aStream << mSolutionFrequencies[i] << "; " << mSolutionNorms[i] << std::endl;
     }
 }
+void ProblemInterface::WriteWholeSolutions(std::ostream& aStream)
+{
+    if (!cSaveWholeSolutions) throw "Whole solutions were not saved, so they can not be outputted!";
+    
+    for (int i = 0; i < mSolutions.size(); i++)
+    {
+        aStream << mSolutionFrequencies[i] << "; " << mSolutions[i] << std::endl;
+    }
+}
 
 NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(double aFrequency)
 {
-    std::cout << "Recomputing jacobian for frequency: " << aFrequency << std::endl;
     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
     NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(mDOFCountHBM, mDOFCountHBM);
@@ -269,7 +330,6 @@ NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(doub
 }
 NOX::LAPACK::Vector* ProblemInterface::CreateExcitationRHS(double aFrequency)
 {
-    std::cout << "Recomputing RHS for frequency: " << aFrequency << std::endl;
     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
     NOX::LAPACK::Vector* lReturnVector = new NOX::LAPACK::Vector(mDOFCountHBM);

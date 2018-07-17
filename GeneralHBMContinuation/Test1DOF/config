@@ -12,14 +12,14 @@ stiffness
 excitation
 
 # Number of harmonic waves
-5
+8
 
 # Min frequency
-0.4
+0.1
 
 # Max frequency
-3
+40
 
 # Number of integration points
-20
+200
 

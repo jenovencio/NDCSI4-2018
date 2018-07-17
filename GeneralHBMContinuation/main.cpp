@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <functional>
 
 #include "Teuchos_ParameterList.hpp"
 
@@ -17,6 +18,7 @@
 #include "Functions.h"
 #include "ProblemInterface.h"
 #include "Misc.h"
+#include "Nonlinearities/CubicSpring.h"
 
 int main(int argc, char **argv)
 {
@@ -37,7 +39,7 @@ int main(int argc, char **argv)
         PrintConfig(lConfig);
         
         // continuation parameters
-        int lMaxNewtonIters = 20;
+        int lMaxNewtonIters = 300;
         
         // Create parameter list
         Teuchos::RCP<Teuchos::ParameterList> paramList =
@@ -48,13 +50,13 @@ int main(int argc, char **argv)
 
         // Create the stepper sublist and set the stepper parameters
         Teuchos::ParameterList& stepperList = locaParamsList.sublist("Stepper");
-//         stepperList.set("Continuation Method", "Arc Length");// Default
-        stepperList.set("Continuation Method", "Natural");
+        stepperList.set("Continuation Method", "Arc Length");// Default
+//         stepperList.set("Continuation Method", "Natural");
         stepperList.set("Continuation Parameter", ProblemInterface::cFrequencyName);  // Must set
         stepperList.set("Initial Value", lConfig.FrequencyMin); // Must set
         stepperList.set("Min Value", lConfig.FrequencyMin);             // Must set
         stepperList.set("Max Value", lConfig.FrequencyMax);             // Must set
-        stepperList.set("Max Steps", 400);                    // Should set
+        stepperList.set("Max Steps", 10000);                    // Should set
         stepperList.set("Max Nonlinear Iterations", lMaxNewtonIters); // Should set
         stepperList.set("Compute Eigenvalues", false);        // Default
 
@@ -62,15 +64,15 @@ int main(int argc, char **argv)
         Teuchos::ParameterList& predictorList =
         locaParamsList.sublist("Predictor");
 //         predictorList.set("Method", "Secant");               // Default
-        predictorList.set("Method", "Constant");
-//         predictorList.set("Method", "Tangent");
+//         predictorList.set("Method", "Constant");
+        predictorList.set("Method", "Tangent");
 
         // Create step size sublist
         Teuchos::ParameterList& stepSizeList = locaParamsList.sublist("Step Size");
         stepSizeList.set("Method", "Adaptive");             // Default
-        stepSizeList.set("Initial Step Size", 1.0e-3);   // Should set
-        stepSizeList.set("Min Step Size", 1.0e-4);    // Should set
-        stepSizeList.set("Max Step Size", 4.0e-2);      // Should set
+        stepSizeList.set("Initial Step Size", 1.0e-4);   // Should set
+        stepSizeList.set("Min Step Size", 1.0e-5);    // Should set
+        stepSizeList.set("Max Step Size", 1e-1);      // Should set
 
         // Create the "Solver" parameters sublist to be used with NOX Solvers
         Teuchos::ParameterList& nlParams = paramList->sublist("NOX");
@@ -94,7 +96,15 @@ int main(int argc, char **argv)
 
         // Set up the problem interface
         
-        ProblemInterface lInterface(lConfig);
+        std::vector<NonlinearBase*> lNonlinearities;
+        
+        CubicSpring lCS;
+        
+        lCS.AddCubicSpring(0, 1);
+        
+        lNonlinearities.push_back(&lCS);
+        
+        ProblemInterface lInterface(lConfig, lNonlinearities, true);
         LOCA::ParameterVector p;
         p.addParameter(ProblemInterface::cFrequencyName, lConfig.FrequencyMin);
 
@@ -144,9 +154,16 @@ int main(int argc, char **argv)
 
         LOCA::destroyGlobalData(globalData);
         
-        std::ofstream lOutputFile("continuation_output" + OUT_EXTENSION);
-        lInterface.WriteSolutions(lOutputFile);
+        std::ofstream lOutputFile("continuation_output_norms" + OUT_EXTENSION);
+        lInterface.WriteSolutionNorms(lOutputFile);
         lOutputFile.close();
+        
+        std::ofstream lOutputFile2("continuation_output_raw" + OUT_EXTENSION);
+        lInterface.WriteWholeSolutions(lOutputFile2);
+        lOutputFile2.close();
+        
+//         std::cout << "Solution norms: " << std::endl;
+//         lInterface.WriteSolutionNorms(std::cout);
     }
     catch (std::string aEx)
     {

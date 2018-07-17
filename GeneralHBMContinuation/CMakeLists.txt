@@ -8,7 +8,6 @@ find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(OpenMP REQUIRED)
 
-
 set(TRILINOS_ROOT /home/jiri/Libraries/Trilinos_pytrilinos/)
 set(TRILINOS_BUILD_PACKAGES /home/jiri/Libraries/Trilinos_pytrilinos/build/packages/)
 set(PETSC_BASE /home/jiri/Libraries/PETSc/petsc-3.9.2/)
@@ -79,9 +78,7 @@ link_directories(${TRILINOS_BUILD_PACKAGES}anasazi/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src-lapack)
 
-
-
-add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp)
+add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/CubicSpring.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "HBMCont.exe")
 

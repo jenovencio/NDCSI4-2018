@@ -9,6 +9,7 @@ class ProblemInterface;
 #include "Teuchos_RCP.hpp"
 
 #include "Config.h"
+#include "Nonlinearities/NonlinearBase.h"
 
 class ProblemInterface : public LOCA::LAPACK::Interface
 {
@@ -31,7 +32,8 @@ private:
     // these values would effectively be for period T = 1
     std::vector<double> mIntPointsRelative;
     
-    double* mBProducts = nullptr;
+    std::vector<double> mBValues;
+    std::vector<double> mBProducts;
     
     NOX::LAPACK::Matrix<double> mMassMatrix;
     NOX::LAPACK::Matrix<double> mDampingMatrix;
@@ -45,22 +47,30 @@ private:
     
     std::vector<double> mSolutionFrequencies;
     std::vector<double> mSolutionNorms;
+    std::vector<NOX::LAPACK::Vector> mSolutions;
+    
+    // we won't delete this, it's up to the outside caller to delete the pointers inside the vector
+    const std::vector<NonlinearBase*> cNonlinearities;
+    
+    const bool cSaveWholeSolutions;
     
 public:
     static const std::string cFrequencyName;
     
 public:
-    ProblemInterface(const Config& aConfig);
+    ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities, bool aSaveWholeSolutions = false);
     ~ProblemInterface();
     
     virtual const NOX::LAPACK::Vector& getInitialGuess() override;
     virtual bool computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Vector& aX) override;
     virtual bool computeJacobian(NOX::LAPACK::Matrix<double>& aJ, const NOX::LAPACK::Vector& aX) override;
     virtual void setParams(const LOCA::ParameterVector& aParams) override;
+    // this one is used to actually store the solutions
     virtual void printSolution(const NOX::LAPACK::Vector& aX, const double aConParam) override;
     
     void ClearSolutions();
-    void WriteSolutions(std::ostream& aStream);
+    void WriteSolutionNorms(std::ostream& aStream);
+    void WriteWholeSolutions(std::ostream& aStream);
     
 private:
     NOX::LAPACK::Matrix<double>* CreateDynamicStiffnessMatrix(double aFrequency);
