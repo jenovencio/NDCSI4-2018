@@ -53,6 +53,7 @@ private:
     const std::vector<NonlinearBase*> cNonlinearities;
     
     const bool cSaveWholeSolutions;
+    bool mHasWholeSolutions = false;
     
 public:
     static const std::string cFrequencyName;
@@ -69,8 +70,9 @@ public:
     virtual void printSolution(const NOX::LAPACK::Vector& aX, const double aConParam) override;
     
     void ClearSolutions();
-    void WriteSolutionNorms(std::ostream& aStream);
-    void WriteWholeSolutions(std::ostream& aStream);
+    void WriteSolutionNorms(std::ostream& aStream) const;
+    void WriteWholeSolutions(std::ostream& aStream) const;
+    bool HasWholeSolutions() const;
     
 private:
     NOX::LAPACK::Matrix<double>* CreateDynamicStiffnessMatrix(double aFrequency);

@@ -5,9 +5,12 @@
 #include "NOX_LAPACK_Matrix.H"
 #include "NOX_LAPACK_Vector.H"
 #include "Config.h"
+#include "ContinuationSettings.h"
 
 Config LoadConfig(const std::string& aConfigFilePath);
 void PrintConfig(const Config& aConfig);
+ContinuationSettings LoadContinuationSettings(const std::string& aContSetFilePath);
+void PrintContinuationSettings(const ContinuationSettings& aContSettings);
 // nox lapack matrices are stored as col major      
 // Access the (i,j) entry of A
 // T& operator()(int i, int j) { return entries[i + (p*j)]; }

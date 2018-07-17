@@ -19,14 +19,14 @@ protected:
 public:
     void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount);
     // frequency domain to frequency domain
-    virtual NOX::LAPACK::Vector ComputeRHS(const NOX::LAPACK::Vector& aX, const double& aFrequency) = 0;
+    virtual NOX::LAPACK::Vector ComputeRHS(const NOX::LAPACK::Vector& aX, const double& aFrequency) const = 0;
     // frequency domain to frequency domain
-    virtual NOX::LAPACK::Matrix<double> ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) = 0;
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const = 0;
     
 protected:
-    NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, double aStep = 1e-5);
-    NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, const NOX::LAPACK::Matrix<double>& aSteps);
+    NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, double aStep = 1e-5) const;
+    NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, const NOX::LAPACK::Matrix<double>& aSteps) const;
     
     // relative time point value (considering period = 1)
-    NOX::LAPACK::Vector FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex);
+    NOX::LAPACK::Vector FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex) const;
 };

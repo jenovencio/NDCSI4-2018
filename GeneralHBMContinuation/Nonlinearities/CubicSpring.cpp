@@ -3,7 +3,7 @@
 #include "../Functions.h"
 #include "../Misc.h"
 
-NOX::LAPACK::Vector CubicSpring::ComputeRHS(const NOX::LAPACK::Vector& aX, const double& aFrequency)
+NOX::LAPACK::Vector CubicSpring::ComputeRHS(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
 {
     NOX::LAPACK::Vector lReturnVector(aX.length());
     const std::vector<double>& lIntPoints = *cIntegrationPoints;
@@ -57,7 +57,7 @@ NOX::LAPACK::Vector CubicSpring::ComputeRHS(const NOX::LAPACK::Vector& aX, const
     return lReturnVector;
 }
 
-NOX::LAPACK::Matrix<double> CubicSpring::ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency)
+NOX::LAPACK::Matrix<double> CubicSpring::ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
 {
 //     NOX::LAPACK::Matrix<double> lReturnMatrix;
 //     const std::vector<double>& lIntPoints = *cIntegrationPoints;

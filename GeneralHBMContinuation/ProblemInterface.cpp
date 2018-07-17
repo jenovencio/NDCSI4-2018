@@ -209,22 +209,28 @@ void ProblemInterface::printSolution(const NOX::LAPACK::Vector& aX, const double
     mSolutionFrequencies.push_back(aConParam);
     mSolutionNorms.push_back(lNorm);
     
-    if (cSaveWholeSolutions) mSolutions.push_back(aX);
+    if (cSaveWholeSolutions) 
+    {
+        mSolutions.push_back(aX);
+        mHasWholeSolutions = true;
+    }
 }
 void ProblemInterface::ClearSolutions()
 {
     mSolutionFrequencies.clear();
     mSolutionNorms.clear();
     mSolutions.clear();
+    
+    mHasWholeSolutions = false;
 }
-void ProblemInterface::WriteSolutionNorms(std::ostream& aStream)
+void ProblemInterface::WriteSolutionNorms(std::ostream& aStream) const
 {
     for (int i = 0; i < mSolutionFrequencies.size(); i++)
     {
         aStream << mSolutionFrequencies[i] << "; " << mSolutionNorms[i] << std::endl;
     }
 }
-void ProblemInterface::WriteWholeSolutions(std::ostream& aStream)
+void ProblemInterface::WriteWholeSolutions(std::ostream& aStream) const
 {
     if (!cSaveWholeSolutions) throw "Whole solutions were not saved, so they can not be outputted!";
     
@@ -232,6 +238,10 @@ void ProblemInterface::WriteWholeSolutions(std::ostream& aStream)
     {
         aStream << mSolutionFrequencies[i] << "; " << mSolutions[i] << std::endl;
     }
+}
+bool ProblemInterface::HasWholeSolutions() const
+{
+    return mHasWholeSolutions;
 }
 
 NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(double aFrequency)

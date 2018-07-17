@@ -17,7 +17,7 @@ void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const st
     if (lCheck != aBProducts.size()) throw "Number of harmonic coeffs does not pass the check! (second)";
 }
 
-NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, double aStep)
+NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, double aStep) const
 {
     if (aStep <= 0) throw "Step must be a positive value!";
     
@@ -30,7 +30,7 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const
         
     return ComputeJacobianFiniteDifference(aX, aRHSEval, lSteps);
 }
-NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, const NOX::LAPACK::Matrix<double>& aSteps)
+NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aRHSEval, const NOX::LAPACK::Matrix<double>& aSteps) const
 {
     int lSize = aX.length();
     NOX::LAPACK::Matrix<double> lReturnMatrix(lSize, lSize);
@@ -61,7 +61,7 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const
     return lReturnMatrix;
 }
 
-NOX::LAPACK::Vector NonlinearBase::FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex)
+NOX::LAPACK::Vector NonlinearBase::FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex) const
 {
     if (aIntegrationPointIndex < 0 || aIntegrationPointIndex >= cIntegrationPoints->size())
         throw "Invalid integration point index value!";

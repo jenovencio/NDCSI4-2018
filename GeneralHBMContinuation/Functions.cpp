@@ -1,4 +1,6 @@
 
+#include <algorithm>
+
 #include "Functions.h"
 #include "Misc.h"
 
@@ -28,6 +30,7 @@ Config LoadConfig(const std::string& aConfigFilePath)
     lReturnConfig.DampingMatrixFile = GetNextValidLine(lInputFile);
     lReturnConfig.StiffnessMatrixFile = GetNextValidLine(lInputFile);
     lReturnConfig.ExcitationForceFile = GetNextValidLine(lInputFile);
+    lReturnConfig.ContinuationSettingsFile = GetNextValidLine(lInputFile);
     
     lTempString = GetNextValidLine(lInputFile);
     lReturnConfig.HarmonicWaveCount = std::stoi(lTempString);
@@ -40,6 +43,13 @@ Config LoadConfig(const std::string& aConfigFilePath)
     
     lTempString = GetNextValidLine(lInputFile);
     lReturnConfig.IntPointCount = std::stoi(lTempString);
+    
+    lTempString = GetNextValidLine(lInputFile);
+    int lSaveWholeInt = std::stoi(lTempString);
+    
+    if (lSaveWholeInt == 1) lReturnConfig.SaveWholeSolutions = true;
+    else if (lSaveWholeInt == 0) lReturnConfig.SaveWholeSolutions = false;
+    else throw "Invalid bool flag for \"SaveWholeSolutions\", only 0 or 1 are accepted!";
     
     return lReturnConfig;
 }
@@ -56,8 +66,64 @@ void PrintConfig(const Config& aConfig)
     std::cout << "Damping matrix file: " << aConfig.DampingMatrixFile << std::endl;
     std::cout << "Stiffness matrix file: " << aConfig.StiffnessMatrixFile << std::endl;
     std::cout << "Excitation force file: " << aConfig.ExcitationForceFile << std::endl;
+    std::cout << "Save whole solutions: " << (aConfig.SaveWholeSolutions ? "true" : "false") << std::endl;
     std::cout << BORDER << std::endl;
 }
+ContinuationSettings LoadContinuationSettings(const std::string& aContSetFilePath)
+{
+    std::ifstream lInputFile(aContSetFilePath);
+    if (!lInputFile.is_open()) throw std::string("Unable to open file \"" + aContSetFilePath + "\"!");
+    
+    std::string lTempString;
+    ContinuationSettings lReturnSettings;
+    
+    int MaxStepsContinuation;
+    int MaxStepsNewton;
+    double StepSizeInitial;
+    double StepSizeMin;
+    double StepSizeMax;
+    
+    std::string PredictorType; // secant, constant, tangent
+    
+    
+    lTempString = GetNextValidLine(lInputFile);
+    lReturnSettings.MaxStepsContinuation = std::stoi(lTempString);
+    
+    lTempString = GetNextValidLine(lInputFile);
+    lReturnSettings.MaxStepsNewton = std::stoi(lTempString);
+    
+    lTempString = GetNextValidLine(lInputFile);
+    lReturnSettings.StepSizeInitial = std::stod(lTempString);
+    
+    lTempString = GetNextValidLine(lInputFile);
+    lReturnSettings.StepSizeMin = std::stod(lTempString);
+    
+    lTempString = GetNextValidLine(lInputFile);
+    lReturnSettings.StepSizeMax = std::stod(lTempString);
+        
+    lTempString = GetNextValidLine(lInputFile);
+    
+    if (! (lTempString == "Constant" || lTempString == "Tangent" || lTempString == "Secant")) 
+        throw "Invalid predictor option! Valid strings (case sensitive): Constant, Tangent, Secant";
+    
+    lReturnSettings.PredictorType = lTempString;
+    
+    return lReturnSettings;
+}
+
+void PrintContinuationSettings(const ContinuationSettings& aContSettings)
+{
+    std::cout << BORDER << std::endl;
+    std::cout << "Continuation settings: " << std::endl;
+    std::cout << "Max continuation steps: " << aContSettings.MaxStepsContinuation << std::endl;
+    std::cout << "Max newton steps: " << aContSettings.MaxStepsNewton << std::endl;
+    std::cout << "Init step: " << aContSettings.StepSizeInitial << std::endl;
+    std::cout << "Min step: " << aContSettings.StepSizeMin << std::endl;
+    std::cout << "Max step: " << aContSettings.StepSizeMax << std::endl;
+    std::cout << "Predictor type: " << aContSettings.PredictorType << std::endl;
+    std::cout << BORDER << std::endl;
+}
+
 NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, int& aDim)
 {
     std::ifstream lInputFile(aFilePath);
