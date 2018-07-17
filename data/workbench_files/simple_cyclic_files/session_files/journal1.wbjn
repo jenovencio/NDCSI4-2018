@@ -1,0 +1,54 @@
+﻿# encoding: utf-8
+# Release 18.1
+SetScriptVersion(Version="18.1.463")
+template1 = GetTemplate(TemplateName="Geometry")
+system1 = template1.CreateSystem()
+geometry1 = system1.GetContainer(ComponentName="Geometry")
+geometry1.Edit()
+Save(Overwrite=True)
+Save(Overwrite=True)
+geometry1.Exit()
+Save(Overwrite=True)
+template2 = GetTemplate(
+    TemplateName="Modal",
+    Solver="ANSYS")
+geometryComponent1 = system1.GetComponent(Name="Geometry")
+system2 = template2.CreateSystem(
+    ComponentsToShare=[geometryComponent1],
+    Position="Right",
+    RelativeTo=system1)
+modelComponent1 = system2.GetComponent(Name="Model")
+modelComponent1.Refresh()
+model1 = system2.GetContainer(ComponentName="Model")
+model1.Edit()
+model1.Exit()
+template3 = GetTemplate(TemplateName="ICEMCFD")
+system3 = template3.CreateSystem(
+    Position="Right",
+    RelativeTo=system2)
+iCMComponent1 = system3.GetComponent(Name="ICM")
+modelComponent1.TransferData(TargetComponent=iCMComponent1)
+iCM1 = system3.GetContainer(ComponentName="ICM")
+iCM1.Open()
+ICEMCFD.Refresh(Container=iCM1)
+Save(Overwrite=True)
+iCM1.Open()
+ICEMCFD.Refresh(Container=iCM1)
+iCMComponent1.Refresh()
+model1.Edit()
+modelComponent1.Update(AllDependencies=True)
+iCMComponent1.Refresh()
+iCMComponent1.Update(AllDependencies=True)
+Save(Overwrite=True)
+system4 = template3.CreateSystem(
+    Position="Right",
+    RelativeTo=system3)
+iCM2 = system4.GetContainer(ComponentName="ICM")
+iCM2.Open()
+ICEMCFD.Refresh(Container=iCM2)
+iCMComponent2 = system4.GetComponent(Name="ICM")
+iCMComponent2.Reset()
+iCM2.Open()
+ICEMCFD.Refresh(Container=iCM2)
+Save(Overwrite=True)
+Save(Overwrite=True)
