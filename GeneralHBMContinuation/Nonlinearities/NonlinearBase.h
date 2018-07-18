@@ -24,8 +24,11 @@ private:
     bool mIsFinalised = false;
     bool mIsInitialised = false;
     
+    int mDofCountTimeDomain;
+    
 public:
-    void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount);
+    // the aDofCountTimeDomain argument was added for the derived classes, in case they need it. We don't really need it here
+    virtual void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain);
     // frequency domain to frequency domain
     NOX::LAPACK::Vector ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
     // frequency domain to frequency domain
@@ -37,6 +40,7 @@ public:
     // the point of this mechanism
     void Finalise();
     bool IsFinalised() const;
+    int DofCountTimeDomain();
     
 protected:
     // time domain to time domain

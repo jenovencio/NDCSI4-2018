@@ -104,7 +104,7 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     // also finalise them
     for (int i = 0; i < cNonlinearities.size(); i++)
     {
-        cNonlinearities[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount);
+        cNonlinearities[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
         cNonlinearities[i]->Finalise();
     }
     

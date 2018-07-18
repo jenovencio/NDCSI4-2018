@@ -15,6 +15,8 @@ void PrintContinuationSettings(const ContinuationSettings& aContSettings);
 // Access the (i,j) entry of A
 // T& operator()(int i, int j) { return entries[i + (p*j)]; }
 NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, int& aDim);
+// loads sparse matrix from a file
+NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath, int& aDim);
 // aCheckHarmCount - total number of harmonic coefficients per physical dof
 std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount);
 // skips comment lines and returns the next valid (non comment) line in the file

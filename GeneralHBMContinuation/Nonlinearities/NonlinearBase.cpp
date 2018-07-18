@@ -3,7 +3,7 @@
 #include "../Functions.h"
 #include "../Misc.h"
 
-void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount)
+void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
 {
     cIntegrationPoints = &aIntegrationPoints;
     cBValues = &aBValues;
@@ -18,6 +18,8 @@ void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const st
     if (lCheck != aBProducts.size()) throw "Number of harmonic coeffs does not pass the check! (second)";
     
     mIsInitialised = true;
+    
+    mDofCountTimeDomain = aDofCountTimeDomain;
 }
 
 // frequency domain to frequency domain
@@ -165,6 +167,10 @@ void NonlinearBase::Finalise()
 bool NonlinearBase::IsFinalised() const
 {
     return mIsFinalised;
+}
+int NonlinearBase::DofCountTimeDomain()
+{
+    return mDofCountTimeDomain;
 }
 
 NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aFEval, double aStep) const

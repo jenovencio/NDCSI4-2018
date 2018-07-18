@@ -25,6 +25,12 @@ int main(int argc, char **argv)
 {
     try
     {
+        int lDim;
+        auto lMat = LoadSquareMatrixSparse("testMat", lDim);
+        std::cout << lMat << std::endl;
+        
+        return 0;
+        
         std::string lConfigPath = "config";
         if (argc >= 2) // first argument is always the name of the exe
         {

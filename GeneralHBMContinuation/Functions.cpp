@@ -153,6 +153,42 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, int& 
     
     return lReturnMatrix;
 }
+NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath, int& aDim)
+{
+    std::ifstream lInputFile(aFilePath);
+    if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
+    
+    int lDim;
+    lInputFile >> lDim;
+    
+    aDim = lDim;
+        
+    NOX::LAPACK::Matrix<double> lReturnMatrix(lDim, lDim);
+    
+    int lRow;
+    int lCol;
+    double lValue;
+    
+    int lEntryNumber = 0;
+    
+    do
+    {
+        lInputFile >> lRow;
+        lInputFile >> lCol;
+        
+        if (lRow < 0 || lRow >= lDim) throw "Invalid row value! (entry number " + std::to_string(lEntryNumber) + ")";
+        if (lCol < 0 || lCol >= lDim) throw "Invalid col value! (entry number " + std::to_string(lEntryNumber) + ")";
+        
+        lInputFile >> lValue;
+        
+        lReturnMatrix(lRow, lCol) = lValue;
+        
+        lEntryNumber++;
+    }
+    while (!lInputFile.eof());
+    
+    return lReturnMatrix;
+}
 std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount)
 {
     std::ifstream lInputFile(aFilePath);
