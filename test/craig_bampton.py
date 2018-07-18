@@ -94,6 +94,8 @@ Kii_stress = read_calculix.read_matrix(interface_K_stress_file)
 
 K_stress = assemble_K_stress(K_global,Kii_stress,local2global_dict)
 K_stress_sym = 0.5*(K_stress + K_stress.T) 
-T = amfe.craig_bampton(M_global, K_stress_sym, np.array(boundary_dofs), no_of_modes=5, one_basis=True)
+master_dofs, slave_dofs = boundary_dofs, interior_dofs
+
+T = amfe.craig_bampton(M_global, K_stress_sym, master_dofs, slave_dofs, no_of_modes=5, one_basis=True)
 
 T.shape
