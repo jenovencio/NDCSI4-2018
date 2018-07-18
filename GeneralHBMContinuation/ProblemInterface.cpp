@@ -100,9 +100,12 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     }
     mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
     
+    // initialise nonlinearities with date from this class
+    // also finalise them
     for (int i = 0; i < cNonlinearities.size(); i++)
     {
         cNonlinearities[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount);
+        cNonlinearities[i]->Finalise();
     }
     
     std::cout << "Problem interface successfully initialised" << std::endl;
@@ -158,7 +161,7 @@ bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Ve
         
     for (int iNonlin = 0; iNonlin < cNonlinearities.size(); iNonlin++)
     {
-        NOX::LAPACK::Vector lNonlinContrib = cNonlinearities[iNonlin]->ComputeRHS(aX, mFrequency);
+        NOX::LAPACK::Vector lNonlinContrib = cNonlinearities[iNonlin]->ComputeF(aX, mFrequency);
         
         for (int i = 0; i < aRhs.length(); i++)
             aRhs(i) += lNonlinContrib(i);

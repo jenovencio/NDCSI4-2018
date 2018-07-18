@@ -24,7 +24,7 @@ continuation_settings
 20
 
 # Number of integration points
-120
+10
 
 # Store whole solutions
 0
