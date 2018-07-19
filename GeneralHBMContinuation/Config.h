@@ -11,9 +11,12 @@ public:
     std::string ConfigFilePath;
     std::string ConfigFileName;
     // relative paths with respect to the config path
-    std::string MassMatrixFilePath;
-    std::string StiffnessMatrixFile;
+    std::string MassMatrixFile;
+    std::string MassMatrixType; // full or sparse
     std::string DampingMatrixFile;
+    std::string DampingMatrixType; // full or sparse
+    std::string StiffnessMatrixFile;
+    std::string StiffnessMatrixType; // full or sparse
     std::string ExcitationForceFile;
     std::string ContinuationSettingsFile;
     

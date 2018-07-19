@@ -12,10 +12,11 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
  : cHarmonicCount(2 * aConfig.HarmonicWaveCount - 1), cNonlinearities(aNonlinearities), cSaveWholeSolutions(aSaveWholeSolutions)
 {
     int lDummy;
-    mMassMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrixFilePath, mDOFCount);
-    mDampingMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrixFile, lDummy);
+    
+    mMassMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrixFile, aConfig.MassMatrixType, mDOFCount);
+    mDampingMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrixFile, aConfig.DampingMatrixType, lDummy);
     if (mDOFCount != lDummy) throw "Mass and damping matrices have different dimensions!";
-    mStiffnessMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrixFile, lDummy);
+    mStiffnessMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrixFile, aConfig.StiffnessMatrixType, lDummy);
     if (mDOFCount != lDummy) throw "Mass and stiffness matrices have different dimensions!";
     
     // ensure it's a negative value, so the function fills it with the value from the file

@@ -26,9 +26,18 @@ Config LoadConfig(const std::string& aConfigFilePath)
         lReturnConfig.ConfigFileName = aConfigFilePath.substr(lSeparator + 1, aConfigFilePath.size() - lSeparator - 1);
     }
     
-    lReturnConfig.MassMatrixFilePath = GetNextValidLine(lInputFile);
+    lReturnConfig.MassMatrixFile = GetNextValidLine(lInputFile);
+    lReturnConfig.MassMatrixType = GetNextValidLine(lInputFile);
+    CheckMatrixType(lReturnConfig.MassMatrixType);
+    
     lReturnConfig.DampingMatrixFile = GetNextValidLine(lInputFile);
+    lReturnConfig.DampingMatrixType = GetNextValidLine(lInputFile);
+    CheckMatrixType(lReturnConfig.DampingMatrixType);
+    
     lReturnConfig.StiffnessMatrixFile = GetNextValidLine(lInputFile);
+    lReturnConfig.StiffnessMatrixType = GetNextValidLine(lInputFile);
+    CheckMatrixType(lReturnConfig.StiffnessMatrixType);
+    
     lReturnConfig.ExcitationForceFile = GetNextValidLine(lInputFile);
     lReturnConfig.ContinuationSettingsFile = GetNextValidLine(lInputFile);
     
@@ -62,9 +71,9 @@ void PrintConfig(const Config& aConfig)
     std::cout << "Harmonic waves count: " << aConfig.HarmonicWaveCount << std::endl;
     std::cout << "Frequency range: <" << aConfig.FrequencyMin << ", " << aConfig.FrequencyMax << ">" << std::endl;
     std::cout << "Number of time integration points: " << aConfig.IntPointCount << std::endl;
-    std::cout << "Mass matrix file: " << aConfig.MassMatrixFilePath << std::endl;
-    std::cout << "Damping matrix file: " << aConfig.DampingMatrixFile << std::endl;
-    std::cout << "Stiffness matrix file: " << aConfig.StiffnessMatrixFile << std::endl;
+    std::cout << "Mass      matrix file: " << aConfig.MassMatrixFile << " (" << aConfig.MassMatrixType << ")" << std::endl;
+    std::cout << "Damping   matrix file: " << aConfig.DampingMatrixFile << " (" << aConfig.DampingMatrixType << ")" << std::endl;
+    std::cout << "Stiffness matrix file: " << aConfig.StiffnessMatrixFile << " (" << aConfig.StiffnessMatrixType << ")" << std::endl;
     std::cout << "Excitation force file: " << aConfig.ExcitationForceFile << std::endl;
     std::cout << "Save whole solutions: " << (aConfig.SaveWholeSolutions ? "true" : "false") << std::endl;
     std::cout << BORDER << std::endl;
@@ -124,7 +133,7 @@ void PrintContinuationSettings(const ContinuationSettings& aContSettings)
     std::cout << BORDER << std::endl;
 }
 
-NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, int& aDim)
+NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, int& aDim)
 {
     std::ifstream lInputFile(aFilePath);
     if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
@@ -189,6 +198,14 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath,
     
     return lReturnMatrix;
 }
+NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, const std::string& aMatrixType, int& aDim)
+{
+    if (aMatrixType == FULL_STRING)
+        return LoadSquareMatrixFull(aFilePath, aDim);
+    else if (aMatrixType == SPARSE_STRING)
+        return LoadSquareMatrixSparse(aFilePath, aDim);
+    else throw "Unknown matrix type: " + aMatrixType + " for file \"" + aFilePath + "\"!";
+}
 std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount)
 {
     std::ifstream lInputFile(aFilePath);
@@ -231,4 +248,10 @@ std::string GetNextValidLine(std::ifstream& aFile)
     }
     
     return lReturnValue;
+}
+
+void CheckMatrixType(const std::string& aType)
+{
+    if (aType != FULL_STRING && aType != SPARSE_STRING)
+        throw "String \"" + aType + "\" is not a valid matrix type! Valid types are: " + FULL_STRING + ", " + SPARSE_STRING;
 }

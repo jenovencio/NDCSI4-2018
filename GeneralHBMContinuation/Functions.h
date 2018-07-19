@@ -14,9 +14,10 @@ void PrintContinuationSettings(const ContinuationSettings& aContSettings);
 // nox lapack matrices are stored as col major      
 // Access the (i,j) entry of A
 // T& operator()(int i, int j) { return entries[i + (p*j)]; }
-NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, int& aDim);
+NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, int& aDim);
 // loads sparse matrix from a file
 NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath, int& aDim);
+NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, const std::string& aMatrixType, int& aDim);
 // aCheckHarmCount - total number of harmonic coefficients per physical dof
 std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount);
 // skips comment lines and returns the next valid (non comment) line in the file
@@ -40,3 +41,4 @@ inline int GetBProductIndex(const int& aBIndex1, const int& aBIndex2, const int&
 {
     return (aBIndex1 * aHarmonicCount + aBIndex2) * aIntPointCount + aIntPointIndex;
 }
+void CheckMatrixType(const std::string& aType);

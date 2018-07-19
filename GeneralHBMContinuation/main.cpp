@@ -54,7 +54,7 @@ int main(int argc, char **argv)
         
         ContinuationWrapper lCont;
         
-        lCont.Init(lConfigPath, lNonlinearities);
+        lCont.Init(lConfigPath);
         
         auto lStatus = lCont.RunContinuation();
         

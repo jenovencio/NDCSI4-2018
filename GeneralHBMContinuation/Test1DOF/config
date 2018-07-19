@@ -1,12 +1,15 @@
 
-# Mass matrix file path
+# Mass matrix file path and type (full or sparse)
 mass
+full
 
-# Damping matrix file path
+# Damping matrix file path and type (full or sparse)
 damping
+full
 
-# Stiffness matrix file path
+# Stiffness matrix file path and type (full or sparse)
 stiffness
+full
 
 # Excitation force file path
 excitation
