@@ -8,7 +8,10 @@ struct CubicSpringDef;
 struct CubicSpringDef
 {
 public:
-    int DofIndex;
+    // a cubic spring between two dofs
+    // if one of the dofs is set to -1, the spring is considered to be grounded on that side
+    int Dof1Index;
+    int Dof2Index;
     double StiffnessCoeff;
 };
 
@@ -31,6 +34,6 @@ protected:
     
 public:
     void AddCubicSpring(const CubicSpringDef& aDef);
-    void AddCubicSpring(const int& aDofIndex, const double& aStiffnessCoeff);
+    void AddCubicSpring(const int& aDofIndex, const int& aDof2Index, const double& aStiffnessCoeff);
     void ClearSprings();
 };

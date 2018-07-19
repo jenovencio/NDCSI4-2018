@@ -11,6 +11,13 @@ class NonlinearBase;
 
 class NonlinearBase
 {
+    // LIFTIME of this class:
+    // 1) create
+    // 2) initialise
+    // 3) make modifications
+    // 4) finalise
+    // 5) use, don't make any more modifications
+    
 private:
     // indices of nonlinear dofs in time domain, not to be touched outside the Init and Finalise methods,
     // 
@@ -24,6 +31,7 @@ private:
     bool mIsFinalised = false;
     bool mIsInitialised = false;
     
+    // this is set in the Init call, do not touch it elswhere!
     int mDofCountTimeDomain;
     
 public:

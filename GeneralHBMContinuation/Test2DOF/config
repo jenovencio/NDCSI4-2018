@@ -1,0 +1,30 @@
+
+# Mass matrix file path
+mass
+
+# Damping matrix file path
+damping
+
+# Stiffness matrix file path
+stiffness
+
+# Excitation force file path
+excitation
+
+# Continuation settings file path
+continuation_settings
+
+# Number of harmonic waves
+2
+
+# Min frequency
+0.1
+
+# Max frequency
+20
+
+# Number of integration points
+40
+
+# Store whole solutions
+0

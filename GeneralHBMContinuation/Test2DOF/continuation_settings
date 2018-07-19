@@ -1,6 +1,6 @@
 
 # Max continuation steps
-10000
+100000
 
 # Max newton steps
 300

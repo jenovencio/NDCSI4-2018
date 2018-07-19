@@ -5,6 +5,8 @@
 
 void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
 {
+    if (mIsInitialised) throw "This nonlinearity has already been initialised, can not initialise again!";
+    
     cIntegrationPoints = &aIntegrationPoints;
     cBValues = &aBValues;
     cBProducts = &aBProducts;
@@ -158,11 +160,21 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
 }
 void NonlinearBase::Finalise()
 {
+    if (!mIsInitialised) throw "This nonlinearity has not yet been initialised. Initialise first before calling finalise!";
     if (mIsFinalised) return;
     mIsFinalised = true;
     
     // this is the final time this gets executed
     mNonzeroFPositions = NonzeroFPositions();
+    
+    // check dof validity
+    for (int iDof = 0; iDof < mNonzeroFPositions.size(); iDof++)
+    {
+        int lDof = mNonzeroFPositions[iDof];
+        if (lDof < 0) throw "Dof index can not be negative!";
+        // we can do this check here because at this point the object is already initialised
+        if (lDof >= mDofCountTimeDomain) throw "Dof index (" + std::to_string(lDof) + ") exceeds the size of the problem! (" + std::to_string(mDofCountTimeDomain) + ")";
+    }
 }
 bool NonlinearBase::IsFinalised() const
 {
