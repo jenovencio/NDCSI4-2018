@@ -46,12 +46,7 @@ int main(int argc, char **argv)
         {
             std::cout << "No output path specified, using the default: \"" << lOutputPath << "\"" << std::endl;
         }
-        
-        std::vector<NonlinearBase*> lNonlinearities;
-        CubicSpring lCS;
-        lCS.AddCubicSpring(0, 1, 1);
-        lNonlinearities.push_back(&lCS);
-        
+                
         ContinuationWrapper lCont;
         
         lCont.Init(lConfigPath);

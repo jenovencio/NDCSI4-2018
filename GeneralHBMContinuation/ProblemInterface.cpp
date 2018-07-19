@@ -140,7 +140,7 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     std::cout << "Number of physical DOFs: " << mDOFCount << std::endl;
     std::cout << "Total number of DOFs: " << mDOFCountHBM << std::endl;
     std::cout << "Number of nonlinearities loaded from files: " << lNonlinDef.size() << std::endl;
-    std::cout << "Number of nonlinearities added from an external code: " << cNonlinearitiesOuter.size() << std::endl;
+    std::cout << "Number of nonlinearities added from external code: " << cNonlinearitiesOuter.size() << std::endl;
     std::cout << "Total number of nonlinearities: " << mNonlinearities.size() << std::endl;
     std::cout << BORDER << std::endl;
 }

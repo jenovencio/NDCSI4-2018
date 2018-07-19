@@ -7,7 +7,7 @@ void NonlinearBase::LoadFromFile(const std::string& aFilePath)
 {
     std::string lTypeName = typeid(this).name();
     
-    throw "The nonlinearity type \"" + lTypeName + "\" does not support loading from a file!";
+    throw "Can not load a nonlinearity from file \"" + aFilePath + "\"! This class does not support loading from files.";
 }
 
 void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)

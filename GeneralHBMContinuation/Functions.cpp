@@ -248,8 +248,6 @@ std::vector<NonlinearityDefinition> LoadNonlinearitiesDefinitions(const std::str
     std::ifstream lInputFile(aFilePath);
     if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
     
-    std::cout << "Opened file: " << aFilePath << std::endl;
-    
     std::vector<NonlinearityDefinition> lReturnVector;
     
     while (!lInputFile.eof())
@@ -271,7 +269,6 @@ std::vector<NonlinearityDefinition> LoadNonlinearitiesDefinitions(const std::str
     }
     
     lInputFile.close();
-    std::cout << "Closed file: " << aFilePath << std::endl;
     
     return lReturnVector;
 }
