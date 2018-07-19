@@ -35,6 +35,7 @@ private:
     int mDofCountTimeDomain;
     
 public:
+    virtual void LoadFromFile(const std::string& aFilePath);
     // the aDofCountTimeDomain argument was added for the derived classes, in case they need it. We don't really need it here
     virtual void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain);
     // frequency domain to frequency domain

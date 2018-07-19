@@ -1,8 +1,10 @@
 
 #include <algorithm>
+#include <string>
 
 #include "Functions.h"
 #include "Misc.h"
+#include "Nonlinearities/NonlinearitiesFactory.h"
 
 Config LoadConfig(const std::string& aConfigFilePath)
 {
@@ -28,18 +30,19 @@ Config LoadConfig(const std::string& aConfigFilePath)
     
     lReturnConfig.MassMatrixFile = GetNextValidLine(lInputFile);
     lReturnConfig.MassMatrixType = GetNextValidLine(lInputFile);
-    CheckMatrixType(lReturnConfig.MassMatrixType);
+    CheckString(lReturnConfig.MassMatrixType, C_MatrixTypes, "Matrix type");
     
     lReturnConfig.DampingMatrixFile = GetNextValidLine(lInputFile);
     lReturnConfig.DampingMatrixType = GetNextValidLine(lInputFile);
-    CheckMatrixType(lReturnConfig.DampingMatrixType);
+    CheckString(lReturnConfig.DampingMatrixType, C_MatrixTypes, "Matrix type");
     
     lReturnConfig.StiffnessMatrixFile = GetNextValidLine(lInputFile);
     lReturnConfig.StiffnessMatrixType = GetNextValidLine(lInputFile);
-    CheckMatrixType(lReturnConfig.StiffnessMatrixType);
+    CheckString(lReturnConfig.StiffnessMatrixType, C_MatrixTypes, "Matrix type");
     
     lReturnConfig.ExcitationForceFile = GetNextValidLine(lInputFile);
     lReturnConfig.ContinuationSettingsFile = GetNextValidLine(lInputFile);
+    lReturnConfig.NonlinearitiesFile = GetNextValidLine(lInputFile);
     
     lTempString = GetNextValidLine(lInputFile);
     lReturnConfig.HarmonicWaveCount = std::stoi(lTempString);
@@ -63,7 +66,7 @@ Config LoadConfig(const std::string& aConfigFilePath)
     return lReturnConfig;
 }
 void PrintConfig(const Config& aConfig)
-{   
+{
     std::cout << BORDER << std::endl;
     std::cout << "Config: " << std::endl;
     std::cout << "Config path: " << aConfig.ConfigFilePath << std::endl;
@@ -75,6 +78,7 @@ void PrintConfig(const Config& aConfig)
     std::cout << "Damping   matrix file: " << aConfig.DampingMatrixFile << " (" << aConfig.DampingMatrixType << ")" << std::endl;
     std::cout << "Stiffness matrix file: " << aConfig.StiffnessMatrixFile << " (" << aConfig.StiffnessMatrixType << ")" << std::endl;
     std::cout << "Excitation force file: " << aConfig.ExcitationForceFile << std::endl;
+    std::cout << "Nonlinearities file: " << aConfig.NonlinearitiesFile << std::endl;
     std::cout << "Save whole solutions: " << (aConfig.SaveWholeSolutions ? "true" : "false") << std::endl;
     std::cout << BORDER << std::endl;
 }
@@ -160,6 +164,8 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, i
         }
     }
     
+    lInputFile.close();
+    
     return lReturnMatrix;
 }
 NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath, int& aDim)
@@ -180,7 +186,7 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath,
     
     int lEntryNumber = 0;
     
-    do
+    while (!lInputFile.eof())
     {
         lInputFile >> lRow;
         lInputFile >> lCol;
@@ -194,7 +200,8 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath,
         
         lEntryNumber++;
     }
-    while (!lInputFile.eof());
+    
+    lInputFile.close();
     
     return lReturnMatrix;
 }
@@ -232,26 +239,106 @@ std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim,
         }
     }
     
+    lInputFile.close();
+    
+    return lReturnVector;
+}
+std::vector<NonlinearityDefinition> LoadNonlinearitiesDefinitions(const std::string& aFilePath)
+{
+    std::ifstream lInputFile(aFilePath);
+    if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
+    
+    std::cout << "Opened file: " << aFilePath << std::endl;
+    
+    std::vector<NonlinearityDefinition> lReturnVector;
+    
+    while (!lInputFile.eof())
+    {
+        std::string lFile = GetNextValidLine(lInputFile);
+        
+        // hack to deal with an empty file
+        if (lFile == "" && lInputFile.eof()) break;
+        
+        std::string lType = GetNextValidLine(lInputFile);
+        
+        CheckString(lType, C_NonlinearitiesFactory, "Nonlinearity type");
+        
+        NonlinearityDefinition lDef;
+        lDef.File = lFile;
+        lDef.Type = lType;
+        
+        lReturnVector.push_back(lDef);
+    }
+    
+    lInputFile.close();
+    std::cout << "Closed file: " << aFilePath << std::endl;
+    
     return lReturnVector;
 }
 std::string GetNextValidLine(std::ifstream& aFile)
 {
     std::string lReturnValue = "";
     
-    bool lIsComment = true;
+    bool lSkipLine = true;
     
-    while (lIsComment)
+    while (lSkipLine && !aFile.eof())
     {
-        lIsComment = false;
+        lSkipLine = false;
         std::getline(aFile, lReturnValue);
-        if (lReturnValue.size() == 0 || lReturnValue[0] == '#') lIsComment = true;
+        if (lReturnValue.size() == 0 || lReturnValue[0] == '#') lSkipLine = true;
     }
     
     return lReturnValue;
 }
 
-void CheckMatrixType(const std::string& aType)
+void CheckString(const std::string& aString, const std::vector<std::string>& aPossibilities, const std::string& aGroupName)
 {
-    if (aType != FULL_STRING && aType != SPARSE_STRING)
-        throw "String \"" + aType + "\" is not a valid matrix type! Valid types are: " + FULL_STRING + ", " + SPARSE_STRING;
+    bool lIsIn = std::find(aPossibilities.begin(), aPossibilities.end(), aString) != aPossibilities.end();
+    
+    if (!lIsIn)
+    {
+        std::stringstream lStringBuilder;
+        lStringBuilder << "Value \"" + aString + "\" is not a valid option for \"" + aGroupName + "\"! Valid options are: " << std::endl;
+        
+        if (aPossibilities.size() == 0) lStringBuilder << " none (you are fucked)";
+        
+        for (int i = 0; i < aPossibilities.size(); i++)
+        {
+            lStringBuilder << aPossibilities[i];
+            if (i < aPossibilities.size() - 1)
+                lStringBuilder << ", ";
+        }
+        
+        lStringBuilder << std::endl;
+        
+        throw lStringBuilder.str();
+    }
+}
+
+template <class T>
+void CheckString(const std::string& aString, const std::map<std::string, T>& aPossibilities, const std::string& aGroupName)
+{
+    bool lIsIn = aPossibilities.find(aString) != aPossibilities.end();
+    
+    if (!lIsIn)
+    {
+        std::stringstream lStringBuilder;
+        lStringBuilder << "Value \"" + aString + "\" is not a valid option for \"" + aGroupName + "\"! Valid options are: " << std::endl;
+        
+        if (aPossibilities.size() == 0) lStringBuilder << " none (you are fucked)";
+        
+        int lCount = 0;
+        for (auto nIt = aPossibilities.begin(); nIt != aPossibilities.end(); nIt++)
+        {
+            lStringBuilder << nIt->first;
+            if (lCount < aPossibilities.size() - 1)
+                lStringBuilder << ", ";
+            
+            lCount++;
+        }
+        
+        lStringBuilder << std::endl;
+        
+        throw lStringBuilder.str();
+    }
 }

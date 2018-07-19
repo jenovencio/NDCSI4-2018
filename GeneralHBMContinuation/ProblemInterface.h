@@ -49,8 +49,16 @@ private:
     std::vector<double> mSolutionNorms;
     std::vector<NOX::LAPACK::Vector> mSolutions;
     
-    // we won't delete this, it's up to the outside caller to delete the pointers inside the vector
-    const std::vector<NonlinearBase*> cNonlinearities;
+    // nonlinearities coming from the "outside" (from the constructor)
+    // defined in the outer code
+    // we won't delete this (the pointers inside the vector),
+    // it's up to the outside caller to delete the pointers
+    const std::vector<NonlinearBase*> cNonlinearitiesOuter;
+    // nonlinearities from the "inside", loaded from files specified in the provided config
+    // we will delete these pointers because they will be created inside this class
+    std::vector<NonlinearBase*> mNonlinearitiesInner;
+    // all nonlinearities, outer and inner combined
+    std::vector<NonlinearBase*> mNonlinearities;
     
     const bool cSaveWholeSolutions;
     bool mHasWholeSolutions = false;

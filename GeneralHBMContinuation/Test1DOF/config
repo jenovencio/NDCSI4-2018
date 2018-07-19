@@ -17,6 +17,9 @@ excitation
 # Continuation settings file path
 continuation_settings
 
+# Nonlinearities definitions file
+nonlinearities
+
 # Number of harmonic waves
 2
 

@@ -3,9 +3,17 @@
 #include "../Functions.h"
 #include "../Misc.h"
 
+void NonlinearBase::LoadFromFile(const std::string& aFilePath)
+{
+    std::string lTypeName = typeid(this).name();
+    
+    throw "The nonlinearity type \"" + lTypeName + "\" does not support loading from a file!";
+}
+
 void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
 {
     if (mIsInitialised) throw "This nonlinearity has already been initialised, can not initialise again!";
+    if (mIsFinalised) throw "This nonlinearity has already been finalised! Fix the way you treat the object. It first needs to be initialised, then finalised!";
     
     cIntegrationPoints = &aIntegrationPoints;
     cBValues = &aBValues;

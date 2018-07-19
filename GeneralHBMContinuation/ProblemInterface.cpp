@@ -5,11 +5,12 @@
 #include "ProblemInterface.h"
 #include "Functions.h"
 #include "Misc.h"
+#include "Nonlinearities/NonlinearitiesFactory.h"
 
 const std::string ProblemInterface::cFrequencyName = "frequency";
 
 ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities, bool aSaveWholeSolutions)
- : cHarmonicCount(2 * aConfig.HarmonicWaveCount - 1), cNonlinearities(aNonlinearities), cSaveWholeSolutions(aSaveWholeSolutions)
+ : cHarmonicCount(2 * aConfig.HarmonicWaveCount - 1), cNonlinearitiesOuter(aNonlinearities), cSaveWholeSolutions(aSaveWholeSolutions)
 {
     int lDummy;
     
@@ -101,12 +102,36 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     }
     mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
     
-    // initialise nonlinearities with date from this class
+    // initialise the outer nonlinearities with data from this class
     // also finalise them
-    for (int i = 0; i < cNonlinearities.size(); i++)
+    for (int i = 0; i < cNonlinearitiesOuter.size(); i++)
     {
-        cNonlinearities[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
-        cNonlinearities[i]->Finalise();
+        cNonlinearitiesOuter[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
+        cNonlinearitiesOuter[i]->Finalise();
+        
+        // add the outer nonlinearity into the "all nonlinearities" vector
+        mNonlinearities.push_back(cNonlinearitiesOuter[i]);
+    }
+    
+    // load and init the nonlinearities from files (specified in the config)
+    
+    std::vector<NonlinearityDefinition> lNonlinDef = LoadNonlinearitiesDefinitions(aConfig.ConfigFilePath + "/" + aConfig.NonlinearitiesFile);
+    
+    for (int i = 0; i < lNonlinDef.size(); i++)
+    {
+        std::string lFilePath = lNonlinDef[i].File;
+        std::string lType = lNonlinDef[i].Type;
+        
+        NonlinearBase* lNewNonlin = C_NonlinearitiesFactory.at(lType)();
+        
+        lNewNonlin->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
+        lNewNonlin->LoadFromFile(lFilePath);
+        lNewNonlin->Finalise();
+        
+        mNonlinearitiesInner.push_back(lNewNonlin);
+        
+        // add the inner nonlinearity into the "all nonlinearities" vector
+        mNonlinearities.push_back(lNewNonlin);
     }
     
     std::cout << "Problem interface successfully initialised" << std::endl;
@@ -114,6 +139,9 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     std::cout << "Problem: " << std::endl;
     std::cout << "Number of physical DOFs: " << mDOFCount << std::endl;
     std::cout << "Total number of DOFs: " << mDOFCountHBM << std::endl;
+    std::cout << "Number of nonlinearities loaded from files: " << lNonlinDef.size() << std::endl;
+    std::cout << "Number of nonlinearities added from an external code: " << cNonlinearitiesOuter.size() << std::endl;
+    std::cout << "Total number of nonlinearities: " << mNonlinearities.size() << std::endl;
     std::cout << BORDER << std::endl;
 }
 
@@ -123,6 +151,10 @@ ProblemInterface::~ProblemInterface()
         delete mDynamicStiffnessMatrix;
     if (mExcitationRHS != nullptr)
         delete mExcitationRHS;
+    
+    // delete the inner nonlinearities (loaded from files)
+    for (int i = 0; i < mNonlinearitiesInner.size(); i++)
+        delete mNonlinearitiesInner[i];
 }
 
 
@@ -160,9 +192,9 @@ bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Ve
         
     // nonlinear part
         
-    for (int iNonlin = 0; iNonlin < cNonlinearities.size(); iNonlin++)
+    for (int iNonlin = 0; iNonlin < mNonlinearities.size(); iNonlin++)
     {
-        NOX::LAPACK::Vector lNonlinContrib = cNonlinearities[iNonlin]->ComputeF(aX, mFrequency);
+        NOX::LAPACK::Vector lNonlinContrib = mNonlinearities[iNonlin]->ComputeF(aX, mFrequency);
         
         for (int i = 0; i < aRhs.length(); i++)
             aRhs(i) += lNonlinContrib(i);
@@ -185,9 +217,9 @@ bool ProblemInterface::computeJacobian(NOX::LAPACK::Matrix<double>& aJ, const NO
     
     // nonlinear part
     
-    for (int iNonlin = 0; iNonlin < cNonlinearities.size(); iNonlin++)
+    for (int iNonlin = 0; iNonlin < mNonlinearities.size(); iNonlin++)
     {
-        NOX::LAPACK::Matrix<double> lNonlinContrib = cNonlinearities[iNonlin]->ComputeJacobian(aX, mFrequency);
+        NOX::LAPACK::Matrix<double> lNonlinContrib = mNonlinearities[iNonlin]->ComputeJacobian(aX, mFrequency);
         
         for (int j = 0; j < aJ.numCols(); j++)
             for (int i = 0; i < aJ.numRows(); i++)

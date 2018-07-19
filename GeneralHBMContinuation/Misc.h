@@ -1,5 +1,11 @@
 
+#pragma once
 #include <string>
+#include <map>
+#include <functional>
+
+#include "Nonlinearities/NonlinearBase.h"
+#include "Nonlinearities/CubicSpring.h"
 
 #define PI 3.14159265358979323846264338327950288419716939937510582097494459230781
 #define BORDER "-------------------------------------------------------------------"
@@ -8,3 +14,5 @@
 
 #define FULL_STRING (std::string("full"))
 #define SPARSE_STRING (std::string("sparse"))
+
+const std::vector<std::string> C_MatrixTypes = { FULL_STRING, SPARSE_STRING };
