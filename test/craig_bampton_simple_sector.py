@@ -3,6 +3,7 @@ import os, sys
 import numpy as np
 from scipy.sparse import linalg as splinalg
 import scipy.sparse as sparse
+import matplotlib.pyplot as plt
 
 # making the path relative to the project
 local_folder = os.getcwd()[:]
@@ -73,6 +74,8 @@ def assemble_K_stress(K_global,Kii_stress,local2global_dict):
     return K_global
 
 
+
+
 def craig_bampton(M, K, master_dofs, slave_dofs, no_of_modes=5):
     '''
     Computes the Craig-Bampton basis for the System M and K with the input
@@ -84,7 +87,7 @@ def craig_bampton(M, K, master_dofs, slave_dofs, no_of_modes=5):
         Mass matrix of the system.
     K : ndarray
         Stiffness matrix of the system.
-     master_dofs : ndarray
+        master_dofs : ndarray
         input with dofs of master nodes
     slave_dofs : ndarray
         input with dofs of slave nodes
@@ -136,6 +139,8 @@ def craig_bampton(M, K, master_dofs, slave_dofs, no_of_modes=5):
     K_ii = K_tmp[np.ix_(slave_dofs,  slave_dofs)]
     K_ib = K_tmp[np.ix_(slave_dofs,  master_dofs)]
     Phi = splinalg.spsolve(K_ii,K_ib)
+    
+    K_local = build_local(K_bb,K_ii,K_ib)
 
     # inner modes
     M_tmp = M.copy()
@@ -144,6 +149,7 @@ def craig_bampton(M, K, master_dofs, slave_dofs, no_of_modes=5):
     M_ii = M_tmp[np.ix_(slave_dofs,  slave_dofs)]
     M_ib = M_tmp[np.ix_(slave_dofs,  master_dofs)]
     
+    M_local = build_local(M_bb,M_ii,M_ib)
 
     omega, V_dynamic = splinalg.eigsh(K_ii, no_of_modes, M_ii)
 
@@ -164,18 +170,33 @@ def craig_bampton(M, K, master_dofs, slave_dofs, no_of_modes=5):
     #redution_index = []
     #redution_index.extend(master_dofs)
     #redution_index.extend(list(range(num_of_masters+1,+num_of_masters+no_of_modes)))
+    #big_I = np.identity(ndof)
+    #P = np.take(big_I, local_indexes,axis=-1)
 
-    T = np.zeros((ndof, num_of_masters + no_of_modes))
-    for i_local, i_global in enumerate(local_indexes):
-       T[i_global,:] = T_local[i_local,:]
+    P = sparse.csc_matrix((ndof, ndof), dtype=np.int8)
+    P[local_indexes, np.arange(ndof)] = 1
 
 
+    #T = np.zeros((ndof, num_of_masters + no_of_modes))
+    #for i_local, i_global in enumerate(local_indexes):
+    #    T[i_global,:] = T_local[i_local,:]
 
+    T = P.dot(T_local)
+    
 
     #omega = np.sqrt(omega)
     
-    return T
+    return T, T_local, P, K_local, M_local
 
+def build_local(M_bb,M_ii,M_ib):
+    return sparse.vstack((sparse.hstack((M_bb,M_ib.T)), sparse.hstack((M_ib,M_ii)))).tocsc()
+
+def local2global(M,P):
+
+    return P.dot(M).dot(P)
+
+def check_symmetry(M):
+    return M.todense().any() == M.T.todense().any()
 
 
 # files to build K and M matrix
@@ -200,10 +221,45 @@ Kii_stress = read_calculix.read_matrix(interface_K_stress_file)
 
 K_stress = assemble_K_stress(K_global,Kii_stress,local2global_dict)
 K_stress_sym = 0.5*(K_stress + K_stress.T) 
-T = craig_bampton(M_global, K_stress_sym, master_dofs, slave_dofs , no_of_modes=5)
 
-teste= 1
+no_of_modes = 30
+T, T_local, P, K_local, M_local = craig_bampton(M_global, K_stress_sym, master_dofs, slave_dofs , no_of_modes=no_of_modes)
+
+
+if check_symmetry(M_global):
+    print('M_global is symmetric')
+
+if check_symmetry(M_local):
+    print('M local is symmetric')
+
+if check_symmetry(K_stress_sym):
+    print('K_stress_sym  is symmetric')
+
+if check_symmetry(K_local):
+    print('K_local  is symmetric')
+
+
+M_tmp = local2global(M_local,P)
+
+if abs( (M_tmp - M_global).max())> 1e-6:
+    print('Error in the transformation')
 
 K_cg = T.T.dot(K_stress_sym.todense()).dot(T)
 M_cg = T.T.dot(M_global.todense()).dot(T)
 teste = 1
+
+
+f_list = [10,20] 
+
+#no_of_modes = 10
+
+for no_of_modes in f_list:
+
+    omega1, V_dynamic = splinalg.eigsh(K_stress_sym, no_of_modes, M_global)
+    omega2, V_dynamic = splinalg.eigsh(K_cg, no_of_modes, M_cg)
+    #plt.figure()
+    #plt.plot(omega1,'o')
+    #plt.plot(omega2,'x')
+    #plt.show()
+
+
