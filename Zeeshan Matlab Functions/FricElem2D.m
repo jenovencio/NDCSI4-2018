@@ -32,7 +32,7 @@ N0 = 50;
 kn = 50;
 ktx = 50; 
 % ktx = kt;
-kty = 40;
+kty = 50;
 
 N = max (N0 + kn * v, 0);
 
