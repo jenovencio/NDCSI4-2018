@@ -1,0 +1,36 @@
+
+# Mass matrix file path and type (full or sparse)
+mass
+full
+
+# Damping matrix file path and type (full or sparse)
+damping
+full
+
+# Stiffness matrix file path and type (full or sparse)
+stiffness
+full
+
+# Excitation force file path
+excitation
+
+# Continuation settings file path
+continuation_settings
+
+# Nonlinearities definitions file
+nonlinearities
+
+# Number of harmonic waves
+5
+
+# Min frequency
+0.02
+
+# Max frequency
+16
+
+# Number of integration points
+60
+
+# Store whole solutions
+0

@@ -16,3 +16,9 @@
 #define SPARSE_STRING (std::string("sparse"))
 
 const std::vector<std::string> C_MatrixTypes = { FULL_STRING, SPARSE_STRING };
+
+template <class T> 
+int Sgn(T aVal)
+{
+    return (T(0) < aVal) - (aVal < T(0));
+}

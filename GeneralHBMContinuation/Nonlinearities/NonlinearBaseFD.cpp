@@ -6,6 +6,8 @@ void NonlinearBaseFD::Init(const std::vector<double>& aIntegrationPoints, const 
     NonlinearBase::Init(aIntegrationPoints, aBValues, aBProducts, aHarmonicCoeffCount, aDofCountTimeDomain);
     
     mFiniteDifferenceSteps = NOX::LAPACK::Matrix<double>(aDofCountTimeDomain, aDofCountTimeDomain);
+    
+    SetFiniteDifferenceSteps(DEFAULT_FD_STEP);
 }
 
 NOX::LAPACK::Matrix<double> NonlinearBaseFD::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const

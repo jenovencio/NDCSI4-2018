@@ -21,8 +21,13 @@
 #include "Misc.h"
 #include "Nonlinearities/CubicSpring.h"
 
+void WriteOutput(const ContinuationWrapper& aWrapper, const std::string& aOutputPath);
+
 int main(int argc, char **argv)
 {
+    ContinuationWrapper lCont;
+    std::string lOutputPath = "./";
+    
     try
     {        
         std::string lConfigPath = "config";
@@ -36,7 +41,6 @@ int main(int argc, char **argv)
             std::cout << "No config path specified, using the default: \"" << lConfigPath << "\"" << std::endl;
         }
         
-        std::string lOutputPath = "./";
         if (argc >= 3) // output path
         {
             lOutputPath = std::string(argv[2]);
@@ -47,8 +51,6 @@ int main(int argc, char **argv)
             std::cout << "No output path specified, using the default: \"" << lOutputPath << "\"" << std::endl;
         }
                 
-        ContinuationWrapper lCont;
-        
         lCont.Init(lConfigPath);
         
         auto lStatus = lCont.RunContinuation();
@@ -62,18 +64,7 @@ int main(int argc, char **argv)
             std::cout << "Something CRASHED!" << std::endl;
         }
         
-        const ProblemInterface* const lInterface = lCont.GetInterface();
-        
-        std::ofstream lOutputFile(lOutputPath + "continuation_output_norms" + OUT_EXTENSION);
-        lInterface->WriteSolutionNorms(lOutputFile);
-        lOutputFile.close();
-        
-        if (lInterface->HasWholeSolutions())
-        {
-            std::ofstream lOutputFile2(lOutputPath + "continuation_output_raw" + OUT_EXTENSION);
-            lInterface->WriteWholeSolutions(lOutputFile2);
-            lOutputFile2.close();
-        }
+        WriteOutput(lCont, lOutputPath);
         
 //         std::cout << "Solution norms: " << std::endl;
 //         lInterface.WriteSolutionNorms(std::cout);
@@ -82,14 +73,56 @@ int main(int argc, char **argv)
     {
         std::cout << "Exception: " << std::endl;
         std::cout << aEx << std::endl;
+        
+        WriteOutput(lCont, lOutputPath);
+        
         return 1;
     }
     catch (char const* aEx)
     {
         std::cout << "Exception: " << std::endl;
         std::cout << aEx << std::endl;
+        
+        WriteOutput(lCont, lOutputPath);
+        
         return 1;
     }
     
     return 0;
+}
+
+void WriteOutput(const ContinuationWrapper& aWrapper, const std::string& aOutputPath)
+{
+    try
+    {
+        std::string lFile1Name = aOutputPath + "continuation_output_norms" + OUT_EXTENSION;
+        
+        const ProblemInterface* const lInterface = aWrapper.GetInterface();
+        std::ofstream lOutputFile(lFile1Name);
+        lInterface->WriteSolutionNorms(lOutputFile);
+        lOutputFile.close();
+        
+        std::cout << "Solution norms written into: " << lFile1Name << std::endl;
+        
+        if (lInterface->HasWholeSolutions())
+        {
+            std::string lFile2Name = aOutputPath + "continuation_output_raw" + OUT_EXTENSION;
+            
+            std::ofstream lOutputFile2(lFile2Name);
+            lInterface->WriteWholeSolutions(lOutputFile2);
+            lOutputFile2.close();
+            
+            std::cout << "Whole solutions written into: " << lFile2Name << std::endl;
+        }
+    }
+    catch (std::string aEx)
+    {
+        std::cout << "Exception in file output: " << std::endl;
+        std::cout << aEx << std::endl;
+    }
+    catch (char const* aEx)
+    {
+        std::cout << "Exception in file outpu: " << std::endl;
+        std::cout << aEx << std::endl;
+    }
 }

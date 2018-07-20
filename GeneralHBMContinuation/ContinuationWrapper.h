@@ -20,7 +20,7 @@ public:
     ~ContinuationWrapper();
     void Init(const std::string& aConfigPath, const std::vector<NonlinearBase*> aNonlinearities = std::vector<NonlinearBase*>());
     LOCA::Abstract::Iterator::IteratorStatus RunContinuation();
-    const ProblemInterface* const GetInterface();
+    const ProblemInterface* const GetInterface() const;
     
 private:
 };

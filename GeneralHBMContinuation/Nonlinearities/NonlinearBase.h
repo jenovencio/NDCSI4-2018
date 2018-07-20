@@ -53,7 +53,7 @@ public:
     // the point of this mechanism
     void Finalise();
     bool IsFinalised() const;
-    int DofCountTimeDomain();
+    int DofCountTimeDomain() const;
     
 protected:
     // time domain to time domain

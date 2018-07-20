@@ -67,20 +67,24 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
     Teuchos::ParameterList& stepSizeList = locaParamsList.sublist("Step Size");
     stepSizeList.set("Method", "Adaptive");             // Default
     stepSizeList.set("Initial Step Size", lContinuationSettings.StepSizeInitial);   // Should set
-    stepSizeList.set("Min Step Size", lContinuationSettings.StepSizeMax);    // Should set
-    stepSizeList.set("Max Step Size", lContinuationSettings.StepSizeMin);      // Should set
+    stepSizeList.set("Min Step Size", lContinuationSettings.StepSizeMin);    // Should set
+    stepSizeList.set("Max Step Size", lContinuationSettings.StepSizeMax);      // Should set
 
     // Create the "Solver" parameters sublist to be used with NOX Solvers
     Teuchos::ParameterList& nlParams = paramList->sublist("NOX");
     Teuchos::ParameterList& nlPrintParams = nlParams.sublist("Printing");
     nlPrintParams.set("Output Information",
-            NOX::Utils::Details +
-            NOX::Utils::OuterIteration +
-            NOX::Utils::InnerIteration +
+//             NOX::Utils::Details +
+//             NOX::Utils::OuterIteration +
+//             NOX::Utils::InnerIteration +
             NOX::Utils::Warning +
             NOX::Utils::StepperIteration +
-            NOX::Utils::StepperDetails +
+//             NOX::Utils::StepperDetails +
             NOX::Utils::StepperParameters);  // Should set
+    
+	Teuchos::ParameterList& lSearchParams = nlParams.sublist("Line Search");
+	lSearchParams.set("Method", "Polynomial");
+
 
     // Create LAPACK Factory
     Teuchos::RCP<LOCA::LAPACK::Factory> lapackFactory =
@@ -153,7 +157,7 @@ LOCA::Abstract::Iterator::IteratorStatus ContinuationWrapper::RunContinuation()
     return lReturnStatus;
 }
 
-const ProblemInterface* const ContinuationWrapper::GetInterface()
+const ProblemInterface* const ContinuationWrapper::GetInterface() const
 {
     return mInterface;
 }

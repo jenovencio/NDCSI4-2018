@@ -44,7 +44,7 @@ NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const
     const std::vector<double>& lBValues = *cBValues;
     
     // check 
-    if (aFrequency <= 0) throw "Frequency must be a positive value!";
+//     if (aFrequency <= 0) throw "Frequency must be a positive value!";
     if (mHarmonicCoeffCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
     if (aX.length() % mHarmonicCoeffCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mHarmonicCoeffCount) + ")!";
     
@@ -58,12 +58,21 @@ NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const
     
     int lLoopCount = NumberOfPrepLoops() + 1; // number of loop over the period
     
+    NOX::LAPACK::Vector lXTimeAvg(lDofCount);
+        
+    for (int iDof = 0; iDof < lDofCount; iDof++)
+    {
+        int lHarmIndex = GetHBMDofIndex(iDof, 0, mHarmonicCoeffCount);
+        lXTimeAvg(iDof) = aX(lHarmIndex);
+    }
+//     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
+    
     for (int iLoop = 0; iLoop < lLoopCount; iLoop++)
     {
         for (int iIntPoint = 0; iIntPoint < lIntPoints.size(); iIntPoint++)
         {
             NOX::LAPACK::Vector lXTime = FreqToTime(aX, iIntPoint);
-            if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTime;
+            if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
             // calculate the nonlinearity in time domain
             FResult lNonlinResult = ComputeFTimeDomain(lXTime, lXTimePrev);
@@ -114,7 +123,7 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
     const std::vector<double>& lBProducts = *cBProducts;
     
     // check
-    if (aFrequency <= 0) throw "Frequency must be a positive value!";
+//     if (aFrequency <= 0) throw "Frequency must be a positive value!";
     if (mHarmonicCoeffCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
     if (aX.length() % mHarmonicCoeffCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mHarmonicCoeffCount) + ")!";
     
@@ -128,12 +137,21 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
     
     int lLoopCount = NumberOfPrepLoops() + 1; // number of loop over the period
     
+    NOX::LAPACK::Vector lXTimeAvg(lDofCount);
+        
+    for (int iDof = 0; iDof < lDofCount; iDof++)
+    {
+        int lHarmIndex = GetHBMDofIndex(iDof, 0, mHarmonicCoeffCount);
+        lXTimeAvg(iDof) = aX(lHarmIndex);
+    }
+//     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
+    
     for (int iLoop = 0; iLoop < lLoopCount; iLoop++)
     {
         for (int iIntPoint = 0; iIntPoint < lIntPoints.size(); iIntPoint++)
         {
             NOX::LAPACK::Vector lXTime = FreqToTime(aX, iIntPoint);
-            if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTime;
+            if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
             // calculate the nonlinearity jacobian in time domain
             NOX::LAPACK::Matrix<double> lNonlin = ComputeJacobianTimeDomain(lXTime, lXTimePrev);
@@ -205,8 +223,11 @@ bool NonlinearBase::IsFinalised() const
 {
     return mIsFinalised;
 }
-int NonlinearBase::DofCountTimeDomain()
+int NonlinearBase::DofCountTimeDomain() const
 {
+    if (!mIsInitialised)
+        throw "Dof count is not set yet because the nonlinearity is not initialised!";
+    
     return mDofCountTimeDomain;
 }
 
@@ -283,7 +304,7 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifferenceTD(con
 {
     std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)> lFEval = [aXPrev, this](const NOX::LAPACK::Vector& aIn) 
     {
-        FResult lRes =  ComputeFTimeDomain(aIn, aXPrev);
+        FResult lRes = ComputeFTimeDomain(aIn, aXPrev);
         return lRes.FValues;
     };
     
