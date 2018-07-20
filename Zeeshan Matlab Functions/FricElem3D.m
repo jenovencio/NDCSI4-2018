@@ -42,7 +42,7 @@ u = [ux'; uy'];
 T = zeros(2,length(ux));
 Coul = zeros(2,length(ux));
 t = linspace(0,1,nStep*2);
-est = 1;
+est = 2;
 
 if est == 1
     for nt = 1:length(ux)
@@ -84,48 +84,7 @@ plot(uy(nt),Ty(nt),'bo'), hold on
 figure(est*2002+est);
 plot(Tx(nt),Ty(nt),'go'), hold on
     end
-end
-
-
-
-%%
-if est == 1
-    for nt = 1:length(ux)
-        Coul(:,nt) = mu*N(nt); 
-        if nt == 1
-            % Predictor
-            w(:,nt) = u(:,nt);
-        else
-            % Corrector
-            w(:,nt) = w(:,nt-1);
-        end
-        
-        T(:,nt) = kt *( u(:,nt) - w(:,nt) );
-
-%         Tx(nt) = ktx*(ux(nt) - w1(nt));
-%         Ty(nt) = kty*(uy(nt) - w2(nt));
-
-        if abs(T(:,nt)) > Coul(:,nt)
-            T(:,nt) = sign(T(:,nt)).*Coul(:,nt);
-            w(:,nt) = u(:,nt) - kt\T(:,nt);
-        end
-
-%         if abs(Ty(nt)) > Coul(nt)
-%             Ty(nt) = sign(Ty(nt))*Coul(nt);
-%             w2(nt) = uy(nt) - Ty(nt)/kty;
-%         end
-
-    figure(est*1000+est*10);
-plot(u(1,nt),T(1,nt),'ro'), hold on
-
-figure(est*1001+est*10);
-plot(u(2,nt),T(2,nt),'bo'), hold on
-
-figure(est*1002+est*10);
-plot(T(1,nt),T(2,nt),'go'), hold on
-    end
-    
-    
+  
 
 elseif est == 2
     
@@ -144,38 +103,30 @@ elseif est == 2
 
         Tx(nt) = ktx*(ux(nt) - w1(nt));
         Ty(nt) = kty*(uy(nt) - w2(nt));
-        T(nt) = sqrt(Tx(nt)^2+Ty(nt)^2);
+        Tnorm(:,nt) = [Tx(nt); Ty(nt)]./sqrt(Tx(nt)^2+Ty(nt)^2);
         
-        if T(nt) > Coul(nt) %'OR' abs(Tx(nt))>Coul(nt)
-            T(nt) = Coul(nt);
-            if abs(Tx) > Coul(nt)
-                Tx(nt) = sign(Tx(nt))*Coul(nt);
-                w1(nt) = ux(nt) - Tx(nt)/ktx;
-                Ty(nt) = sign(Ty(nt))*sqrt(T(nt)^2-Tx(nt)^2);
-                w2(nt) = uy(nt) - Ty(nt)/kty;
-            
-            else
-                Ty(nt) = sign(Ty(nt))*Coul(nt);
-                w2(nt) = uy(nt) - Ty(nt)/kty;
-                Tx(nt) = sign(Tx(nt))*sqrt(T(nt)^2-Ty(nt)^2);
-                w1(nt) = ux(nt) - Tx(nt)/ktx;
-            end 
-%             
+        if sqrt(Tx(nt)^2+Ty(nt)^2) > Coul(nt) %'OR' abs(Tx(nt))>Coul(nt)
+            T(:,nt) = Tnorm(:,nt)*Coul(nt);%*sign(Tnorm(:,nt));
+                w1(nt) = ux(nt) - T(1,nt)/ktx;
+                w2(nt) = uy(nt) - T(2,nt)/kty;
+        
+       
         end
 
 %         if T(nt) > Coul(nt) %& abs(Ty(nt)) > Coul(nt)
 %             Ty(nt) = sign(Ty(nt))*Coul(nt);
 %             w2(nt) = uy(nt) - Ty(nt)/kty;
 %         end
-    figure(est*1000+est);
-plot(ux(nt),Tx(nt),'ro'), hold on
+    figure(est*3000+est);
+plot(ux(nt),T(1,nt),'ro'), hold on
 
-figure(est*1001+est);
-plot(uy(nt),Ty(nt),'bo'), hold on
+figure(est*3001+est);
+plot(uy(nt),T(2,nt),'bo'), hold on
 
-figure(est*1002+est);
-plot(Tx(nt),Ty(nt),'go'), hold on
+figure(est*3002+est);
+plot(T(1,nt),T(2,nt),'go'), hold on
     end
+end
 
 %Tylp = Coul(
 % figure(3001);
@@ -192,4 +143,4 @@ plot(Tx(nt),Ty(nt),'go'), hold on
 % 
 % figure(3001);
 % 
-end
+
