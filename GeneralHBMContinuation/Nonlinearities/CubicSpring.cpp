@@ -142,7 +142,6 @@ void CubicSpring::ClearSprings()
 }
 void CubicSpring::LoadFromFile(const std::string& aFilePath)
 {
-    
     std::ifstream lInputFile(aFilePath);
     if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
     
@@ -161,5 +160,5 @@ void CubicSpring::LoadFromFile(const std::string& aFilePath)
 }
 std::string CubicSpring::ClassName() const
 {
-    return "Cubic spring";
+    return "Cubic Spring";
 }

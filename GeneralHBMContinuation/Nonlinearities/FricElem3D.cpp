@@ -108,5 +108,5 @@ void FricElem3D::LoadFromFile(const std::string& aFilePath)
 }
 std::string FricElem3D::ClassName() const
 {
-    return "FricElem3D";
+    return "Friction Element 3D";
 }
