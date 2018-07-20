@@ -55,7 +55,8 @@ for n = 1:N_node
         Ty(n) = sign(Ty(n)).*Coul(n);
         uyr(n) = uy(n) - Ty(n)/kty;
     end
-    F(:,n) = [Tx(n); Ty(n); N(n)];
+    % updated to remove the static normal load
+    F(:,n) = [Tx(n); Ty(n); N(n)-N0];       
     ur(:,n) = [uxr(n); uyr(n)];
 end
 
