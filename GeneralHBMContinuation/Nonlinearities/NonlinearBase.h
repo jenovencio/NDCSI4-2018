@@ -1,4 +1,6 @@
 
+struct FResult;
+struct JResult;
 class NonlinearBase;
 
 #pragma once
@@ -36,6 +38,8 @@ private:
     
 public:
     virtual void LoadFromFile(const std::string& aFilePath);
+    // returns the name of the class
+    virtual std::string ClassName() const = 0;
     // the aDofCountTimeDomain argument was added for the derived classes, in case they need it. We don't really need it here
     virtual void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain);
     // frequency domain to frequency domain
@@ -53,7 +57,7 @@ public:
     
 protected:
     // time domain to time domain
-    virtual NOX::LAPACK::Vector ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const = 0;
+    virtual FResult ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const = 0;
     // time domain to time domain
     virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const = 0;
     
@@ -75,9 +79,21 @@ protected:
     NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, double aStep = DEFAULT_FD_STEP) const;
     NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const NOX::LAPACK::Matrix<double>& aSteps) const;
     
+    virtual bool IsCorrectingX() const = 0;
+    
 private:
     // relative time point value (considering period = 1)
     NOX::LAPACK::Vector FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex) const;
     
     void CheckStatus() const;
 };
+
+struct FResult
+{
+public:
+    NOX::LAPACK::Vector FValues;
+    // correction of the provided X
+    NOX::LAPACK::Vector XCorr;
+    bool XCorrSet = false;
+};
+

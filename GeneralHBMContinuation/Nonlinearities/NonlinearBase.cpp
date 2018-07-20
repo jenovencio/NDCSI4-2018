@@ -5,7 +5,7 @@
 
 void NonlinearBase::LoadFromFile(const std::string& aFilePath)
 {
-    std::string lTypeName = typeid(this).name();
+    std::string lTypeName = ClassName();
     
     throw "Can not load a nonlinearity from file \"" + aFilePath + "\"! This class does not support loading from files.";
 }
@@ -66,10 +66,16 @@ NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const
             if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTime;
             
             // calculate the nonlinearity in time domain
-            NOX::LAPACK::Vector lNonlin = ComputeFTimeDomain(lXTime, lXTimePrev);
+            FResult lNonlinResult = ComputeFTimeDomain(lXTime, lXTimePrev);
             
-            lXTimePrev = lXTime;
+            if (!IsCorrectingX() && lNonlinResult.XCorrSet)
+                throw "The code logic of this class is wrong! The class says it's not correcting the X values, but at the same time sets corrections in it's F evaluations.";
             
+            if (IsCorrectingX() && lNonlinResult.XCorrSet)
+                lXTimePrev = lNonlinResult.XCorr;
+            else
+                lXTimePrev = lXTime;
+                        
             if (iLoop == lLoopCount - 1)
             {
                 for (int iHarm = 0; iHarm < mHarmonicCoeffCount; iHarm++)
@@ -77,13 +83,13 @@ NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const
                     double lBValIndex = GetBValuesIndex(iHarm, iIntPoint, mHarmonicCoeffCount, lIntPoints.size());
                     double lBValue = lBValues[lBValIndex];
                     
-                    // we iterate over only the nonlinear dofs, because the rest of values in the lNonlin will be zeros
+                    // we iterate over only the nonlinear dofs, because the rest of values in the lNonlinResult.FValues will be zeros
                     for (int iDof = 0; iDof < mNonzeroFPositions.size(); iDof++)
                     {
                         int lDof = mNonzeroFPositions[iDof];
                         
                         double lHarmInd = GetHBMDofIndex(lDof, iHarm, mHarmonicCoeffCount);
-                        lReturnVector(lHarmInd) += lBValue * lNonlin(lDof);
+                        lReturnVector(lHarmInd) += lBValue * lNonlinResult.FValues(lDof);
                     }
                 }
             }
@@ -132,7 +138,18 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
             // calculate the nonlinearity jacobian in time domain
             NOX::LAPACK::Matrix<double> lNonlin = ComputeJacobianTimeDomain(lXTime, lXTimePrev);
             
-            lXTimePrev = lXTime;
+            if (IsCorrectingX())
+            {
+                // we use the correction from the F evaluation because in that we use the actual lXTime instead of some "fictional variations"
+                // like in finite difference.
+                FResult lFResult = ComputeFTimeDomain(lXTime, lXTimePrev);
+                if (lFResult.XCorrSet)
+                    lXTimePrev = lFResult.XCorr;
+                else 
+                    lXTimePrev = lXTime;
+            }
+            else
+                lXTimePrev = lXTime;
             
             if (iLoop == lLoopCount - 1)
             {
@@ -143,7 +160,7 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
                         double lBProdIndex = GetBProductIndex(iHarm, jHarm, iIntPoint, mHarmonicCoeffCount, lIntPoints.size());
                         double lBProdValue = lBProducts[lBProdIndex];
                         
-                        // we iterate over only the nonlinear dofs, because the rest of values in the lNonlin will be zeros
+                        // we iterate over only the nonlinear dofs, because the rest of values in the lNonlinResult.FValues will be zeros
                         for (int iDof = 0; iDof < mNonzeroFPositions.size(); iDof++)
                         {
                             int lDof = mNonzeroFPositions[iDof];
@@ -254,13 +271,21 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const
 // Same functions as above, but using the ComputeF as the aFEval function (in time domain)
 NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, double aStep) const
 {
-    std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)> lFEval = [aXPrev, this](const NOX::LAPACK::Vector& aIn) { return ComputeFTimeDomain(aIn, aXPrev); };
+    std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)> lFEval = [aXPrev, this](const NOX::LAPACK::Vector& aIn) 
+    {
+        FResult lRes = ComputeFTimeDomain(aIn, aXPrev);
+        return lRes.FValues;
+    };
     
     return ComputeJacobianFiniteDifference(aX, lFEval, aStep);
 }
 NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const NOX::LAPACK::Matrix<double>& aSteps) const
 {
-    std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)> lFEval = [aXPrev, this](const NOX::LAPACK::Vector& aIn) { return ComputeFTimeDomain(aIn, aXPrev); };
+    std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)> lFEval = [aXPrev, this](const NOX::LAPACK::Vector& aIn) 
+    {
+        FResult lRes =  ComputeFTimeDomain(aIn, aXPrev);
+        return lRes.FValues;
+    };
     
     return ComputeJacobianFiniteDifference(aX, lFEval, aSteps);
 }

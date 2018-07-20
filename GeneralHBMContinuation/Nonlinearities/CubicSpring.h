@@ -23,7 +23,7 @@ private:
     
 protected:
     // frequency domain to frequency domain
-    virtual NOX::LAPACK::Vector ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
+    virtual FResult ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
     // frequency domain to frequency domain
     virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
     virtual int NumberOfPrepLoops() const override;
@@ -31,9 +31,12 @@ protected:
     // that can potentially return a nonzero value in their F evaluation
     // this is just to speed up the F and jacobian computations (so we don't uselessly iterate over all dofs)
     virtual std::vector<int> NonzeroFPositions() const override;
+    virtual bool IsCorrectingX() const override;
     
 public:
     void AddCubicSpring(const CubicSpringDef& aDef);
     void AddCubicSpring(const int& aDofIndex, const int& aDof2Index, const double& aStiffnessCoeff);
     void ClearSprings();
+    virtual void LoadFromFile(const std::string& aFilePath) override;
+    virtual std::string ClassName() const override;
 };

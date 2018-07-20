@@ -3,6 +3,9 @@ project(generalhbmcontinuation)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
 find_package(MPI REQUIRED)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)

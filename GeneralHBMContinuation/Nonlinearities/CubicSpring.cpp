@@ -5,9 +5,10 @@
 #include "../Functions.h"
 #include "../Misc.h"
 
-NOX::LAPACK::Vector CubicSpring::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
+FResult CubicSpring::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
 {
-    NOX::LAPACK::Vector lReturnVector(aX.length());
+    FResult lReturnResult;
+    lReturnResult.FValues = NOX::LAPACK::Vector(aX.length());
     
     for (int iSpring = 0; iSpring < mSprings.size(); iSpring++)
     {
@@ -27,11 +28,11 @@ NOX::LAPACK::Vector CubicSpring::ComputeFTimeDomain(const NOX::LAPACK::Vector& a
         double lForce1 = lStiffCoeff * (lDisp1 - lDisp2) * (lDisp1 - lDisp2) * (lDisp1 - lDisp2);
         double lForce2 = -lForce1;
         
-        if (lDof1 >= 0) lReturnVector(lDof1) += lForce1;
-        if (lDof2 >= 0) lReturnVector(lDof2) += lForce2;
+        if (lDof1 >= 0) lReturnResult.FValues(lDof1) += lForce1;
+        if (lDof2 >= 0) lReturnResult.FValues(lDof2) += lForce2;
     }
     
-    return lReturnVector;
+    return lReturnResult;
 }
 
 NOX::LAPACK::Matrix<double> CubicSpring::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
@@ -107,6 +108,10 @@ std::vector<int> CubicSpring::NonzeroFPositions() const
     
     return lReturnVector;
 }
+bool CubicSpring::IsCorrectingX() const
+{
+    return false;
+}
 
 void CubicSpring::AddCubicSpring(const CubicSpringDef& aDef)
 {
@@ -134,4 +139,27 @@ void CubicSpring::ClearSprings()
 {
     if (IsFinalised()) throw "The nonlinearity is finalised, no modifications are allowed at this point!";
     mSprings.clear();
+}
+void CubicSpring::LoadFromFile(const std::string& aFilePath)
+{
+    
+    std::ifstream lInputFile(aFilePath);
+    if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
+    
+    while (!lInputFile.eof())
+    {
+        int lDof1;
+        int lDof2;
+        double lStiffCoeff;
+        
+        lInputFile >> lDof1 >> lDof2 >> lStiffCoeff;
+        
+        AddCubicSpring(lDof1, lDof2, lStiffCoeff);
+    }
+    
+    lInputFile.close();
+}
+std::string CubicSpring::ClassName() const
+{
+    return "Cubic spring";
 }

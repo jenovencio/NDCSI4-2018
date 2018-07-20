@@ -125,7 +125,7 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
         NonlinearBase* lNewNonlin = C_NonlinearitiesFactory.at(lType)();
         
         lNewNonlin->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
-        lNewNonlin->LoadFromFile(lFilePath);
+        lNewNonlin->LoadFromFile(aConfig.ConfigFilePath + "/" + lFilePath);
         lNewNonlin->Finalise();
         
         mNonlinearitiesInner.push_back(lNewNonlin);
