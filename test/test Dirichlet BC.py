@@ -66,8 +66,8 @@ dirsub = m.get_submesh('phys_group', 1)
 dirsub2 = m.get_submesh('phys_group', 2)
 
 id_matrix = my_comp.assembly_class.id_matrix
-dir_dofs = get_dirichlet_dofs(dirsub, direction ='xyz', id_matrix=id_matrix)
-dir_dofs_2 = get_dirichlet_dofs(dirsub2, direction ='x', id_matrix=id_matrix)
+dir_dofs = amfe.get_dirichlet_dofs(dirsub, direction ='xyz', id_matrix=id_matrix)
+dir_dofs_2 = amfe.get_dirichlet_dofs(dirsub2, direction ='x', id_matrix=id_matrix)
 
 K, M, f = my_comp.insert_dirichlet_boundary_cond(K,M,f,dir_dofs, value = 0.0)
 

@@ -45,4 +45,4 @@ low_dofs = amfe.get_dirichlet_dofs(cyclic_low, direction ='xy', id_matrix=id_mat
 high_dofs = amfe.get_dirichlet_dofs(cyclic_high, direction ='xy', id_matrix=id_matrix)
 
 
-my_comp.insert_cyclic_symm_boundary_cond(K, M, f, low_dofs = low_dofs, high_dofs = high_dofs, theta = 0.0)    
+K_mod, M_mod, f_mod = my_comp.insert_cyclic_symm_boundary_cond(K, M, f, low_dofs = low_dofs, high_dofs = high_dofs, theta = 0.0)    
