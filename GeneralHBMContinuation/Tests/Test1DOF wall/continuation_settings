@@ -1,18 +1,18 @@
 
 # Max continuation steps
-50000
+500000
 
 # Max newton steps
-50
+20
 
 # Initial step size
-1e-2
+1e-3
 
 # Minimum step size
-1e-5
+1e-9
 
 # Maximum step size
-1e0
+1e-1
 
 # Predictor type (Constant, Tangent, Secant)
-Secant
+Tangent

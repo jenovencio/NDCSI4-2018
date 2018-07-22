@@ -3,15 +3,17 @@ class PenaltyWall;
 struct PenaltyWallDef;
 
 #pragma once
-#include "NonlinearBaseFD.h"
+#include "NonlinearBase.h"
 
-class PenaltyWall : public NonlinearBaseFD
+class PenaltyWall : public NonlinearBase
 {
 private:
     std::vector<PenaltyWallDef> mWalls;
 protected:
     // time domain to time domain
     virtual FResult ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
+    // time domain to time domain
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
     virtual int NumberOfPrepLoops() const override;
     virtual std::vector<int> NonzeroFPositions() const override;
     virtual bool IsCorrectingX() const override;

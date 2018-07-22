@@ -90,14 +90,7 @@ ContinuationSettings LoadContinuationSettings(const std::string& aContSetFilePat
     std::string lTempString;
     ContinuationSettings lReturnSettings;
     
-    int MaxStepsContinuation;
-    int MaxStepsNewton;
-    double StepSizeInitial;
-    double StepSizeMin;
-    double StepSizeMax;
-    
     std::string PredictorType; // secant, constant, tangent
-    
     
     lTempString = GetNextValidLine(lInputFile);
     lReturnSettings.MaxStepsContinuation = std::stoi(lTempString);

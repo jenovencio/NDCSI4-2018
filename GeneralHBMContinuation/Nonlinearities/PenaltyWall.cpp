@@ -28,6 +28,24 @@ FResult PenaltyWall::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX
     
     return lReturnResult;
 }
+NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
+{   
+    NOX::LAPACK::Matrix<double> lReturnMatrix(aX.length(), aX.length());
+    
+    for (int iWall = 0; iWall < mWalls.size(); iWall++)
+    {
+        int lDof = mWalls[iWall].DofIndex;
+        double lStiffCoeff = mWalls[iWall].DirectionalStiffness;
+        
+        double lDiff = aX(lDof) - mWalls[iWall].Offset;
+        
+        if (lDiff * lStiffCoeff >= 0) continue;
+        
+        lReturnMatrix(lDof, lDof) += lStiffCoeff;
+    }
+    
+    return lReturnMatrix;
+}
 
 int PenaltyWall::NumberOfPrepLoops() const
 {

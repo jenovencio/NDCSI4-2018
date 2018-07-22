@@ -55,6 +55,9 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
     stepperList.set("Max Steps", lContinuationSettings.MaxStepsContinuation);                    // Should set
     stepperList.set("Max Nonlinear Iterations", lContinuationSettings.MaxStepsNewton); // Should set
     stepperList.set("Compute Eigenvalues", false);        // Default
+    stepperList.set("Enable Tangent Factor Step Size Scaling", true);        // Default
+    stepperList.set("Enable Arc Length Scaling", true);        // Default
+//     stepperList.set("Min Tangent Factor", 0.1);        // Default
 
     // Create predictor sublist
     Teuchos::ParameterList& predictorList =
@@ -111,7 +114,7 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
 
     // Set up the status tests
     Teuchos::RCP<NOX::StatusTest::NormF> normF =
-    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-8));
+    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-11));
     Teuchos::RCP<NOX::StatusTest::MaxIters> maxIters =
     Teuchos::rcp(new NOX::StatusTest::MaxIters(lContinuationSettings.MaxStepsNewton));
     Teuchos::RCP<NOX::StatusTest::Generic> comboOR =
