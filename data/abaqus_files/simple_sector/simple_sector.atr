@@ -1,0 +1,11 @@
+# Written by ICEM CFD 18.1, user ge72tih, Mon Jul 23 2:28:05 PM GMT Daylight Time 2018
+
+begin family SOLID_1_1
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SOLID_1_1
+
+begin family SOLID_1_1_MATPOINT
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SOLID_1_1_MATPOINT
