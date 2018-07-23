@@ -1,0 +1,31 @@
+# Written by ICEM CFD 18.1, user ge72tih, Mon Jul 23 4:34:32 PM GMT Daylight Time 2018
+
+begin family SOLID_1_1_SOLID
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SOLID_1_1_SOLID
+
+begin family LOW
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family LOW
+
+begin family HIGH
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family HIGH
+
+begin family DIRICHLET
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family DIRICHLET
+
+begin family SOLID_1_1
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family SOLID_1_1
+
+begin family PART0
+    begin solver "ANSYS Fluent"
+    end solver "ANSYS Fluent"
+end family PART0
