@@ -1,8 +1,0 @@
-# family_boco file written for AI*Environment on Mon Jul 23 2:28:05 PM GMT Daylight Time 2018
-# solver Abaqus
-"SOLID_1_1"
-"SOLID_1_1_MATPOINT"
-
-"SOLID_1_1_MATPOINT" "SOLID3D" 0 0
-"SOLID_1_1" "SHELL" 0 0 0 0
-

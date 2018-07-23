@@ -35,8 +35,27 @@ id_matrix = my_comp.assembly_class.id_matrix
 dir_dofs = amfe.get_dirichlet_dofs(dirsub, direction ='xyz', id_matrix=id_matrix)
 dir_dofs_2 = amfe.get_dirichlet_dofs(dirsub2, direction ='x', id_matrix=id_matrix)
 
-K, M, f = my_comp.insert_dirichlet_boundary_cond(K,M,f,dir_dofs, value = 0.0)
+value_1 = 0.0
+value_2 = 2.0
+
+K, M, f = my_comp.insert_dirichlet_boundary_cond(K,M,f,dir_dofs, value = value_1)
+K, M, f = my_comp.insert_dirichlet_boundary_cond(K,M,f,dir_dofs_2, value = value_2)
+
+Kii, S, S_inv, T, fi = my_comp.create_selection_operator(dir_dofs, K, f, remove = True)
+
+ui = splinalg.spsolve(Kii,fi)
+
+u = T(ui)
 
 
-Kii, S, S_inv = my_comp.create_selection_operator(dir_dofs, K)
 
+u_dir_1 = u[dir_dofs]
+u_dir_2 = u[dir_dofs_2]
+tol = 1.0e-8
+for ui in u_dir_1:
+    if abs(ui - value_1)>tol:
+        raise('Error in the selection operator method')
+
+for ui in u_dir_2:
+    if abs(ui - value_2)>tol:
+        raise('Error in the selection operator method')

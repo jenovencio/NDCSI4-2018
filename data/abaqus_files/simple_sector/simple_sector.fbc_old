@@ -1,4 +1,7 @@
-# family_boco file written by ICEM CFD by ge72tih on Mon Jul 23 2:28:05 PM GMT Daylight Time 2018
+# family_boco file written by ICEM CFD by ge72tih on Mon Jul 23 4:36:09 PM GMT Daylight Time 2018
 ## solver ANSYS Fluent
+"SOLID_1_1_SOLID"
+"LOW"
+"HIGH"
+"DIRICHLET"
 "SOLID_1_1"
-"SOLID_1_1_MATPOINT"

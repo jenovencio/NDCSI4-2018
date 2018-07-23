@@ -1,0 +1,47 @@
+# solver params file written for AI*Environment on Mon Jul 23 4:36:09 PM GMT Daylight Time 2018
+## solver ABAQUS
+
+begin transform
+    a {}
+    all 0
+    b {}
+    type R
+end transform
+
+begin analysis
+    AMPLITUDE STEP
+    INC 100
+    NLGEOM NO
+    type ST
+    begin ST
+        initi 0.1
+        maxi 1.0
+        mini 1e-05
+        mod_freq1 0.0
+        mod_freq2 1e+08
+        mod_iter 30
+        mod_n 10
+        mod_norm DISPLACEMENT
+        mod_shift 1.0
+        mod_solv LANCZOS
+        timei 1.0
+        type STATIC
+    end ST
+    begin TH
+        DELTMX 0
+        DELTMX_val 100.0
+        END PERIOD
+        initi 0.1
+        maxi 1.0
+        mini 1e-05
+        tcr 0.001
+        timei 1.0
+        trans 0
+    end TH
+end analysis
+
+begin offset
+    elem 0
+    node 0
+end offset
+
