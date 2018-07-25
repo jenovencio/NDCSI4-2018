@@ -1,0 +1,1 @@
+C:\NDCSI\framework\data\ansys_simple_blade_disc_files\simple_sector.cgns.uns

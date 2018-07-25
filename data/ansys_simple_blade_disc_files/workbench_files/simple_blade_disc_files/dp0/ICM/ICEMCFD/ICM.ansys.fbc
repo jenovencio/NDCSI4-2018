@@ -1,0 +1,11 @@
+# family_boco file written for AI*Environment on Wed Jul 25 9:32:47 AM GMT Daylight Time 2018
+# solver ANSYS
+"SOLID_1_1_SOLID"
+"LOW"
+"HIGH"
+"DIRICHLET"
+"TOP_LOW"
+"TOP_HIGH"
+"TOP"
+"SOLID_1_1"
+

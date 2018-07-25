@@ -40,5 +40,11 @@ vertice_matrix = quad_list
 #amfe.plot_3D_polygon(points_coord*100, vertice_matrix, ax=None, alpha=0.5, color='grey', plot_nodes=True)
 #plt.show()
 
-amfe.plot3Dmesh(m, ax=None, boundaries=True, alpha=0.2, color='grey', plot_nodes=False)
+ax = amfe.plot3Dmesh(m, ax=None, boundaries=True, alpha=0.2, color='grey', plot_nodes=False)
+ax.view_init(-90, 0)
+#ax.set_aspect('equal', adjustable='box')
+xlim = ax.get_xlim()
+ax.set_ylim(xlim)
+ax.set_zlim(xlim)
+plt.axis('off')
 plt.show()
