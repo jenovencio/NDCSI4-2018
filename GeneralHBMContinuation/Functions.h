@@ -1,17 +1,15 @@
 
 #pragma once
 #include <fstream>
+#include <map>
 
 #include "NOX_LAPACK_Matrix.H"
 #include "NOX_LAPACK_Vector.H"
 #include "Config.h"
-#include "ContinuationSettings.h"
+#include "MatrixDefinition.h"
 #include "Nonlinearities/NonlinearityDefinition.h"
 
-Config LoadConfig(const std::string& aConfigFilePath);
-void PrintConfig(const Config& aConfig);
-ContinuationSettings LoadContinuationSettings(const std::string& aContSetFilePath);
-void PrintContinuationSettings(const ContinuationSettings& aContSettings);
+std::map<std::string, std::vector<std::string>> ParseGeneralConfigFile(const std::string& aFilePath);
 // nox lapack matrices are stored as col major      
 // Access the (i,j) entry of A
 // T& operator()(int i, int j) { return entries[i + (p*j)]; }
@@ -21,9 +19,8 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath,
 NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, const std::string& aMatrixType, int& aDim);
 // aCheckHarmCount - total number of harmonic coefficients per physical dof
 std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount);
-std::vector<NonlinearityDefinition> LoadNonlinearitiesDefinitions(const std::string& aFilePath);
 // skips comment lines and returns the next valid (non comment) line in the file
-std::string GetNextValidLine(std::ifstream& aFile);
+std::string GetNextValidLine(std::ifstream& aFile, bool& aIsValid);
 
 // aHarmonicCount here means total number of waves, so cosines and sines together
 // aHarmonicIndex goes between 0 and aHarmonicCount - 1
@@ -47,3 +44,9 @@ void CheckString(const std::string& aString, const std::vector<std::string>& aPo
 // the same check string, but uses the keys of the provided mam as the vector of possibilities
 template <class T>
 void CheckString(const std::string& aString, const std::map<std::string, T>& aPossibilities, const std::string& aGroupName = "");
+std::vector<double> GetRelativeTimePoints(const int& aTimePointCount);
+NOX::LAPACK::Vector GetAverage(const std::vector<NOX::LAPACK::Vector>& aVectors);
+std::string SkipWhiteSpaces(const std::string& aString);
+std::vector<MatrixDefinition> ParseMatrixDefinition(const std::string& aMatrixName, const std::vector<std::string>& aLines);
+void PrintMatrixDefinitions(const std::vector<MatrixDefinition>& aDef);
+void PrintNonlinearityDefinitions(const std::vector<NonlinearityDefinition>& aDef);

@@ -2,6 +2,8 @@
 #include <iostream>
 #include <functional>
 
+#include <fftw3.h>
+
 #include "Teuchos_ParameterList.hpp"
 
 #include "NOX_Utils.H"
@@ -15,16 +17,24 @@
 #include "LOCA_GlobalData.H"
 #include "LOCA_Stepper.H"
 
+#include "matplotlibcpp.h"
+
 #include "ContinuationWrapper.h"
 #include "Functions.h"
 #include "ProblemInterface.h"
 #include "Misc.h"
 #include "Nonlinearities/CubicSpring.h"
+#include "TestingFunctions.h"
 
-void WriteOutput(const ContinuationWrapper& aWrapper, const std::string& aOutputPath);
+void ProcessOutput(const ContinuationWrapper& aWrapper, const std::string& aOutputPath);
+
+void TestWhatever();
 
 int main(int argc, char **argv)
 {
+    TestWhatever();
+    return 0;
+    
     ContinuationWrapper lCont;
     std::string lOutputPath = "./";
     
@@ -64,7 +74,7 @@ int main(int argc, char **argv)
             std::cout << "Something CRASHED!" << std::endl;
         }
         
-        WriteOutput(lCont, lOutputPath);
+        ProcessOutput(lCont, lOutputPath);
         
 //         std::cout << "Solution norms: " << std::endl;
 //         lInterface.WriteSolutionNorms(std::cout);
@@ -74,7 +84,7 @@ int main(int argc, char **argv)
         std::cout << "Exception: " << std::endl;
         std::cout << aEx << std::endl;
         
-        WriteOutput(lCont, lOutputPath);
+        ProcessOutput(lCont, lOutputPath);
         
         return 1;
     }
@@ -83,7 +93,7 @@ int main(int argc, char **argv)
         std::cout << "Exception: " << std::endl;
         std::cout << aEx << std::endl;
         
-        WriteOutput(lCont, lOutputPath);
+        ProcessOutput(lCont, lOutputPath);
         
         return 1;
     }
@@ -91,7 +101,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void WriteOutput(const ContinuationWrapper& aWrapper, const std::string& aOutputPath)
+void ProcessOutput(const ContinuationWrapper& aWrapper, const std::string& aOutputPath)
 {
     try
     {
@@ -114,15 +124,40 @@ void WriteOutput(const ContinuationWrapper& aWrapper, const std::string& aOutput
             
             std::cout << "Whole solutions written into: " << lFile2Name << std::endl;
         }
+        
+        lInterface->PlotSolutionNorms();
     }
     catch (std::string aEx)
     {
-        std::cout << "Exception in file output: " << std::endl;
+        std::cout << "Exception in processing outputs: " << std::endl;
         std::cout << aEx << std::endl;
     }
     catch (char const* aEx)
     {
-        std::cout << "Exception in file outpu: " << std::endl;
+        std::cout << "Exception in processing outputs: " << std::endl;
         std::cout << aEx << std::endl;
     }
 }
+
+void TestWhatever()
+{
+    try
+    {
+        std::string lPath = "/home/jiri/Desktop/config";
+        
+        Config lConfig = Config::LoadConfig(lPath);
+        
+        lConfig.Print();
+    }
+    catch (std::string aEx)
+    {
+        std::cout << "Exception in processing outputs: " << std::endl;
+        std::cout << aEx << std::endl;
+    }
+    catch (char const* aEx)
+    {
+        std::cout << "Exception in processing outputs: " << std::endl;
+        std::cout << aEx << std::endl;
+    }
+}
+

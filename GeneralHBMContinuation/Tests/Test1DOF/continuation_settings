@@ -3,7 +3,10 @@
 10000
 
 # Max newton steps
-300
+30
+
+# Newton norm F
+1e-9
 
 # Initial step size
 1e-4

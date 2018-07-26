@@ -16,7 +16,7 @@ FResult PenaltyWall::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX
         
         double lDiff = aX(lDof) - mWalls[iWall].Offset;
         
-        if (lDiff * lStiffCoeff >= 0) continue;
+        if (lDiff * lStiffCoeff <= 0) continue;
         
 //         std::cout << "Penetration amount: " << std::abs(lDiff) << std::endl;
 //         std::cout << "Result force      : " << std::abs(lDiff * lDiff) * lStiffCoeff << std::endl;
@@ -39,8 +39,12 @@ NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LA
         
         double lDiff = aX(lDof) - mWalls[iWall].Offset;
         
-        if (lDiff * lStiffCoeff >= 0) continue;
+        if (lDiff * lStiffCoeff <= 0) continue;
         
+        // we do -= because we want force that acts on the wall, not the force that acts on the dof (the term is on the left hand side
+        // in the equation)
+        // it's like with the linear stiffness, for positive displacement we get positive force (while the force acting on the mass is in 
+        // the opposite direction to the displacement so should be negative)
         lReturnMatrix(lDof, lDof) += lStiffCoeff;
     }
     

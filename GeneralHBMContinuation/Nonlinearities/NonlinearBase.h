@@ -9,7 +9,7 @@ class NonlinearBase;
 #include "NOX_LAPACK_Matrix.H"
 #include "NOX_LAPACK_Vector.H"
 
-#define DEFAULT_FD_STEP 1e-6
+#define DEFAULT_FD_STEP 1e-8
 
 class NonlinearBase
 {

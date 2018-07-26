@@ -21,16 +21,16 @@ continuation_settings
 nonlinearities
 
 # Number of harmonic waves
-20
+2
 
 # Min frequency
-0.02
+0.2
 
 # Max frequency
-16
+20
 
 # Number of integration points
-4000
+10000
 
 # Store whole solutions
 0

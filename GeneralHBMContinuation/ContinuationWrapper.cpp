@@ -11,7 +11,6 @@
 
 #include "ContinuationWrapper.h"
 #include "Config.h"
-#include "ContinuationSettings.h"
 #include "Functions.h"
 #include "ProblemInterface.h"
 
@@ -32,10 +31,8 @@ ContinuationWrapper::~ContinuationWrapper()
 }
 void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector<NonlinearBase*> aNonlinearities)
 {
-    Config lConfig = LoadConfig(aConfigPath);
-    PrintConfig(lConfig);
-    ContinuationSettings lContinuationSettings = LoadContinuationSettings(lConfig.ConfigFilePath + "/" + lConfig.ContinuationSettingsFile);
-    PrintContinuationSettings(lContinuationSettings);
+    Config lConfig = Config::LoadConfig(aConfigPath);
+    lConfig.Print();
         
     // Create parameter list
     Teuchos::RCP<Teuchos::ParameterList> paramList =
@@ -48,15 +45,16 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
     Teuchos::ParameterList& stepperList = locaParamsList.sublist("Stepper");
     stepperList.set("Continuation Method", "Arc Length");// Default
 //         stepperList.set("Continuation Method", "Natural");
-    stepperList.set("Continuation Parameter", ProblemInterface::cFrequencyName);  // Must set
-    stepperList.set("Initial Value", lConfig.FrequencyMin); // Must set
-    stepperList.set("Min Value", lConfig.FrequencyMin);             // Must set
-    stepperList.set("Max Value", lConfig.FrequencyMax);             // Must set
-    stepperList.set("Max Steps", lContinuationSettings.MaxStepsContinuation);                    // Should set
-    stepperList.set("Max Nonlinear Iterations", lContinuationSettings.MaxStepsNewton); // Should set
+    stepperList.set("Continuation Parameter", ProblemInterface::cContParameterName);  // Must set
+    stepperList.set("Initial Value", 0.0); // Must set
+    stepperList.set("Min Value", 0.0);             // Must set
+    stepperList.set("Max Value", 1.0);             // Must set
+    stepperList.set("Max Steps", lConfig.MaxStepsContinuation);                    // Should set
+    stepperList.set("Max Nonlinear Iterations", lConfig.MaxStepsNewton); // Should set
     stepperList.set("Compute Eigenvalues", false);        // Default
     stepperList.set("Enable Tangent Factor Step Size Scaling", true);        // Default
     stepperList.set("Enable Arc Length Scaling", true);        // Default
+    stepperList.set("Skip Parameter Derivative", false);        
 //     stepperList.set("Min Tangent Factor", 0.1);        // Default
 
     // Create predictor sublist
@@ -64,14 +62,14 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
     locaParamsList.sublist("Predictor");
 //         predictorList.set("Method", "Secant");               // Default
 //         predictorList.set("Method", "Constant");
-    predictorList.set("Method", lContinuationSettings.PredictorType);
+    predictorList.set("Method", lConfig.PredictorType);
 
     // Create step size sublist
     Teuchos::ParameterList& stepSizeList = locaParamsList.sublist("Step Size");
     stepSizeList.set("Method", "Adaptive");             // Default
-    stepSizeList.set("Initial Step Size", lContinuationSettings.StepSizeInitial);   // Should set
-    stepSizeList.set("Min Step Size", lContinuationSettings.StepSizeMin);    // Should set
-    stepSizeList.set("Max Step Size", lContinuationSettings.StepSizeMax);      // Should set
+    stepSizeList.set("Initial Step Size", lConfig.StepSizeInitial);   // Should set
+    stepSizeList.set("Min Step Size", lConfig.StepSizeMin);    // Should set
+    stepSizeList.set("Max Step Size", lConfig.StepSizeMax);      // Should set
 
     // Create the "Solver" parameters sublist to be used with NOX Solvers
     Teuchos::ParameterList& nlParams = paramList->sublist("NOX");
@@ -102,7 +100,7 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
     ProblemInterface* lInterface = new ProblemInterface(lConfig, aNonlinearities, lConfig.SaveWholeSolutions);
     
     LOCA::ParameterVector p;
-    p.addParameter(ProblemInterface::cFrequencyName, lConfig.FrequencyMin);
+    p.addParameter(ProblemInterface::cContParameterName, 0.0);
 
     // Create a group which uses that problem interface. The group will
     // be initialized to contain the default initial guess for the
@@ -114,9 +112,9 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
 
     // Set up the status tests
     Teuchos::RCP<NOX::StatusTest::NormF> normF =
-    Teuchos::rcp(new NOX::StatusTest::NormF(1.0e-11));
+    Teuchos::rcp(new NOX::StatusTest::NormF(lConfig.NewtonNormF));
     Teuchos::RCP<NOX::StatusTest::MaxIters> maxIters =
-    Teuchos::rcp(new NOX::StatusTest::MaxIters(lContinuationSettings.MaxStepsNewton));
+    Teuchos::rcp(new NOX::StatusTest::MaxIters(lConfig.MaxStepsNewton));
     Teuchos::RCP<NOX::StatusTest::Generic> comboOR =
     Teuchos::rcp(new NOX::StatusTest::Combo(NOX::StatusTest::Combo::OR,
                         normF,

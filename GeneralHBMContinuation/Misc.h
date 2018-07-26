@@ -15,10 +15,13 @@
 #define FULL_STRING (std::string("full"))
 #define SPARSE_STRING (std::string("sparse"))
 
+#define KEY_PREFIX_CHAR ('>')
+
 const std::vector<std::string> C_MatrixTypes = { FULL_STRING, SPARSE_STRING };
+const std::vector<std::string> C_PredictorTypes = { "Secant", "Tangent", "Constant" };
 
 template <class T> 
-int Sgn(T aVal)
+inline int Sgn(T aVal)
 {
     return (T(0) < aVal) - (aVal < T(0));
 }

@@ -4,7 +4,6 @@
 #include "FricElem3D.h"
 #include "../Misc.h"
 
-
 FResult FricElem3D::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
 {
     if (aX.length() % 3 != 0) throw "Number of dofs must be divisible by 3!";
@@ -23,7 +22,7 @@ FResult FricElem3D::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX:
     double lKtx = 1;
     double lKty = 1;
     
-    double lN0 = 2;
+    double lN0 = 0.04;
     double lMu = 0.2;
     
     NOX::LAPACK::Vector lUx(lNodeCount);
@@ -82,6 +81,95 @@ FResult FricElem3D::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX:
 //     STOP
     
     return lReturnResult;
+}
+// time domain to time domain
+NOX::LAPACK::Matrix<double> FricElem3D::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
+{
+    if (aX.length() % 3 != 0) throw "Number of dofs must be divisible by 3!";
+    
+    NOX::LAPACK::Matrix<double> lReturnMatrix(aX.length(), aX.length());
+    
+    // calculations start
+    int lDpN = 3;
+    int lNodeCount = aX.length() / lDpN;
+    
+    double lKn  = 1;
+    double lKtx = 1;
+    double lKty = 1;
+    
+    double lN0 = 0.04;
+    double lMu = 0.2;
+    
+    NOX::LAPACK::Vector lUx(lNodeCount);
+    NOX::LAPACK::Vector lUy(lNodeCount);
+    NOX::LAPACK::Vector lV (lNodeCount);
+    
+    NOX::LAPACK::Vector lUxr(lNodeCount);
+    NOX::LAPACK::Vector lUyr(lNodeCount);
+    
+    NOX::LAPACK::Vector lCoul(lNodeCount);
+    
+    NOX::LAPACK::Vector lTx(lNodeCount);
+    NOX::LAPACK::Vector lTy(lNodeCount);
+    NOX::LAPACK::Vector lN (lNodeCount);
+    
+    for (int iNode = 0; iNode < lNodeCount; iNode++)
+    {
+        lUx(iNode) = aX(lDpN * iNode);
+        lUy(iNode) = aX(lDpN * iNode + 1);
+        lV (iNode) = aX(lDpN * iNode + 2);
+        
+        lUxr(iNode) = aXPrev(lDpN * iNode);
+        lUyr(iNode) = aXPrev(lDpN * iNode + 1);
+        
+//         lN(iNode) = std::max(lN0 + lKn * lV(iNode), 0.0);
+        
+        lCoul(iNode) = lMu * lN(iNode);
+        lTx(iNode) = lKtx * (lUx(iNode) - lUxr(iNode));
+        lTy(iNode) = lKty * (lUy(iNode) - lUyr(iNode));
+        
+        if (std::abs(lTx(iNode)) > lCoul(iNode))
+        {
+            lReturnMatrix(iNode * lDpN, iNode * lDpN + 2) += lKn * lMu * Sgn(lTx(iNode));
+        }
+        else
+        {
+            lReturnMatrix(iNode * lDpN, iNode * lDpN) += lKtx;
+        }
+        
+        if (std::abs(lTy(iNode)) > lCoul(iNode))
+        {
+            lReturnMatrix(iNode * lDpN + 1, iNode * lDpN + 2) += lKn * lMu * Sgn(lTy(iNode));
+        }
+        else
+        {
+            lReturnMatrix(iNode * lDpN + 1, iNode * lDpN + 1) += lKty;
+        }
+        
+        if (lN0 + lKn * lV(iNode) > 0)
+        {
+            lReturnMatrix(iNode * lDpN + 2, iNode * lDpN + 2) += lKn;
+        }
+    }
+    
+//     std::cout << "Displacements      : " << aX << std::endl;
+//     std::cout << "Displacements corr : " << lReturnResult.XCorr << std::endl;
+//     std::cout << "Displacements prev : " << aXPrev << std::endl;
+//     std::cout << "Forces             : " << lReturnResult.FValues << std::endl;
+//     
+//     STOP
+    
+//     NOX::LAPACK::Matrix<double> lJacTest = ComputeJacobianFiniteDifferenceTD(aX, aXPrev);
+//     
+//     std::cout << "Analytic jacobian: " << std::endl;
+//     std::cout << lReturnMatrix << std::endl;
+//     
+//     std::cout << "Finite diff jacobian: " << std::endl;
+//     std::cout << lJacTest << std::endl;
+//     
+//     STOP
+    
+    return lReturnMatrix;
 }
 int FricElem3D::NumberOfPrepLoops() const
 {

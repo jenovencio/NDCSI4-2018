@@ -29,7 +29,7 @@ struct PenaltyWallDef
 public:
     int DofIndex;
     // determines the stiffness by it's magnitude and the orientation of the wall by it's sign
-    // the sign is the sign of the outer normal of the wall
+    // the sign is the sign of the inner normal of the wall
     double DirectionalStiffness;
     // offset of the walls (with respect to the 0 displacement)
     double Offset;

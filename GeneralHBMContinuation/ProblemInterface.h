@@ -21,7 +21,11 @@ private:
     const int cHarmonicCount;
     // in other words, the total number of degrees of freedom in the HBM system
     int mDOFCountHBM;
+    // needed to transform the generic <0, 1> continuation parameter into a frequency value
+    const double cFrequencyStart;
+    const double cFrequencyEnd;
     double mFrequency = 0;
+    double mCurrentContParam = -1;
     bool mRecomputeDynamicStiffness = true;
     bool mRecomputeExcitationRHS = true;
     // current dynamic matrix (for the last used frequency)
@@ -35,9 +39,10 @@ private:
     std::vector<double> mBValues;
     std::vector<double> mBProducts;
     
-    NOX::LAPACK::Matrix<double> mMassMatrix;
-    NOX::LAPACK::Matrix<double> mDampingMatrix;
-    NOX::LAPACK::Matrix<double> mStiffnessMatrix;
+    // we can have either one matrix for all harmonic or one matrix for each harmonic (nothing in between)
+    std::vector<NOX::LAPACK::Matrix<double>> mMassMatrices;
+    std::vector<NOX::LAPACK::Matrix<double>> mDampingMatrices;
+    std::vector<NOX::LAPACK::Matrix<double>> mStiffnessMatrices;
     // amplitudes of the excitation force, for each dof and harmonic wave (DC, cos, sin)
     std::vector<double> mExcitationAmp;
     // number of excitation coeffs for each physical dof (can be less than the number of coeffs used for the HBM)
@@ -64,7 +69,8 @@ private:
     bool mHasWholeSolutions = false;
     
 public:
-    static const std::string cFrequencyName;
+    // name of the generic continuation parameter that will go between 0 and 1
+    static const std::string cContParameterName;
     
 public:
     ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities, bool aSaveWholeSolutions = false);
@@ -80,9 +86,12 @@ public:
     void ClearSolutions();
     void WriteSolutionNorms(std::ostream& aStream) const;
     void WriteWholeSolutions(std::ostream& aStream) const;
+    void PlotSolutionNorms() const;
     bool HasWholeSolutions() const;
     
 private:
     NOX::LAPACK::Matrix<double>* CreateDynamicStiffnessMatrix(double aFrequency);
     NOX::LAPACK::Vector* CreateExcitationRHS(double aFrequency);
+    
+    void CheckMatrixCount(const std::string& aMatrixName, const int& aMatrixCount, const int& aHarmonicWaveCount);
 };

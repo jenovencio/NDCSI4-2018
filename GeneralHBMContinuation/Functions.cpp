@@ -6,129 +6,49 @@
 #include "Misc.h"
 #include "Nonlinearities/NonlinearitiesFactory.h"
 
-Config LoadConfig(const std::string& aConfigFilePath)
+std::map<std::string, std::vector<std::string>> ParseGeneralConfigFile(const std::string& aFilePath)
 {
-    std::ifstream lInputFile(aConfigFilePath);
-    if (!lInputFile.is_open()) throw std::string("Unable to open file \"" + aConfigFilePath + "\"!");
+    std::ifstream lInputFile(aFilePath);
+    if (!lInputFile.is_open()) throw std::string("Unable to open file \"" + aFilePath + "\"!");
     
-    std::string lTempString;
-    Config lReturnConfig;
+    std::map<std::string, std::vector<std::string>> lReturnMap;
     
-    int lSeparator = aConfigFilePath.size() - 1;
-    while (lSeparator > 0 && aConfigFilePath[lSeparator] != '/') lSeparator--;
+    bool lIsValidLine = true;
     
-    if (lSeparator == 0)
+    std::string lLastKey = "";
+    
+    while (true)
     {
-        lReturnConfig.ConfigFilePath = ".";
-        lReturnConfig.ConfigFileName = aConfigFilePath;
-    }
-    else
-    {
-        lReturnConfig.ConfigFilePath = aConfigFilePath.substr(0, lSeparator + 1);
-        lReturnConfig.ConfigFileName = aConfigFilePath.substr(lSeparator + 1, aConfigFilePath.size() - lSeparator - 1);
-    }
-    
-    lReturnConfig.MassMatrixFile = GetNextValidLine(lInputFile);
-    lReturnConfig.MassMatrixType = GetNextValidLine(lInputFile);
-    CheckString(lReturnConfig.MassMatrixType, C_MatrixTypes, "Matrix type");
-    
-    lReturnConfig.DampingMatrixFile = GetNextValidLine(lInputFile);
-    lReturnConfig.DampingMatrixType = GetNextValidLine(lInputFile);
-    CheckString(lReturnConfig.DampingMatrixType, C_MatrixTypes, "Matrix type");
-    
-    lReturnConfig.StiffnessMatrixFile = GetNextValidLine(lInputFile);
-    lReturnConfig.StiffnessMatrixType = GetNextValidLine(lInputFile);
-    CheckString(lReturnConfig.StiffnessMatrixType, C_MatrixTypes, "Matrix type");
-    
-    lReturnConfig.ExcitationForceFile = GetNextValidLine(lInputFile);
-    lReturnConfig.ContinuationSettingsFile = GetNextValidLine(lInputFile);
-    lReturnConfig.NonlinearitiesFile = GetNextValidLine(lInputFile);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnConfig.HarmonicWaveCount = std::stoi(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnConfig.FrequencyMin = std::stod(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnConfig.FrequencyMax = std::stod(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnConfig.IntPointCount = std::stoi(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    int lSaveWholeInt = std::stoi(lTempString);
-    
-    if (lSaveWholeInt == 1) lReturnConfig.SaveWholeSolutions = true;
-    else if (lSaveWholeInt == 0) lReturnConfig.SaveWholeSolutions = false;
-    else throw "Invalid bool flag for \"SaveWholeSolutions\", only 0 or 1 are accepted!";
-    
-    return lReturnConfig;
-}
-void PrintConfig(const Config& aConfig)
-{
-    std::cout << BORDER << std::endl;
-    std::cout << "Config: " << std::endl;
-    std::cout << "Config path: " << aConfig.ConfigFilePath << std::endl;
-    std::cout << "Config file name: " << aConfig.ConfigFileName << std::endl;
-    std::cout << "Harmonic waves count: " << aConfig.HarmonicWaveCount << std::endl;
-    std::cout << "Frequency range: <" << aConfig.FrequencyMin << ", " << aConfig.FrequencyMax << ">" << std::endl;
-    std::cout << "Number of time integration points: " << aConfig.IntPointCount << std::endl;
-    std::cout << "Mass      matrix file: " << aConfig.MassMatrixFile << " (" << aConfig.MassMatrixType << ")" << std::endl;
-    std::cout << "Damping   matrix file: " << aConfig.DampingMatrixFile << " (" << aConfig.DampingMatrixType << ")" << std::endl;
-    std::cout << "Stiffness matrix file: " << aConfig.StiffnessMatrixFile << " (" << aConfig.StiffnessMatrixType << ")" << std::endl;
-    std::cout << "Excitation force file: " << aConfig.ExcitationForceFile << std::endl;
-    std::cout << "Nonlinearities file: " << aConfig.NonlinearitiesFile << std::endl;
-    std::cout << "Save whole solutions: " << (aConfig.SaveWholeSolutions ? "true" : "false") << std::endl;
-    std::cout << BORDER << std::endl;
-}
-ContinuationSettings LoadContinuationSettings(const std::string& aContSetFilePath)
-{
-    std::ifstream lInputFile(aContSetFilePath);
-    if (!lInputFile.is_open()) throw std::string("Unable to open file \"" + aContSetFilePath + "\"!");
-    
-    std::string lTempString;
-    ContinuationSettings lReturnSettings;
-    
-    std::string PredictorType; // secant, constant, tangent
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnSettings.MaxStepsContinuation = std::stoi(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnSettings.MaxStepsNewton = std::stoi(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnSettings.StepSizeInitial = std::stod(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnSettings.StepSizeMin = std::stod(lTempString);
-    
-    lTempString = GetNextValidLine(lInputFile);
-    lReturnSettings.StepSizeMax = std::stod(lTempString);
+        std::string lLine = GetNextValidLine(lInputFile, lIsValidLine);
+        if (!lIsValidLine) break;
         
-    lTempString = GetNextValidLine(lInputFile);
+        if (lLine[0] == KEY_PREFIX_CHAR)
+        {
+            // this line is a key
+            // skip the key prefix character
+            lLine = lLine.substr(1);
+            
+            // skip possible whitespace after the key prefix character
+            lLine = SkipWhiteSpaces(lLine);
+            
+            if (lReturnMap.find(lLine) != lReturnMap.end()) throw "Key \"" + lLine + "\" occurs in the file \"" + aFilePath + "\" multiple times!";
+                        
+            lReturnMap[lLine] = std::vector<std::string>();
+            
+            lLastKey = lLine;
+        }
+        else
+        {
+            if (lLastKey.size() == 0) throw "First valid line in the configuration file must be a key definition!";
+            
+            lReturnMap[lLastKey].push_back(lLine);
+        }
+    }
     
-    if (! (lTempString == "Constant" || lTempString == "Tangent" || lTempString == "Secant")) 
-        throw "Invalid predictor option! Valid strings (case sensitive): Constant, Tangent, Secant";
-    
-    lReturnSettings.PredictorType = lTempString;
-    
-    return lReturnSettings;
+    return lReturnMap;
 }
 
-void PrintContinuationSettings(const ContinuationSettings& aContSettings)
-{
-    std::cout << BORDER << std::endl;
-    std::cout << "Continuation settings: " << std::endl;
-    std::cout << "Max continuation steps: " << aContSettings.MaxStepsContinuation << std::endl;
-    std::cout << "Max newton steps: " << aContSettings.MaxStepsNewton << std::endl;
-    std::cout << "Init step: " << aContSettings.StepSizeInitial << std::endl;
-    std::cout << "Min step: " << aContSettings.StepSizeMin << std::endl;
-    std::cout << "Max step: " << aContSettings.StepSizeMax << std::endl;
-    std::cout << "Predictor type: " << aContSettings.PredictorType << std::endl;
-    std::cout << BORDER << std::endl;
-}
+
 
 NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, int& aDim)
 {
@@ -236,47 +156,27 @@ std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim,
     
     return lReturnVector;
 }
-std::vector<NonlinearityDefinition> LoadNonlinearitiesDefinitions(const std::string& aFilePath)
-{
-    std::ifstream lInputFile(aFilePath);
-    if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
-    
-    std::vector<NonlinearityDefinition> lReturnVector;
-    
-    while (!lInputFile.eof())
-    {
-        std::string lFile = GetNextValidLine(lInputFile);
-        
-        // hack to deal with an empty file
-        if (lFile == "" && lInputFile.eof()) break;
-        
-        std::string lType = GetNextValidLine(lInputFile);
-        
-        CheckString(lType, C_NonlinearitiesFactory, "Nonlinearity type");
-        
-        NonlinearityDefinition lDef;
-        lDef.File = lFile;
-        lDef.Type = lType;
-        
-        lReturnVector.push_back(lDef);
-    }
-    
-    lInputFile.close();
-    
-    return lReturnVector;
-}
-std::string GetNextValidLine(std::ifstream& aFile)
+
+std::string GetNextValidLine(std::ifstream& aFile, bool& aIsValid)
 {
     std::string lReturnValue = "";
     
-    bool lSkipLine = true;
+    bool lFoundValidLine = false;
     
-    while (lSkipLine && !aFile.eof())
+    while (!aFile.eof())
     {
-        lSkipLine = false;
         std::getline(aFile, lReturnValue);
-        if (lReturnValue.size() == 0 || lReturnValue[0] == '#') lSkipLine = true;
+        
+        lReturnValue = SkipWhiteSpaces(lReturnValue);
+        
+        if (lReturnValue.size() == 0) continue;
+        if (lReturnValue[0] == '#') continue;
+        
+        lFoundValidLine = true;
+        break;
     }
+    
+    aIsValid = lFoundValidLine;
     
     return lReturnValue;
 }
@@ -305,30 +205,91 @@ void CheckString(const std::string& aString, const std::vector<std::string>& aPo
     }
 }
 
-template <class T>
-void CheckString(const std::string& aString, const std::map<std::string, T>& aPossibilities, const std::string& aGroupName)
+std::vector<double> GetRelativeTimePoints(const int& aTimePointCount)
 {
-    bool lIsIn = aPossibilities.find(aString) != aPossibilities.end();
+    double lRelativeStep = 1.0 / aTimePointCount;
+    std::vector<double> lReturnVector;
     
-    if (!lIsIn)
+    lReturnVector.reserve(aTimePointCount);
+    
+    double lCurrentPos = lRelativeStep / 2;
+    
+    for (int i = 0; i < aTimePointCount; i++)
     {
-        std::stringstream lStringBuilder;
-        lStringBuilder << "Value \"" + aString + "\" is not a valid option for \"" + aGroupName + "\"! Valid options are: " << std::endl;
-        
-        if (aPossibilities.size() == 0) lStringBuilder << " none (you are fucked)";
-        
-        int lCount = 0;
-        for (auto nIt = aPossibilities.begin(); nIt != aPossibilities.end(); nIt++)
+        lReturnVector.push_back(lCurrentPos);
+        lCurrentPos += lRelativeStep;
+    }
+    
+    return lReturnVector;
+}
+NOX::LAPACK::Vector GetAverage(const std::vector<NOX::LAPACK::Vector>& aVectors)
+{
+    if (aVectors.size() <= 0) throw "No vectors to average!";
+    
+    NOX::LAPACK::Vector lReturnVector(aVectors[0].length());
+    
+    for (int iVec = 0; iVec < aVectors.size(); iVec++)
+    {
+        for (int iElem = 0; iElem < aVectors[0].length(); iElem++)
         {
-            lStringBuilder << nIt->first;
-            if (lCount < aPossibilities.size() - 1)
-                lStringBuilder << ", ";
-            
-            lCount++;
+            lReturnVector(iElem) += aVectors[iVec](iElem);
         }
+    }
+    
+    lReturnVector.scale(1.0 / aVectors.size());
+    
+    return lReturnVector;
+}
+std::string SkipWhiteSpaces(const std::string& aString)
+{
+    int lFirstNonWhitespace = 0;
+    while (lFirstNonWhitespace < aString.size())
+    {
+        char lChar = aString[lFirstNonWhitespace];
+        if (lChar != ' ' && lChar != '\t') break;
+        lFirstNonWhitespace++;
+    }
+    
+    if (lFirstNonWhitespace >= aString.size()) return "";
+    
+    std::string lReturnValue = aString.substr(lFirstNonWhitespace);
+    
+    return lReturnValue;
+}
+std::vector<MatrixDefinition> ParseMatrixDefinition(const std::string& aMatrixName, const std::vector<std::string>& aLines)
+{
+    std::vector<MatrixDefinition> lReturnVector;
+    
+    int lLineInd = 0;
+    
+    if (aLines.size() % 2 != 0) throw aMatrixName + " matrix definition must have an even number of lines!";
+    if (aLines.size() <= 0) throw aMatrixName + " matrix definition can't be empty!";
+    
+    while (lLineInd < aLines.size())
+    {
+        MatrixDefinition lNewDef;
         
-        lStringBuilder << std::endl;
+        lNewDef.File = aLines[lLineInd++];
+        lNewDef.Type = aLines[lLineInd++];
         
-        throw lStringBuilder.str();
+        CheckString(lNewDef.Type, C_MatrixTypes);
+        
+        lReturnVector.push_back(lNewDef);
+    }
+    
+    return lReturnVector;
+}
+void PrintMatrixDefinitions(const std::vector<MatrixDefinition>& aDef)
+{
+    for (int i = 0; i < aDef.size(); i++)
+    {
+        std::cout << "\"" << aDef[i].File << "\" (" << aDef[i].Type << ")" << std::endl;
+    }
+}
+void PrintNonlinearityDefinitions(const std::vector<NonlinearityDefinition>& aDef)
+{
+    for (int i = 0; i < aDef.size(); i++)
+    {
+        std::cout << "\"" << aDef[i].File << "\" (" << aDef[i].Type << ")" << std::endl;
     }
 }

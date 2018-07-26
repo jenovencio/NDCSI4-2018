@@ -10,6 +10,8 @@ find_package(MPI REQUIRED)
 find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 find_package(OpenMP REQUIRED)
+find_package(PythonLibs REQUIRED)
+
 
 set(TRILINOS_ROOT /home/jiri/Libraries/Trilinos_pytrilinos/)
 set(TRILINOS_BUILD_PACKAGES /home/jiri/Libraries/Trilinos_pytrilinos/build/packages/)
@@ -50,11 +52,12 @@ include_directories(${TRILINOS_ROOT}build/packages/anasazi/src)
 include_directories(${TRILINOS_ROOT}packages/nox/src-loca/src)
 include_directories(${TRILINOS_ROOT}packages/nox/src-loca/src-lapack)
 
-
 include_directories(${MPI_INCLUDE_PATH})
+include_directories(${PYTHON_INCLUDE_DIRS})
 
 include_directories(${PETSC_BASE}include)
 include_directories(${PETSC_BASE}arch-linux2-c-debug/include)
+include_directories("/home/jiri/Libraries/matplotlib-cpp-master")
 
 
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src)
@@ -81,7 +84,7 @@ link_directories(${TRILINOS_BUILD_PACKAGES}anasazi/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src-lapack)
 
-add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/CubicSpring.cpp Nonlinearities/NonlinearBaseFD.cpp ContinuationWrapper.cpp Nonlinearities/FricElem3D.cpp Nonlinearities/PenaltyWall.cpp)
+add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/CubicSpring.cpp Nonlinearities/NonlinearBaseFD.cpp ContinuationWrapper.cpp Nonlinearities/FricElem3D.cpp Nonlinearities/PenaltyWall.cpp TestingFunction.cpp Time.cpp Config.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "HBMCont.exe")
 
@@ -91,7 +94,7 @@ target_link_libraries(generalhbmcontinuation ${MPI_LIBRARIES}
 	teuchoscomm teuchosnumerics teuchosparameterlist 
 	thyracore thyraepetra thyraepetraext amesos trilinosss
 	kokkoscore dl
-	ifpack teuchosremainder ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} -lmesh_devel)
+	ifpack teuchosremainder ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${PYTHON_LIBRARIES} -lmesh_devel)
 
 
 set_target_properties(generalhbmcontinuation PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")

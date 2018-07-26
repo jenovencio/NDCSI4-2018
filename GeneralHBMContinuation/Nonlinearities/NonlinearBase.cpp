@@ -2,6 +2,7 @@
 #include "NonlinearBase.h"
 #include "../Functions.h"
 #include "../Misc.h"
+#include "../Time.h"
 
 void NonlinearBase::LoadFromFile(const std::string& aFilePath)
 {
@@ -35,6 +36,9 @@ void NonlinearBase::Init(const std::vector<double>& aIntegrationPoints, const st
 // frequency domain to frequency domain
 NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
 {
+//     Time lTime;
+//     lTime.Start();
+    
     CheckStatus();
     
 //     std::cout << "Computing F for X (frequency domain): " << aX << std::endl;
@@ -54,7 +58,7 @@ NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const
     double lT = 2 * PI / aFrequency;
     double lTimeStep = lT / lIntPoints.size();
     
-    NOX::LAPACK::Vector lXTimePrev;
+    NOX::LAPACK::Vector lXTimePrev(lDofCount);
     
     int lLoopCount = NumberOfPrepLoops() + 1; // number of loop over the period
     
@@ -105,17 +109,26 @@ NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const
         }
     }
     
-    lReturnVector.scale(lTimeStep);    
+    lReturnVector.scale(lTimeStep);
+    
+//     double lMs = lTime.Stop();
+//     std::cout << "Full F eval time: " << lMs << " ms" << std::endl;
+    
     return lReturnVector;
 }
 // frequency domain to frequency domain
 NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
 {
+//     Time lTime;
+//     lTime.Start();
+//     Time lFftInvTime;
+//     double lFftInvTimeTotal = 0;
+    
     CheckStatus();
     
 //     std::cout << "Computing jacobian for X (frequency domain): " << std::endl << aX << std::endl;
     
-    auto lJacFD = ComputeJacobianFiniteDifference(aX, aFrequency, 1e-8);
+//     auto lJacFD = ComputeJacobianFiniteDifference(aX, aFrequency, 1e-8);
     
     NOX::LAPACK::Matrix<double> lReturnMatrix(aX.length(), aX.length());
     const std::vector<double>& lIntPoints = *cIntegrationPoints;
@@ -150,7 +163,9 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
     {
         for (int iIntPoint = 0; iIntPoint < lIntPoints.size(); iIntPoint++)
         {
+//             lFftInvTime.Start();
             NOX::LAPACK::Vector lXTime = FreqToTime(aX, iIntPoint);
+//             lFftInvTimeTotal += lFftInvTime.Stop();
             if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
             // calculate the nonlinearity jacobian in time domain
@@ -198,6 +213,11 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Ve
     }
     
     lReturnMatrix.scale(lTimeStep);
+    
+//     double lMs = lTime.Stop();
+//     std::cout << "Full J eval time: " << lMs << " ms" << std::endl;
+//     std::cout << "Inv fft total time: " << lFftInvTimeTotal << " ms" << std::endl;
+//     STOP
     
     return lReturnMatrix;
 }
