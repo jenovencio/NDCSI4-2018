@@ -1,6 +1,7 @@
 
 #include <cmath>
 #include <functional>
+#include <limits>
 
 #include "matplotlibcpp.h"
 
@@ -255,7 +256,7 @@ void ProblemInterface::setParams(const LOCA::ParameterVector& aParams)
     if (lNewContParam != mCurrentContParam)
     {
         mCurrentContParam = lNewContParam;
-        mFrequency = mCurrentContParam * cFrequencyEnd + (1.0 - mCurrentContParam) * cFrequencyStart;
+        mFrequency = mCurrentContParam * (cFrequencyEnd - cFrequencyStart) + cFrequencyStart;
         
         std::cout << "New continuation parameter set: " << mCurrentContParam << std::endl;
         std::cout << "Corresponding frequency value : " << mFrequency << std::endl;
@@ -266,9 +267,11 @@ void ProblemInterface::setParams(const LOCA::ParameterVector& aParams)
 }
 void ProblemInterface::printSolution(const NOX::LAPACK::Vector& aX, const double aConParam)
 {
+    double lFreq = aConParam * cFrequencyEnd + (1.0 - aConParam) * cFrequencyStart;
+    
     double lNorm = aX.norm();
     
-    mSolutionFrequencies.push_back(aConParam);
+    mSolutionFrequencies.push_back(lFreq);
     mSolutionNorms.push_back(lNorm);
     
     if (cSaveWholeSolutions) 
@@ -287,6 +290,8 @@ void ProblemInterface::ClearSolutions()
 }
 void ProblemInterface::WriteSolutionNorms(std::ostream& aStream) const
 {
+    aStream.precision(std::numeric_limits<double>::max_digits10);
+    
     for (int i = 0; i < mSolutionFrequencies.size(); i++)
     {
         aStream << mSolutionFrequencies[i] << "; " << mSolutionNorms[i] << std::endl;
@@ -295,6 +300,8 @@ void ProblemInterface::WriteSolutionNorms(std::ostream& aStream) const
 void ProblemInterface::WriteWholeSolutions(std::ostream& aStream) const
 {
     if (!cSaveWholeSolutions) throw "Whole solutions were not saved, so they can not be outputted!";
+    
+    aStream.precision(std::numeric_limits<double>::max_digits10);
     
     for (int i = 0; i < mSolutions.size(); i++)
     {

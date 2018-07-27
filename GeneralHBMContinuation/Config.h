@@ -39,6 +39,7 @@ public:
     static const std::string KEY_STEPMIN;   // minimum continuation step
     static const std::string KEY_STEPMAX;   // maximum continuation step
     static const std::string KEY_PRED;      // continuation predictor
+    static const std::string KEY_SCALEARC;  // continuation predictor
     
     // list of parameter keys and functions that return default values for those  parameters
     // the argument passed into the function should be the parameter name 
@@ -83,5 +84,6 @@ public:
     double StepSizeMin;
     double StepSizeMax;
     std::string PredictorType; // secant, constant, tangent
+    bool EnableArcLengthScaling;
 };
 

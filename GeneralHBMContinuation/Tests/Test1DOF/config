@@ -1,36 +1,75 @@
 
 # Mass matrix file path and type (full or sparse)
+>mass
 mass
 full
 
 # Damping matrix file path and type (full or sparse)
+>damp
 damping
 full
 
 # Stiffness matrix file path and type (full or sparse)
+>stiff
 stiffness
 full
 
 # Excitation force file path
+>exc
 excitation
 
-# Continuation settings file path
-continuation_settings
-
-# Nonlinearities definitions file
-nonlinearities
+# Start frequency
+>start
+0.002
 
 # Number of harmonic waves
-20
+>harm
+2
 
-# Min frequency
-0.02
-
-# Max frequency
+# End frequency
+>end
 16
 
 # Number of integration points
-4000
+>int
+40000
 
 # Store whole solutions
+>whole
 0
+
+# Max continuation steps
+>stepscont
+1000000
+
+# Max newton steps
+>stepsnewt
+10
+
+# Newton norm F
+>normnewt
+1e-9
+
+# Initial step size
+>stepinit
+1e-5
+
+# Minimum step size
+>stepmin
+1e-9
+
+# Maximum step size
+>stepmax
+1e-4
+
+# Predictor type (Constant, Tangent, Secant)
+>pred
+Tangent
+
+# Scaling for arc length (0 or 1)
+>scalearc
+0
+
+# nonlinearity file path and type
+>nonlin
+

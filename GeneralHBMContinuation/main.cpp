@@ -32,9 +32,6 @@ void TestWhatever();
 
 int main(int argc, char **argv)
 {
-    TestWhatever();
-    return 0;
-    
     ContinuationWrapper lCont;
     std::string lOutputPath = "./";
     
@@ -105,7 +102,7 @@ void ProcessOutput(const ContinuationWrapper& aWrapper, const std::string& aOutp
 {
     try
     {
-        std::string lFile1Name = aOutputPath + "continuation_output_norms" + OUT_EXTENSION;
+        std::string lFile1Name = aOutputPath + "/" + "continuation_output_norms" + OUT_EXTENSION;
         
         const ProblemInterface* const lInterface = aWrapper.GetInterface();
         std::ofstream lOutputFile(lFile1Name);
@@ -116,7 +113,7 @@ void ProcessOutput(const ContinuationWrapper& aWrapper, const std::string& aOutp
         
         if (lInterface->HasWholeSolutions())
         {
-            std::string lFile2Name = aOutputPath + "continuation_output_raw" + OUT_EXTENSION;
+            std::string lFile2Name = aOutputPath + "/" + "continuation_output_raw" + OUT_EXTENSION;
             
             std::ofstream lOutputFile2(lFile2Name);
             lInterface->WriteWholeSolutions(lOutputFile2);

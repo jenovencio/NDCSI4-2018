@@ -5,23 +5,24 @@
 #include "Functions.hpp"
 #include "Nonlinearities/NonlinearitiesFactory.h"
 
-const std::string Config::KEY_MASS    = "mass";
-const std::string Config::KEY_DAMP    = "damp";
-const std::string Config::KEY_STIFF   = "stiff";
-const std::string Config::KEY_EXC     = "exc";
-const std::string Config::KEY_HARM    = "harm";
-const std::string Config::KEY_NONLIN  = "nonlin";
-const std::string Config::KEY_START   = "start";
-const std::string Config::KEY_END     = "end";
-const std::string Config::KEY_INT     = "int";
-const std::string Config::KEY_WHOLE   = "whole";
-const std::string Config::KEY_STEPSC  = "stepscont";
-const std::string Config::KEY_STEPSN  = "stepsnewt";
-const std::string Config::KEY_NORM    = "normnewt";
-const std::string Config::KEY_STEPINI = "stepinit";
-const std::string Config::KEY_STEPMIN = "stepmin";
-const std::string Config::KEY_STEPMAX = "stepmax";
-const std::string Config::KEY_PRED    = "pred";
+const std::string Config::KEY_MASS      = "mass";
+const std::string Config::KEY_DAMP      = "damp";
+const std::string Config::KEY_STIFF     = "stiff";
+const std::string Config::KEY_EXC       = "exc";
+const std::string Config::KEY_HARM      = "harm";
+const std::string Config::KEY_NONLIN    = "nonlin";
+const std::string Config::KEY_START     = "start";
+const std::string Config::KEY_END       = "end";
+const std::string Config::KEY_INT       = "int";
+const std::string Config::KEY_WHOLE     = "whole";
+const std::string Config::KEY_STEPSC    = "stepscont";
+const std::string Config::KEY_STEPSN    = "stepsnewt";
+const std::string Config::KEY_NORM      = "normnewt";
+const std::string Config::KEY_STEPINI   = "stepinit";
+const std::string Config::KEY_STEPMIN   = "stepmin";
+const std::string Config::KEY_STEPMAX   = "stepmax";
+const std::string Config::KEY_PRED      = "pred";
+const std::string Config::KEY_SCALEARC  = "scalearc";
 
 const std::map<std::string, std::function<std::vector<std::string>(const std::string&)>> Config::C_ConfigDefinition = 
 {
@@ -38,10 +39,11 @@ const std::map<std::string, std::function<std::vector<std::string>(const std::st
     { Config::KEY_STEPSC,   RET_ONE_STR("1000")     },
     { Config::KEY_STEPSN,   RET_ONE_STR("10")       },
     { Config::KEY_NORM,     RET_ONE_STR("1e-6")     },
-    { Config::KEY_STEPINI,  RET_ONE_STR("1e-3")     },
-    { Config::KEY_STEPMIN,  RET_ONE_STR("1e-5")     },
+    { Config::KEY_STEPINI,  RET_ONE_STR("1e-4")     },
+    { Config::KEY_STEPMIN,  RET_ONE_STR("1e-6")     },
     { Config::KEY_STEPMAX,  RET_ONE_STR("1e-1")     },
     { Config::KEY_PRED,     RET_ONE_STR("Tangent")  },
+    { Config::KEY_SCALEARC, RET_ONE_STR("true")  },
 };
 
 Config Config::LoadConfig(const std::string& aConfigFilePath)
@@ -203,7 +205,15 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
     if (lTempLines.size() != 1) throw "Predictor definition must have exactly one line!";
     lReturnConfig.PredictorType = lTempLines[0];
     CheckString(lReturnConfig.PredictorType, C_PredictorTypes);
-        
+    
+    // arc length scaling
+    lTempLines = lConfigMap[KEY_SCALEARC];
+    if (lTempLines.size() != 1) throw "Arc length scaling definition must have exactly one line!";
+    lBoolInt = std::stoi(lTempLines[0]);
+    if (lBoolInt == 0) lReturnConfig.EnableArcLengthScaling = false;
+    else if (lBoolInt == 1) lReturnConfig.EnableArcLengthScaling = true;
+    else throw "Invalid bool flag for \"EnableArcLengthScaling\", only 0 or 1 are accepted!";
+    
     return lReturnConfig;
 }
 
@@ -236,5 +246,6 @@ void Config::Print() const
     std::cout << "Min step: " << StepSizeMin << std::endl;
     std::cout << "Max step: " << StepSizeMax << std::endl;
     std::cout << "Predictor type: " << PredictorType << std::endl;
+    std::cout << "Arc length scaling: " << (EnableArcLengthScaling ? "true" : "false") << std::endl;
     std::cout << BORDER << std::endl;
 }

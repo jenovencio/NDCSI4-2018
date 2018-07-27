@@ -53,7 +53,7 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
     stepperList.set("Max Nonlinear Iterations", lConfig.MaxStepsNewton); // Should set
     stepperList.set("Compute Eigenvalues", false);        // Default
     stepperList.set("Enable Tangent Factor Step Size Scaling", true);        // Default
-    stepperList.set("Enable Arc Length Scaling", true);        // Default
+    stepperList.set("Enable Arc Length Scaling", lConfig.EnableArcLengthScaling);        // Default
     stepperList.set("Skip Parameter Derivative", false);        
 //     stepperList.set("Min Tangent Factor", 0.1);        // Default
 
