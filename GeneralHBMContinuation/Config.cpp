@@ -35,7 +35,7 @@ const std::map<std::string, std::function<std::vector<std::string>(const std::st
     { Config::KEY_START,    THROW_NO_DEFAULT        },
     { Config::KEY_END,      THROW_NO_DEFAULT        },
     { Config::KEY_INT,      THROW_NO_DEFAULT        },
-    { Config::KEY_WHOLE,    THROW_NO_DEFAULT        },
+    { Config::KEY_WHOLE,    RET_ONE_STR("0")        },
     { Config::KEY_STEPSC,   RET_ONE_STR("1000")     },
     { Config::KEY_STEPSN,   RET_ONE_STR("10")       },
     { Config::KEY_NORM,     RET_ONE_STR("1e-6")     },
@@ -43,7 +43,7 @@ const std::map<std::string, std::function<std::vector<std::string>(const std::st
     { Config::KEY_STEPMIN,  RET_ONE_STR("1e-6")     },
     { Config::KEY_STEPMAX,  RET_ONE_STR("1e-1")     },
     { Config::KEY_PRED,     RET_ONE_STR("Tangent")  },
-    { Config::KEY_SCALEARC, RET_ONE_STR("true")  },
+    { Config::KEY_SCALEARC, RET_ONE_STR("1")  },
 };
 
 Config Config::LoadConfig(const std::string& aConfigFilePath)
@@ -116,11 +116,11 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
     
     // matrices
     lTempLines = lConfigMap[KEY_MASS];
-    lReturnConfig.MassMatrices = ParseMatrixDefinition("Mass", lTempLines);
+    lReturnConfig.MassMatrices = ParseMatrixDefinition(lTempLines, "Mass");
     lTempLines = lConfigMap[KEY_DAMP];
-    lReturnConfig.DampingMatrices = ParseMatrixDefinition("Damping", lTempLines);
+    lReturnConfig.DampingMatrices = ParseMatrixDefinition(lTempLines, "Damping");
     lTempLines = lConfigMap[KEY_STIFF];
-    lReturnConfig.StiffnessMatrices = ParseMatrixDefinition("Stiffness", lTempLines);
+    lReturnConfig.StiffnessMatrices = ParseMatrixDefinition(lTempLines, "Stiffness");
     
     // excitation force
     lTempLines = lConfigMap[KEY_EXC];
@@ -141,64 +141,39 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
     }
     
     // number of harmonics
-    lTempLines = lConfigMap[KEY_HARM];
-    if (lTempLines.size() != 1) throw "Harmonic count definition must have exactly one line!";
-    lReturnConfig.HarmonicWaveCount = std::stoi(lTempLines[0]);
+    lReturnConfig.HarmonicWaveCount = ParseOneLineInt(lConfigMap[KEY_HARM], "Harmonic count");
     
     // start frequency
-    lTempLines = lConfigMap[KEY_START];
-    if (lTempLines.size() != 1) throw "Start frequency definition must have exactly one line!";
-    lReturnConfig.FrequencyStart = std::stod(lTempLines[0]);
+    lReturnConfig.FrequencyStart = ParseOneLineDouble(lConfigMap[KEY_START], "Start frequency");
     
     // end frequency
-    lTempLines = lConfigMap[KEY_END];
-    if (lTempLines.size() != 1) throw "End frequency definition must have exactly one line!";
-    lReturnConfig.FrequencyEnd = std::stod(lTempLines[0]);
+    lReturnConfig.FrequencyEnd = ParseOneLineDouble(lConfigMap[KEY_END], "End frequency");
     
     // integration point count
-    lTempLines = lConfigMap[KEY_INT];
-    if (lTempLines.size() != 1) throw "Integration point count definition must have exactly one line!";
-    lReturnConfig.IntPointCount = std::stoi(lTempLines[0]);
+    lReturnConfig.IntPointCount = ParseOneLineInt(lConfigMap[KEY_INT], "Integration point count");
     
     // save whole solutions
-    lTempLines = lConfigMap[KEY_WHOLE];
-    if (lTempLines.size() != 1) throw "Save whole solutions definition must have exactly one line!";
-    int lBoolInt = std::stoi(lTempLines[0]);
-    if (lBoolInt == 0) lReturnConfig.SaveWholeSolutions = false;
-    else if (lBoolInt == 1) lReturnConfig.SaveWholeSolutions = true;
-    else throw "Invalid bool flag for \"SaveWholeSolutions\", only 0 or 1 are accepted!";
+    lReturnConfig.SaveWholeSolutions = ParseOneLineBool(lConfigMap[KEY_WHOLE], "Save whole solutions");
     
     // continuation settings
     
     // max newton steps
-    lTempLines = lConfigMap[KEY_STEPSN];
-    if (lTempLines.size() != 1) throw "Newton step count definition must have exactly one line!";
-    lReturnConfig.MaxStepsNewton = std::stoi(lTempLines[0]);
+    lReturnConfig.MaxStepsNewton = ParseOneLineInt(lConfigMap[KEY_STEPSN], "Newton step count");
     
     // max continuation steps
-    lTempLines = lConfigMap[KEY_STEPSC];
-    if (lTempLines.size() != 1) throw "Continuation step count definition must have exactly one line!";
-    lReturnConfig.MaxStepsContinuation = std::stoi(lTempLines[0]);
+    lReturnConfig.MaxStepsContinuation = ParseOneLineInt(lConfigMap[KEY_STEPSC], "Continuation step count");
     
     // newton norm
-    lTempLines = lConfigMap[KEY_NORM];
-    if (lTempLines.size() != 1) throw "Newton tolerance norm definition must have exactly one line!";
-    lReturnConfig.NewtonNormF = std::stod(lTempLines[0]);
+    lReturnConfig.NewtonNormF = ParseOneLineDouble(lConfigMap[KEY_NORM], "Newton tolerance norm");
     
     // init step
-    lTempLines = lConfigMap[KEY_STEPINI];
-    if (lTempLines.size() != 1) throw "Initial continuation step definition must have exactly one line!";
-    lReturnConfig.StepSizeInitial = std::stod(lTempLines[0]);
+    lReturnConfig.StepSizeInitial = ParseOneLineDouble(lConfigMap[KEY_STEPINI], "Initial conntinuation step");
     
     // min step
-    lTempLines = lConfigMap[KEY_STEPMIN];
-    if (lTempLines.size() != 1) throw "Min continuation step definition must have exactly one line!";
-    lReturnConfig.StepSizeMin = std::stod(lTempLines[0]);
+    lReturnConfig.StepSizeMin = ParseOneLineDouble(lConfigMap[KEY_STEPMIN], "Min conntinuation step");
     
     // max step
-    lTempLines = lConfigMap[KEY_STEPMAX];
-    if (lTempLines.size() != 1) throw "Max continuation step definition must have exactly one line!";
-    lReturnConfig.StepSizeMax = std::stod(lTempLines[0]);
+    lReturnConfig.StepSizeMax = ParseOneLineDouble(lConfigMap[KEY_STEPMAX], "Max conntinuation step");
     
     // predictor
     lTempLines = lConfigMap[KEY_PRED];
@@ -207,12 +182,7 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
     CheckString(lReturnConfig.PredictorType, C_PredictorTypes);
     
     // arc length scaling
-    lTempLines = lConfigMap[KEY_SCALEARC];
-    if (lTempLines.size() != 1) throw "Arc length scaling definition must have exactly one line!";
-    lBoolInt = std::stoi(lTempLines[0]);
-    if (lBoolInt == 0) lReturnConfig.EnableArcLengthScaling = false;
-    else if (lBoolInt == 1) lReturnConfig.EnableArcLengthScaling = true;
-    else throw "Invalid bool flag for \"EnableArcLengthScaling\", only 0 or 1 are accepted!";
+    lReturnConfig.EnableArcLengthScaling = ParseOneLineBool(lConfigMap[KEY_SCALEARC], "Arc length scaling");
     
     return lReturnConfig;
 }
@@ -248,4 +218,60 @@ void Config::Print() const
     std::cout << "Predictor type: " << PredictorType << std::endl;
     std::cout << "Arc length scaling: " << (EnableArcLengthScaling ? "true" : "false") << std::endl;
     std::cout << BORDER << std::endl;
+}
+
+int Config::ParseOneLineInt(const std::vector<std::string>& aLines, const std::string& aPropetyName)
+{
+    if (aLines.size() != 1) throw "\"" + aPropetyName + "\" definition must have exactly one line!";
+    return std::stoi(aLines[0]);
+}
+double Config::ParseOneLineDouble(const std::vector<std::string>& aLines, const std::string& aPropetyName)
+{
+    if (aLines.size() != 1) throw "\"" + aPropetyName + "\" definition must have exactly one line!";
+    return std::stod(aLines[0]);
+}
+bool Config::ParseOneLineBool(const std::vector<std::string>& aLines, const std::string& aPropetyName)
+{
+    if (aLines.size() != 1) throw "\"" + aPropetyName + "\" definition must have exactly one line!";
+    int lBoolInt = std::stoi(aLines[0]);
+    if (lBoolInt == 0) return false;
+    else if (lBoolInt == 1) return true;
+    else throw "Invalid bool flag for \"" + aPropetyName + "\", only 0 or 1 are accepted!";
+}
+std::vector<MatrixDefinition> Config::ParseMatrixDefinition(const std::vector<std::string>& aLines, const std::string& aMatrixName)
+{
+    std::vector<MatrixDefinition> lReturnVector;
+    
+    int lLineInd = 0;
+    
+    if (aLines.size() % 2 != 0) throw aMatrixName + " matrix definition must have an even number of lines!";
+    if (aLines.size() <= 0) throw aMatrixName + " matrix definition can't be empty!";
+    
+    while (lLineInd < aLines.size())
+    {
+        MatrixDefinition lNewDef;
+        
+        lNewDef.File = aLines[lLineInd++];
+        lNewDef.Type = aLines[lLineInd++];
+        
+        CheckString(lNewDef.Type, C_MatrixTypes);
+        
+        lReturnVector.push_back(lNewDef);
+    }
+    
+    return lReturnVector;
+}
+void Config::PrintMatrixDefinitions(const std::vector<MatrixDefinition>& aDef) const
+{
+    for (int i = 0; i < aDef.size(); i++)
+    {
+        std::cout << "\"" << aDef[i].File << "\" (" << aDef[i].Type << ")" << std::endl;
+    }
+}
+void Config::PrintNonlinearityDefinitions(const std::vector<NonlinearityDefinition>& aDef) const
+{
+    for (int i = 0; i < aDef.size(); i++)
+    {
+        std::cout << "\"" << aDef[i].File << "\" (" << aDef[i].Type << ")" << std::endl;
+    }
 }

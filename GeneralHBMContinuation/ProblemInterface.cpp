@@ -204,13 +204,15 @@ bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Ve
     
     // linear part
     aRhs = NOX::LAPACK::Vector(*mExcitationRHS);
-        
+    
     aRhs = aRhs.scale(-1.0);
     
+    const NOX::LAPACK::Matrix<double>& lDSMTemp = *mDynamicStiffnessMatrix;
+    
     // dynamic stiffness matrix multiplication
-    for (int i = 0; i < mDynamicStiffnessMatrix->numRows(); i++)
-        for (int j = 0; j < mDynamicStiffnessMatrix->numCols(); j++)
-            aRhs(i) += (*mDynamicStiffnessMatrix)(i, j) * aX(j);
+    for (int i = 0; i < lDSMTemp.numRows(); i++)
+        for (int j = 0; j < lDSMTemp.numCols(); j++)
+            aRhs(i) += lDSMTemp(i, j) * aX(j);
         
     // nonlinear part
         
@@ -225,7 +227,7 @@ bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Ve
     return true;
 }
 bool ProblemInterface::computeJacobian(NOX::LAPACK::Matrix<double>& aJ, const NOX::LAPACK::Vector& aX)
-{    
+{
     if (mRecomputeDynamicStiffness)
     {
         delete mDynamicStiffnessMatrix;
@@ -258,8 +260,8 @@ void ProblemInterface::setParams(const LOCA::ParameterVector& aParams)
         mCurrentContParam = lNewContParam;
         mFrequency = mCurrentContParam * (cFrequencyEnd - cFrequencyStart) + cFrequencyStart;
         
-        std::cout << "New continuation parameter set: " << mCurrentContParam << std::endl;
-        std::cout << "Corresponding frequency value : " << mFrequency << std::endl;
+//         std::cout << "New continuation parameter set: " << mCurrentContParam << std::endl;
+//         std::cout << "Corresponding frequency value : " << mFrequency << std::endl;
         
         mRecomputeDynamicStiffness = true;
         mRecomputeExcitationRHS = true;

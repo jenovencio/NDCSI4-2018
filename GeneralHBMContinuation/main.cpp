@@ -113,7 +113,7 @@ void ProcessOutput(const ContinuationWrapper& aWrapper, const std::string& aOutp
         
         if (lInterface->HasWholeSolutions())
         {
-            std::string lFile2Name = aOutputPath + "/" + "continuation_output_raw" + OUT_EXTENSION;
+            std::string lFile2Name = aOutputPath + "/" + "continuation_output_full" + OUT_EXTENSION;
             
             std::ofstream lOutputFile2(lFile2Name);
             lInterface->WriteWholeSolutions(lOutputFile2);

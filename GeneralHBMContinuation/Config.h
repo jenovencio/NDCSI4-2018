@@ -85,5 +85,14 @@ public:
     double StepSizeMax;
     std::string PredictorType; // secant, constant, tangent
     bool EnableArcLengthScaling;
+    
+private:
+    static int ParseOneLineInt(const std::vector<std::string>& aLines, const std::string& aPropetyName = "");
+    static double ParseOneLineDouble(const std::vector<std::string>& aLines, const std::string& aPropetyName = "");
+    static bool ParseOneLineBool(const std::vector<std::string>& aLines, const std::string& aPropetyName = "");
+    static std::vector<MatrixDefinition> ParseMatrixDefinition(const std::vector<std::string>& aLines, const std::string& aMatrixName);
+    
+    void PrintMatrixDefinitions(const std::vector<MatrixDefinition>& aDef) const;
+    void PrintNonlinearityDefinitions(const std::vector<NonlinearityDefinition>& aDef) const;
 };
 

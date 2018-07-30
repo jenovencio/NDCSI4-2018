@@ -47,6 +47,3 @@ void CheckString(const std::string& aString, const std::map<std::string, T>& aPo
 std::vector<double> GetRelativeTimePoints(const int& aTimePointCount);
 NOX::LAPACK::Vector GetAverage(const std::vector<NOX::LAPACK::Vector>& aVectors);
 std::string SkipWhiteSpaces(const std::string& aString);
-std::vector<MatrixDefinition> ParseMatrixDefinition(const std::string& aMatrixName, const std::vector<std::string>& aLines);
-void PrintMatrixDefinitions(const std::vector<MatrixDefinition>& aDef);
-void PrintNonlinearityDefinitions(const std::vector<NonlinearityDefinition>& aDef);
