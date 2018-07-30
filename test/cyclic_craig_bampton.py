@@ -81,15 +81,36 @@ master_dofs.extend(dir_dofs)
 
 #--------------------------------------------------------------------------
 # compute the cyclic Craig Bampton reduction
+#K, M, f = my_comp.insert_dirichlet_boundary_cond(K,M,f,dir_dofs)
+
+
+
+Tcg, Tcg_inv  = my_comp.compute_cyclic_Craig_Bampton_Red(M, K, master_dofs, low_dofs, high_dofs, num_of_sector, no_of_modes=6, harm_index=0)
+
+
+# building maps to reduced system and global system
+inv_id_matrix = my_comp.create_inv_id_matrix()
+local2global_master = my_comp.local2global_master 
+
+
+# create K and M matrix with Dirichlet B.C
 K, M, f = my_comp.insert_dirichlet_boundary_cond(K,M,f,dir_dofs)
-
-
-Tcg = my_comp.compute_cyclic_Craig_Bampton_Red(M, K, master_dofs, low_dofs, high_dofs, num_of_sector, no_of_modes=6, harm_index=0)
-
-
 M_red = Tcg.T.dot(M).dot(Tcg)
 K_red = Tcg.T.dot(K).dot(Tcg)
 C_red = Tcg.T.dot(0.003*K).dot(Tcg)
+
+
+def write_map_matrix(filename,inv_id_matrix,local2global_master):
+
+    with open(filename,'w') as f:
+        f.write('Node dir dof')
+        f.write('\n')
+        for key, global_dof in local2global_master.items():
+            global_node = inv_id_matrix[global_dof]['node']
+            direction = inv_id_matrix[global_dof]['direction']
+            f.write(str(global_node) + ' ' + str(direction) + ' ' + str(key))
+            f.write('\n')
+
 
 def writeMatrix(M,filename):
 
@@ -97,17 +118,27 @@ def writeMatrix(M,filename):
     with open(filename,'w') as f:
 
         f.write(str(ndof)) 
-        f.write('\n') 
+        f.write('/n') 
         for columns in M.todense().T:
             for i in columns.tolist()[0]:
                 f.write(str(i))
-                f.write('\n') 
+                f.write('/n') 
 
+filename = 'master_map.dat'
+write_map_matrix(filename,inv_id_matrix,local2global_master)
 
-M_file = 'M_red_0.dat'
-K_file = 'K_red_0.dat'
-C_file = 'C_red_0.dat'
+M_file = 'M_red_0_real.dat'
+K_file = 'K_red_0_real.dat'
+C_file = 'C_red_0_real.dat'
 
-writeMatrix(M_red,M_file)
-writeMatrix(K_red,K_file)
-writeMatrix(C_red,C_file)
+Mi_file = 'M_red_0_im.dat'
+Ki_file = 'K_red_0_im.dat'
+Ci_file = 'C_red_0_im.dat'
+
+writeMatrix(np.real(M_red),M_file)
+writeMatrix(np.real(K_red),K_file)
+writeMatrix(np.real(C_red),C_file)
+
+writeMatrix(np.imag(M_red),Mi_file)
+writeMatrix(np.imag(K_red),Ki_file)
+writeMatrix(np.imag(C_red),Ci_file)
