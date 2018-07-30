@@ -6,8 +6,12 @@ class NonlinearBase;
 #pragma once
 #include <functional>
 
+#include "fftw3.h"
+
 #include "NOX_LAPACK_Matrix.H"
 #include "NOX_LAPACK_Vector.H"
+
+#include "../AftBase.h"
 
 #define DEFAULT_FD_STEP 1e-8
 
@@ -25,27 +29,28 @@ private:
     // 
     std::vector<int> mNonzeroFPositions;
     
-    // do not delete these pointers
-    const std::vector<double>* cIntegrationPoints;
-    const std::vector<double>* cBValues;
-    const std::vector<double>* cBProducts;
+    // do not delete this pointer
+    // can not be const because it will be modifying itself inside (it's internal structures) during the transformations
+    AftBase* cAft;
+    
     int mHarmonicCoeffCount;
     bool mIsFinalised = false;
     bool mIsInitialised = false;
     
-    // this is set in the Init call, do not touch it elswhere!
+    // this is set in the Init call, do not touch it elsewhere!
     int mDofCountTimeDomain;
     
 public:
+    ~NonlinearBase();
     virtual void LoadFromFile(const std::string& aFilePath);
     // returns the name of the class
     virtual std::string ClassName() const = 0;
     // the aDofCountTimeDomain argument was added for the derived classes, in case they need it. We don't really need it here
-    virtual void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain);
+    virtual void Init(AftBase* const aAft, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain);
     // frequency domain to frequency domain
-    NOX::LAPACK::Vector ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
+    const NOX::LAPACK::Vector& ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
     // frequency domain to frequency domain
-    NOX::LAPACK::Matrix<double> ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
+    const NOX::LAPACK::Matrix<double>& ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
     // "locks" the nonlinearity to any changes (logically, not actually of course)
     // the point is, after this method is called, the nonlinearity should not change anymore (in terms of it's mathematical definition at least),
     // so for instance for a cubic spring nonlinearity, no springs should be added or removed, etc.
@@ -82,6 +87,7 @@ protected:
     virtual bool IsCorrectingX() const = 0;
     
 private:
+    
     // relative time point value (considering period = 1)
     NOX::LAPACK::Vector FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex) const;
     

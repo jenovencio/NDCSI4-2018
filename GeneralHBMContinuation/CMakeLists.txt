@@ -3,8 +3,8 @@ project(generalhbmcontinuation)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_BUILD_TYPE Release)
 
 find_package(MPI REQUIRED)
 find_package(BLAS REQUIRED)
@@ -84,7 +84,7 @@ link_directories(${TRILINOS_BUILD_PACKAGES}anasazi/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src-lapack)
 
-add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/CubicSpring.cpp Nonlinearities/NonlinearBaseFD.cpp ContinuationWrapper.cpp Nonlinearities/FricElem3D.cpp Nonlinearities/PenaltyWall.cpp TestingFunction.cpp Time.cpp Config.cpp)
+add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/CubicSpring.cpp Nonlinearities/NonlinearBaseFD.cpp ContinuationWrapper.cpp Nonlinearities/FricElem3D.cpp Nonlinearities/PenaltyWall.cpp TestingFunctions.cpp Time.cpp Config.cpp AftSimple.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "HBMCont.exe")
 
@@ -93,7 +93,7 @@ target_link_libraries(generalhbmcontinuation ${MPI_LIBRARIES}
 	epetraext teuchoscore 
 	teuchoscomm teuchosnumerics teuchosparameterlist 
 	thyracore thyraepetra thyraepetraext amesos trilinosss
-	kokkoscore dl
+	kokkoscore dl fftw3 fftw3_omp
 	ifpack teuchosremainder ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES} ${PYTHON_LIBRARIES} -lmesh_devel)
 
 

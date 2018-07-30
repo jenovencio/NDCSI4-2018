@@ -32,12 +32,6 @@ private:
     NOX::LAPACK::Matrix<double>* mDynamicStiffnessMatrix = nullptr;
     // current excitation RHS (for the last used frequency)
     NOX::LAPACK::Vector* mExcitationRHS = nullptr;
-    // coordinates of the integration points, relative to a time period T
-    // these values would effectively be for period T = 1
-    std::vector<double> mIntPointsRelative;
-    
-    std::vector<double> mBValues;
-    std::vector<double> mBProducts;
     
     // we can have either one matrix for all harmonic or one matrix for each harmonic (nothing in between)
     std::vector<NOX::LAPACK::Matrix<double>> mMassMatrices;

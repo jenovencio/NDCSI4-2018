@@ -50,81 +50,69 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     mDOFCountHBM = cHarmonicCount * mDOFCount;
     
     mInitGuess = NOX::LAPACK::Vector(mDOFCountHBM);
-        
+    
     int lIntPointCount = aConfig.IntPointCount;
     if (lIntPointCount < 1) throw "Integration point count must be a positive number!";
     
-//     double lRelativeStep = 1.0 / lIntPointCount;
+//     mIntPointsRelative = GetRelativeTimePoints(lIntPointCount);
 //     
-//     mIntPointsRelative.reserve(lIntPointCount);
+//     double* lTempArray1 = new double[lIntPointCount * cHarmonicCount];
 //     
-//     double lCurrentPos = lRelativeStep / 2;
+//     std::function<double(double)> lB;
 //     
-//     for (int i = 0; i < lIntPointCount; i++)
+//     for (int i = 0; i < cHarmonicCount; i++)
 //     {
-//         mIntPointsRelative.push_back(lCurrentPos);
-//         lCurrentPos += lRelativeStep;
+//         int lWaveNumber = (i + 1) / 2;
+//         
+//         if (i == 0)             lB = [](double aX) { return 1.0; };
+//         else if (i % 2 == 1)    lB = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
+//         else                    lB = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
+//         
+//         for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
+//         {
+//             int lIndex = GetBValuesIndex(i, iIntPoint, cHarmonicCount, lIntPointCount);
+//             double lIntPointPos = mIntPointsRelative[iIntPoint];
+//             
+//             double lValue = lB(lIntPointPos);
+//             
+//             lTempArray1[lIndex] = lValue;
+//         }
 //     }
 //     
-    mIntPointsRelative = GetRelativeTimePoints(lIntPointCount);
-    
-    double* lTempArray1 = new double[lIntPointCount * cHarmonicCount];
-    
-    std::function<double(double)> lB;
-    
-    for (int i = 0; i < cHarmonicCount; i++)
-    {
-        int lWaveNumber = (i + 1) / 2;
-        
-        if (i == 0)             lB = [](double aX) { return 1.0; };
-        else if (i % 2 == 1)    lB = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
-        else                    lB = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
-        
-        for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
-        {
-            int lIndex = GetBValuesIndex(i, iIntPoint, cHarmonicCount, lIntPointCount);
-            double lIntPointPos = mIntPointsRelative[iIntPoint];
-            
-            double lValue = lB(lIntPointPos);
-            
-            lTempArray1[lIndex] = lValue;
-        }
-    }
-    
-    mBValues.assign(lTempArray1, lTempArray1 + lIntPointCount * cHarmonicCount);
-    
-    double* lTempArray2 = new double[lIntPointCount * cHarmonicCount * cHarmonicCount];
-    
-    std::function<double(double)> lB1;
-    std::function<double(double)> lB2;
-    
-    for (int i = 0; i < cHarmonicCount; i++)
-    {
-        int lWaveNumber = (i + 1) / 2;
-        
-        if (i == 0)             lB1 = [](double aX) { return 1.0; };
-        else if (i % 2 == 1)    lB1 = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
-        else                    lB1 = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
-        
-        for (int j = 0; j < cHarmonicCount; j++)
-        {
-            int lWaveNumber2 = (j + 1) / 2;
-            
-            if (j == 0)             lB2 = [](double aX) { return 1.0; };
-            else if (j % 2 == 1)    lB2 = [lWaveNumber2](double aX) { return std::cos(2 * PI * lWaveNumber2 * aX); };
-            else                    lB2 = [lWaveNumber2](double aX) { return std::sin(2 * PI * lWaveNumber2 * aX); };
-            
-            for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
-            {
-                int lIndex = GetBProductIndex(i, j, iIntPoint, cHarmonicCount, lIntPointCount);
-                double lIntPointPos = mIntPointsRelative[iIntPoint];
-                
-                double lProduct = lB1(lIntPointPos) * lB2(lIntPointPos);
-                lTempArray2[lIndex] = lProduct;
-            }
-        }
-    }
-    mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
+//     mBValues.assign(lTempArray1, lTempArray1 + lIntPointCount * cHarmonicCount);
+//     
+//     double* lTempArray2 = new double[lIntPointCount * cHarmonicCount * cHarmonicCount];
+//     
+//     std::function<double(double)> lB1;
+//     std::function<double(double)> lB2;
+//     
+//     for (int i = 0; i < cHarmonicCount; i++)
+//     {
+//         int lWaveNumber = (i + 1) / 2;
+//         
+//         if (i == 0)             lB1 = [](double aX) { return 1.0; };
+//         else if (i % 2 == 1)    lB1 = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
+//         else                    lB1 = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
+//         
+//         for (int j = 0; j < cHarmonicCount; j++)
+//         {
+//             int lWaveNumber2 = (j + 1) / 2;
+//             
+//             if (j == 0)             lB2 = [](double aX) { return 1.0; };
+//             else if (j % 2 == 1)    lB2 = [lWaveNumber2](double aX) { return std::cos(2 * PI * lWaveNumber2 * aX); };
+//             else                    lB2 = [lWaveNumber2](double aX) { return std::sin(2 * PI * lWaveNumber2 * aX); };
+//             
+//             for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
+//             {
+//                 int lIndex = GetBProductIndex(i, j, iIntPoint, cHarmonicCount, lIntPointCount);
+//                 double lIntPointPos = mIntPointsRelative[iIntPoint];
+//                 
+//                 double lProduct = lB1(lIntPointPos) * lB2(lIntPointPos);
+//                 lTempArray2[lIndex] = lProduct;
+//             }
+//         }
+//     }
+//     mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
     
     // initialise the outer nonlinearities with data from this class
     // also finalise them
@@ -179,7 +167,6 @@ ProblemInterface::~ProblemInterface()
         delete mNonlinearitiesInner[i];
 }
 
-
 const NOX::LAPACK::Vector& ProblemInterface::getInitialGuess()
 {
     return mInitGuess;
@@ -218,7 +205,7 @@ bool ProblemInterface::computeF(NOX::LAPACK::Vector& aRhs, const NOX::LAPACK::Ve
         
     for (int iNonlin = 0; iNonlin < mNonlinearities.size(); iNonlin++)
     {
-        NOX::LAPACK::Vector lNonlinContrib = mNonlinearities[iNonlin]->ComputeF(aX, mFrequency);
+        const NOX::LAPACK::Vector& lNonlinContrib = mNonlinearities[iNonlin]->ComputeF(aX, mFrequency);
         
         for (int i = 0; i < aRhs.length(); i++)
             aRhs(i) += lNonlinContrib(i);
@@ -243,7 +230,7 @@ bool ProblemInterface::computeJacobian(NOX::LAPACK::Matrix<double>& aJ, const NO
     
     for (int iNonlin = 0; iNonlin < mNonlinearities.size(); iNonlin++)
     {
-        NOX::LAPACK::Matrix<double> lNonlinContrib = mNonlinearities[iNonlin]->ComputeJacobian(aX, mFrequency);
+        const NOX::LAPACK::Matrix<double>& lNonlinContrib = mNonlinearities[iNonlin]->ComputeJacobian(aX, mFrequency);
         
         for (int j = 0; j < aJ.numCols(); j++)
             for (int i = 0; i < aJ.numRows(); i++)

@@ -1,9 +1,9 @@
 
 #include "NonlinearBaseFD.h"
 
-void NonlinearBaseFD::Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
+void NonlinearBaseFD::Init(AftBase* const aAft, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
 {
-    NonlinearBase::Init(aIntegrationPoints, aBValues, aBProducts, aHarmonicCoeffCount, aDofCountTimeDomain);
+    NonlinearBase::Init(aAft, aHarmonicCoeffCount, aDofCountTimeDomain);
     
     mFiniteDifferenceSteps = NOX::LAPACK::Matrix<double>(aDofCountTimeDomain, aDofCountTimeDomain);
     

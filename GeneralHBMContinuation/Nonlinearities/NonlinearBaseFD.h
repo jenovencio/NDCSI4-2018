@@ -14,7 +14,7 @@ private:
     NOX::LAPACK::Matrix<double> mFiniteDifferenceSteps;
     
 public:
-    virtual void Init(const std::vector<double>& aIntegrationPoints, const std::vector<double>& aBValues, const std::vector<double>& aBProducts, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain) override;
+    virtual void Init(AftBase* const aAft, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain) override;
     
 protected:
     // time domain to time domain
