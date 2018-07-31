@@ -11,7 +11,7 @@ class NonlinearBase;
 #include "NOX_LAPACK_Matrix.H"
 #include "NOX_LAPACK_Vector.H"
 
-#include "../AftBase.h"
+#include "../Aft/AftBase.h"
 
 #define DEFAULT_FD_STEP 1e-8
 
@@ -87,9 +87,6 @@ protected:
     virtual bool IsCorrectingX() const = 0;
     
 private:
-    
-    // relative time point value (considering period = 1)
-    NOX::LAPACK::Vector FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex) const;
     
     void CheckStatus() const;
 };

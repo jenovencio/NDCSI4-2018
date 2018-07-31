@@ -10,6 +10,7 @@ class ProblemInterface;
 
 #include "Config.h"
 #include "Nonlinearities/NonlinearBase.h"
+#include "Aft/AftBase.h"
 
 class ProblemInterface : public LOCA::LAPACK::Interface
 {
@@ -61,6 +62,10 @@ private:
     
     const bool cSaveWholeSolutions;
     bool mHasWholeSolutions = false;
+    
+    // aft implementation
+    // delete this pointer
+    AftBase* mAft = nullptr;
     
 public:
     // name of the generic continuation parameter that will go between 0 and 1

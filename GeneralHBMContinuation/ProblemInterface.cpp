@@ -9,6 +9,7 @@
 #include "Functions.h"
 #include "Misc.h"
 #include "Nonlinearities/NonlinearitiesFactory.h"
+#include "Aft/AftFactory.h"
 
 const std::string ProblemInterface::cContParameterName = "generic_parameter";
 
@@ -114,11 +115,14 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
 //     }
 //     mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
     
+    // create the aft object
+    mAft = C_AftFactory.at(aConfig.AftType)(lIntPointCount, aConfig.HarmonicWaveCount, mDOFCount);
+    
     // initialise the outer nonlinearities with data from this class
     // also finalise them
     for (int i = 0; i < cNonlinearitiesOuter.size(); i++)
     {
-        cNonlinearitiesOuter[i]->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
+        cNonlinearitiesOuter[i]->Init(mAft, cHarmonicCount, mDOFCount);
         cNonlinearitiesOuter[i]->Finalise();
         
         // add the outer nonlinearity into the "all nonlinearities" vector
@@ -134,7 +138,7 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
         
         NonlinearBase* lNewNonlin = C_NonlinearitiesFactory.at(lType)();
         
-        lNewNonlin->Init(mIntPointsRelative, mBValues, mBProducts, cHarmonicCount, mDOFCount);
+        lNewNonlin->Init(mAft, cHarmonicCount, mDOFCount);
         lNewNonlin->LoadFromFile(aConfig.ConfigFilePath + "/" + lFilePath);
         lNewNonlin->Finalise();
         

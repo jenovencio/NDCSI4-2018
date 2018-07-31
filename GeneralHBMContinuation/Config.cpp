@@ -4,6 +4,7 @@
 #include "Functions.h"
 #include "Functions.hpp"
 #include "Nonlinearities/NonlinearitiesFactory.h"
+#include "Aft/AftFactory.h"
 
 const std::string Config::KEY_MASS      = "mass";
 const std::string Config::KEY_DAMP      = "damp";
@@ -23,6 +24,7 @@ const std::string Config::KEY_STEPMIN   = "stepmin";
 const std::string Config::KEY_STEPMAX   = "stepmax";
 const std::string Config::KEY_PRED      = "pred";
 const std::string Config::KEY_SCALEARC  = "scalearc";
+const std::string Config::KEY_AFT       = "aft";
 
 const std::map<std::string, std::function<std::vector<std::string>(const std::string&)>> Config::C_ConfigDefinition = 
 {
@@ -43,7 +45,8 @@ const std::map<std::string, std::function<std::vector<std::string>(const std::st
     { Config::KEY_STEPMIN,  RET_ONE_STR("1e-6")     },
     { Config::KEY_STEPMAX,  RET_ONE_STR("1e-1")     },
     { Config::KEY_PRED,     RET_ONE_STR("Tangent")  },
-    { Config::KEY_SCALEARC, RET_ONE_STR("1")  },
+    { Config::KEY_SCALEARC, RET_ONE_STR("1")        },
+    { Config::KEY_AFT,      RET_ONE_STR("Simple")   },
 };
 
 Config Config::LoadConfig(const std::string& aConfigFilePath)
@@ -136,7 +139,7 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
         NonlinearityDefinition lNewDef;
         lNewDef.File = lTempLines[lTempLineInd++];
         lNewDef.Type = lTempLines[lTempLineInd++];
-        CheckString(lNewDef.Type, C_NonlinearitiesFactory);
+        CheckString(lNewDef.Type, C_NonlinearitiesFactory, "nonlinearity type");
         lReturnConfig.Nonlinearities.push_back(lNewDef);
     }
     
@@ -179,10 +182,16 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
     lTempLines = lConfigMap[KEY_PRED];
     if (lTempLines.size() != 1) throw "Predictor definition must have exactly one line!";
     lReturnConfig.PredictorType = lTempLines[0];
-    CheckString(lReturnConfig.PredictorType, C_PredictorTypes);
+    CheckString(lReturnConfig.PredictorType, C_PredictorTypes, KEY_PRED);
     
     // arc length scaling
     lReturnConfig.EnableArcLengthScaling = ParseOneLineBool(lConfigMap[KEY_SCALEARC], "Arc length scaling");
+    
+    // aft type
+    lTempLines = lConfigMap[KEY_AFT];
+    if (lTempLines.size() != 1) throw "Aft type definition must have exactly one line!";
+    lReturnConfig.AftType = lTempLines[0];
+    CheckString(lReturnConfig.AftType, C_AftFactory, KEY_AFT);
     
     return lReturnConfig;
 }
@@ -197,6 +206,7 @@ void Config::Print() const
     std::cout << "Start frequency: " << FrequencyStart << std::endl;
     std::cout << "End frequency: " << FrequencyEnd << std::endl;
     std::cout << "Number of time integration points: " << IntPointCount << std::endl;
+    std::cout << "AFT: " << AftType << std::endl;
     std::cout << "Mass matrix files: " << std::endl;
     PrintMatrixDefinitions(MassMatrices);
     std::cout << "Damping matrix files: " << std::endl;
@@ -254,7 +264,7 @@ std::vector<MatrixDefinition> Config::ParseMatrixDefinition(const std::vector<st
         lNewDef.File = aLines[lLineInd++];
         lNewDef.Type = aLines[lLineInd++];
         
-        CheckString(lNewDef.Type, C_MatrixTypes);
+        CheckString(lNewDef.Type, C_MatrixTypes, "matrix type");
         
         lReturnVector.push_back(lNewDef);
     }

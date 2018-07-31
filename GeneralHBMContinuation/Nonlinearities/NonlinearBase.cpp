@@ -99,7 +99,9 @@ const NOX::LAPACK::Vector& NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX
 const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
 {
     CheckStatus();
-        
+    
+    AftBase& lAft = *cAft;
+    
     // check
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
     if (mHarmonicCoeffCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
@@ -108,12 +110,17 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
     // in time domain
     int lDofCount = aX.length() / mHarmonicCoeffCount;
     
+    const std::vector<NOX::LAPACK::Vector>& lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
+    
+    std::vector<NOX::LAPACK::Matrix<double>> lJTimeAll;
+    lJTimeAll.reserve(lXTimeAll.size());
+    
     NOX::LAPACK::Vector lXTimePrev;
     
     int lLoopCount = NumberOfPrepLoops() + 1; // number of loop over the period
     
     NOX::LAPACK::Vector lXTimeAvg(lDofCount);
-        
+    
     for (int iDof = 0; iDof < lDofCount; iDof++)
     {
         int lHarmIndex = GetHBMDofIndex(iDof, 0, mHarmonicCoeffCount);
@@ -123,10 +130,10 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
     
     for (int iLoop = 0; iLoop < lLoopCount; iLoop++)
     {
-        for (int iIntPoint = 0; iIntPoint < lIntPoints.size(); iIntPoint++)
+        for (int iIntPoint = 0; iIntPoint < lXTimeAll.size(); iIntPoint++)
         {
 //             lFftInvTime.Start();
-            NOX::LAPACK::Vector lXTime = FreqToTime(aX, iIntPoint);
+            NOX::LAPACK::Vector lXTime = lXTimeAll[iIntPoint];
 //             lFftInvTimeTotal += lFftInvTime.Stop();
             if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
@@ -138,48 +145,41 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
                 // we use the correction from the F evaluation because in that we use the actual lXTime instead of some "fictional variations"
                 // like in finite difference.
                 FResult lFResult = ComputeFTimeDomain(lXTime, lXTimePrev);
-                if (lFResult.XCorrSet)
-                    lXTimePrev = lFResult.XCorr;
-                else 
-                    lXTimePrev = lXTime;
+                if (lFResult.XCorrSet) lXTimePrev = lFResult.XCorr;
+                else lXTimePrev = lXTime;
             }
-            else
-                lXTimePrev = lXTime;
+            else lXTimePrev = lXTime;
             
             if (iLoop == lLoopCount - 1)
             {
-                for (int iHarm = 0; iHarm < mHarmonicCoeffCount; iHarm++)
-                {
-                    for (int jHarm = 0; jHarm < mHarmonicCoeffCount; jHarm++)
-                    {
-                        double lBProdIndex = GetBProductIndex(iHarm, jHarm, iIntPoint, mHarmonicCoeffCount, lIntPoints.size());
-                        double lBProdValue = lBProducts[lBProdIndex];
-                        
-                        // we iterate over only the nonlinear dofs, because the rest of values in the lNonlinResult.FValues will be zeros
-                        for (int iDof = 0; iDof < mNonzeroFPositions.size(); iDof++)
-                        {
-                            int lDof = mNonzeroFPositions[iDof];
-                            int lHarmInd1 = GetHBMDofIndex(iDof, iHarm, mHarmonicCoeffCount);
-                            
-                            for (int jDof = 0; jDof < lDofCount; jDof++)
-                            {
-                                int lHarmInd2 = GetHBMDofIndex(jDof, jHarm, mHarmonicCoeffCount);
-                                
-                                lReturnMatrix(lHarmInd1, lHarmInd2) += lBProdValue * lNonlin(lDof, jDof);
-                            }
-                        }
-                    }
-                }
+                lJTimeAll.push_back(lNonlin);
+//                 for (int iHarm = 0; iHarm < mHarmonicCoeffCount; iHarm++)
+//                 {
+//                     for (int jHarm = 0; jHarm < mHarmonicCoeffCount; jHarm++)
+//                     {
+//                         double lBProdIndex = GetBProductIndex(iHarm, jHarm, iIntPoint, mHarmonicCoeffCount, lIntPoints.size());
+//                         double lBProdValue = lBProducts[lBProdIndex];
+//                         
+//                         // we iterate over only the nonlinear dofs, because the rest of values in the lNonlinResult.FValues will be zeros
+//                         for (int iDof = 0; iDof < mNonzeroFPositions.size(); iDof++)
+//                         {
+//                             int lDof = mNonzeroFPositions[iDof];
+//                             int lHarmInd1 = GetHBMDofIndex(iDof, iHarm, mHarmonicCoeffCount);
+//                             
+//                             for (int jDof = 0; jDof < lDofCount; jDof++)
+//                             {
+//                                 int lHarmInd2 = GetHBMDofIndex(jDof, jHarm, mHarmonicCoeffCount);
+//                                 
+//                                 lReturnMatrix(lHarmInd1, lHarmInd2) += lBProdValue * lNonlin(lDof, jDof);
+//                             }
+//                         }
+//                     }
+//                 }
             }
         }
     }
     
-    lReturnMatrix.scale(lTimeStep);
-    
-//     double lMs = lTime.Stop();
-//     std::cout << "Full J eval time: " << lMs << " ms" << std::endl;
-//     std::cout << "Inv fft total time: " << lFftInvTimeTotal << " ms" << std::endl;
-//     STOP
+    const NOX::LAPACK::Matrix<double>& lReturnMatrix = lAft.TimeToFrequency(lJTimeAll, aFrequency);
     
     return lReturnMatrix;
 }
@@ -293,34 +293,6 @@ NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifferenceTD(con
     return ComputeJacobianFiniteDifference(aX, lFEval, aSteps);
 }
 
-
-NOX::LAPACK::Vector NonlinearBase::FreqToTime(const NOX::LAPACK::Vector& aX, const int& aIntegrationPointIndex) const
-{
-    if (aIntegrationPointIndex < 0 || aIntegrationPointIndex >= cIntegrationPoints->size())
-        throw "Invalid integration point index value!";
-    
-    const std::vector<double>& lBValues = *cBValues;
-    // in time domain
-    int lDofCount = aX.length() / mHarmonicCoeffCount;
-    
-    NOX::LAPACK::Vector lReturnVector(lDofCount);
-        
-    for (int iDof = 0; iDof < lDofCount; iDof++)
-    {
-        double lValue = 0.0;
-        for (int iHarm = 0; iHarm < mHarmonicCoeffCount; iHarm++)
-        {
-            int lHarmIndex = GetHBMDofIndex(iDof, iHarm, mHarmonicCoeffCount);
-            int lBValIndex = GetBValuesIndex(iHarm, aIntegrationPointIndex, mHarmonicCoeffCount, cIntegrationPoints->size());
-            
-            lValue += aX(lHarmIndex) * lBValues[lBValIndex];
-        }
-        
-        lReturnVector(iDof) = lValue;
-    }
-    
-    return lReturnVector;
-}
 void NonlinearBase::CheckStatus() const
 {
     if (!mIsInitialised)    throw "Nonlinearity is not initialised!";

@@ -9,7 +9,7 @@
 #include "FricElem3D.h"
 #include "PenaltyWall.h"
 
-// just simple creation functions (should do new because the returned pointer will be deleted later
+// just simple creation functions (should do new because the returned pointer will be deleted later)
 const std::map<std::string, std::function<NonlinearBase*()>> C_NonlinearitiesFactory = 
 {
     { std::string("cubic spring"), []() { return new CubicSpring(); } },
