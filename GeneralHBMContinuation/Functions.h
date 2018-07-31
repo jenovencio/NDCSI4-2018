@@ -28,18 +28,6 @@ inline int GetHBMDofIndex(const int& aStandardDofIndex, const int& aHarmonicInde
 {
     return aStandardDofIndex * aHarmonicCount + aHarmonicIndex;
 }
-// index of a harmonic function and a time point into a serial index
-// aHarmonicCount here means total number of waves, so cosines and sines together
-inline int GetBValuesIndex(const int& aBIndex, const int& aIntPointIndex, const int& aHarmonicCount, const int& aIntPointCount)
-{
-    return (aBIndex * aIntPointCount) + aIntPointIndex;
-}
-// index of two harmonic functions and a time point into a serial index
-// aHarmonicCount here means total number of waves, so cosines and sines together
-inline int GetBProductIndex(const int& aBIndex1, const int& aBIndex2, const int& aIntPointIndex, const int& aHarmonicCount, const int& aIntPointCount)
-{
-    return (aBIndex1 * aHarmonicCount + aBIndex2) * aIntPointCount + aIntPointIndex;
-}
 void CheckString(const std::string& aString, const std::vector<std::string>& aPossibilities, const std::string& aGroupName = "");
 // the same check string, but uses the keys of the provided mam as the vector of possibilities
 template <class T>

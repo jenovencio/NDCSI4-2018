@@ -29,4 +29,18 @@ public:
     virtual const std::vector<NOX::LAPACK::Vector>& FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency) override;
     
     virtual const NOX::LAPACK::Vector& TimeToFrequency(const std::vector<NOX::LAPACK::Vector>& aXTime, const double& aFrequency) override;    virtual const NOX::LAPACK::Matrix<double>& TimeToFrequency(const std::vector<NOX::LAPACK::Matrix<double>>& aXTime, const double& aFrequency) override;
+    
+private:
+    // index of a harmonic function and a time point into a serial index
+    // aHarmonicCount here means total number of waves, so cosines and sines together
+    inline int GetBValuesIndex(const int& aBIndex, const int& aIntPointIndex, const int& aHarmonicCount, const int& aIntPointCount)
+    {
+        return (aBIndex * aIntPointCount) + aIntPointIndex;
+    }
+    // index of two harmonic functions and a time point into a serial index
+    // aHarmonicCount here means total number of waves, so cosines and sines together
+    inline int GetBProductIndex(const int& aBIndex1, const int& aBIndex2, const int& aIntPointIndex, const int& aHarmonicCount, const int& aIntPointCount)
+    {
+        return (aBIndex1 * aHarmonicCount + aBIndex2) * aIntPointCount + aIntPointIndex;
+    }
 };
