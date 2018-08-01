@@ -124,21 +124,24 @@ def writeMatrix(M,filename):
                 f.write(str(i))
                 f.write('/n') 
 
-filename = 'master_map.dat'
-write_map_matrix(filename,inv_id_matrix,local2global_master)
+def write_files():
+    filename = 'master_map.dat'
+    write_map_matrix(filename,inv_id_matrix,local2global_master)
 
-M_file = 'M_red_0_real.dat'
-K_file = 'K_red_0_real.dat'
-C_file = 'C_red_0_real.dat'
+    M_file = 'M_red_0_real.dat'
+    K_file = 'K_red_0_real.dat'
+    C_file = 'C_red_0_real.dat'
 
-Mi_file = 'M_red_0_im.dat'
-Ki_file = 'K_red_0_im.dat'
-Ci_file = 'C_red_0_im.dat'
+    Mi_file = 'M_red_0_im.dat'
+    Ki_file = 'K_red_0_im.dat'
+    Ci_file = 'C_red_0_im.dat'
 
-writeMatrix(np.real(M_red),M_file)
-writeMatrix(np.real(K_red),K_file)
-writeMatrix(np.real(C_red),C_file)
+    writeMatrix(np.real(M_red),M_file)
+    writeMatrix(np.real(K_red),K_file)
+    writeMatrix(np.real(C_red),C_file)
 
-writeMatrix(np.imag(M_red),Mi_file)
-writeMatrix(np.imag(K_red),Ki_file)
-writeMatrix(np.imag(C_red),Ci_file)
+    writeMatrix(np.imag(M_red),Mi_file)
+    writeMatrix(np.imag(K_red),Ki_file)
+    writeMatrix(np.imag(C_red),Ci_file)
+
+
