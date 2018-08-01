@@ -62,3 +62,4 @@ normal_vec = cyclic_top_high.get_normal_to_element(elem_id)
 elem_connect_to_node_dict = cyclic_top_high.create_elem_connect_to_node()
 node_normal_vec = cyclic_top_high.get_normal_to_node( node_id, method = 'average')
 node_normal_vec_1 = cyclic_top_high.get_normal_to_node( node_id, method = 'first')
+
