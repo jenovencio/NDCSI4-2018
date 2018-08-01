@@ -1,4 +1,4 @@
-function [F,ur] = FricElem3D2ts(x,w)
+function [F,ur,ID] = FricElem3D2ts(x,w)
 
 % --------- test data ----------------
 
@@ -11,14 +11,14 @@ dpn = 3;                % degrees of freedom per node
 N_node = length(x)/dpn; % total number of nodes
 
 kn  = 50;
-ktx = 50;          % tangential stiffness in x-direction
+ktx = 50;           % tangential stiffness in x-direction
 kty = 50;           % tangential stiffness in y-direction
 % dof's per node are only 2, there is only one dof in tangential direction
 % if dpn == 2
 %     kt = kt(1,1);       
 % end
 
-N0 = 50;
+N0 = 70;
 mu = 0.2;
 
 ux =  zeros(1, N_node);
@@ -43,23 +43,43 @@ for n = 1:N_node
     
     % normal load variable. v = 0 makes it constant load case
     N(n) = max (N0 + kn * v(n), 0);
-    Coul(n) = mu*N(n); 
-    Tx(n) = ktx *( ux(n) - uxr(n) );
-    Ty(n) = kty *( uy(n) - uyr(n) );
-
-    if abs(Tx(n)) > Coul(n)
-        Tx(n) = sign(Tx(n)).*Coul(n);
-        uxr(n) = ux(n) - Tx(n)/ktx;
+    
+    % Currently, the loop is computing the tangential force even when 
+    % N = 0. It waits fot Tx and Ty to exceed Coulomb limit and only then 
+    % the tangential forces becomes zero. Another aspect to consider is to
+    % define sense of the normal load that defines separation. Say N > 0.
+    % There should be another loop to check this so that the tangential 
+    % forces  be returned as Tx = 0 and Ty = 0. 
+    if N(n) <= 0
+        Tx(n) = 0;
+        Ty(n) = 0;
+        IDx(n) = 0;         % separation phase
+        IDy(n) = 0;         
+        uxr(n) = ux(n);
+        uyr(n) = uy(n);
+    else
+        Coul(n) = mu*N(n); 
+        Tx(n) = ktx *( ux(n) - uxr(n) );
+        Ty(n) = kty *( uy(n) - uyr(n) );
+        IDx(n) = 1;         % stick phase
+        IDy(n) = 1;
+        if abs(Tx(n)) > Coul(n)
+            Tx(n) = sign(Tx(n)).*Coul(n);
+            uxr(n) = ux(n) - Tx(n)/ktx;
+            IDx(n) = 2;     % slip phase         
+        end
+        if abs(Ty(n)) > Coul(n)
+            Ty(n) = sign(Ty(n)).*Coul(n);
+            uyr(n) = uy(n) - Ty(n)/kty;
+            IDy(n) = 2;     % slip phase  
+        end
+        % updated to remove the static normal load
+        %F(:,n) = [Tx(n); Ty(n); N(n)-N0]; 
+        F(:,n) = [Tx(n); Ty(n); N(n)];
+        ur(:,n) = [uxr(n); uyr(n)];
+        ID = [IDx(n); IDy(n)];
     end
-    if abs(Ty(n)) > Coul(n)
-        Ty(n) = sign(Ty(n)).*Coul(n);
-        uyr(n) = uy(n) - Ty(n)/kty;
-    end
-    % updated to remove the static normal load
-    F(:,n) = [Tx(n); Ty(n); N(n)-N0];       
-    ur(:,n) = [uxr(n); uyr(n)];
 end
-
 end
 
 

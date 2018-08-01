@@ -1,19 +1,26 @@
 
 %function [T,N] = FricElem3D(U,Om,mu,ktx,kty,kn,est)
+clear
 
 nStep = 100;
+t = linspace(0,1,nStep*1);
 wex = 1;     
 UX = [1; 1.0; 0.5; 0.05] ;
 UY = [1; 1.0; 0.5; 0.05] ;
 UZ = [0.5; 0.5; 0.2; 0.1] ;
 
-ux = myInvFFT(UX,nStep);
+% ux = myInvFFT(UX,nStep);
+ux = UX(2)*sin(2*pi*wex*t);
+ux = ux';
 ux = [ux; ux];
+
 % uy = myInvFFT(UY,nStep);
-t = linspace(0,1,nStep*1);
-uy = UY(1) + UY(2)*cos( 1*2*pi()*wex*t + pi()/2 )+ ...
-             UY(3)*cos( 2*2*pi()*wex*t + pi()/2 )+...
-             UY(4)*cos( 3*2*pi()*wex*t + pi()/2 );
+
+% uy = UY(1) + UY(2)*cos( 1*2*pi()*wex*t + pi()/2 )+ ...
+%              UY(3)*cos( 2*2*pi()*wex*t + pi()/2 )+...
+%              UY(4)*cos( 3*2*pi()*wex*t + pi()/2 );
+
+uy = UY(2)*sin(2*pi*wex*t+pi/2);
 uy = uy';
 uy = [uy; uy];
 v = myInvFFT(UZ,nStep);
@@ -106,7 +113,7 @@ elseif est == 2
         Tnorm(:,nt) = [Tx(nt); Ty(nt)]./sqrt(Tx(nt)^2+Ty(nt)^2);
         
         if sqrt(Tx(nt)^2+Ty(nt)^2) > Coul(nt) %'OR' abs(Tx(nt))>Coul(nt)
-            T(:,nt) = Tnorm(:,nt)*Coul(nt);%*sign(Tnorm(:,nt));
+            T(:,nt) = (Tnorm(:,nt))*Coul(nt);%*sign(Tnorm(:,nt));
                 w1(nt) = ux(nt) - T(1,nt)/ktx;
                 w2(nt) = uy(nt) - T(2,nt)/kty;
         
@@ -128,19 +135,4 @@ plot(T(1,nt),T(2,nt),'go'), hold on
     end
 end
 
-%Tylp = Coul(
-% figure(3001);
-% plot(ux(nt),Tx(nt),'ro'), hold on
-% 
-% figure(3002);
-% plot(uy(nt),Ty(nt),'bo'), hold on
-% 
-% figure(3003);
-% plot(Tx(nt),Ty(nt),'go'), hold on
-% plot(Tx(nt),Ty(nt),'ro'), hold on
-% figure(3001);
-% plot(ux(nt),Tx(nt),'ro'), hold on
-% 
-% figure(3001);
-% 
 
