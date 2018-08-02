@@ -4,9 +4,13 @@ class FricElem3D;
 #pragma once
 #include "NonlinearBase.h"
 
-class FricElem3D : public NonlinearBase
+class FricElem1D : public NonlinearBase
 {
 private:
+    int mDofID = 0;
+    double mN0 = 0.001;
+    double mMu = 0.2;
+    double mKtx = 1;
 protected:
     // time domain to time domain
     virtual FResult ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;

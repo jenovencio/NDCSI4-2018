@@ -77,7 +77,7 @@ std::vector<int> PenaltyWall::NonzeroFPositions() const
     
     return lReturnVector;
 }
-bool PenaltyWall::IsCorrectingX() const
+bool PenaltyWall::IsHistoryDependent() const
 {
     return false;
 }

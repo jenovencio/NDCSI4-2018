@@ -83,8 +83,8 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
 //             NOX::Utils::StepperDetails +
             NOX::Utils::StepperParameters);  // Should set
     
-	Teuchos::ParameterList& lSearchParams = nlParams.sublist("Line Search");
-	lSearchParams.set("Method", "Polynomial");
+    Teuchos::ParameterList& lSearchParams = nlParams.sublist("Line Search");
+    lSearchParams.set("Method", "Polynomial");
 
 
     // Create LAPACK Factory
@@ -97,7 +97,7 @@ void ContinuationWrapper::Init(const std::string& aConfigPath, const std::vector
 
     // Set up the problem interface
     
-    ProblemInterface* lInterface = new ProblemInterface(lConfig, aNonlinearities, lConfig.SaveWholeSolutions);
+    ProblemInterface* lInterface = new ProblemInterface(lConfig, aNonlinearities);
     
     LOCA::ParameterVector p;
     p.addParameter(ProblemInterface::cContParameterName, 0.0);

@@ -9,22 +9,16 @@ class ProblemInterface;
 #include "Teuchos_RCP.hpp"
 
 #include "Config.h"
+#include "ProblemParams.h"
 #include "Nonlinearities/NonlinearBase.h"
 #include "Aft/AftBase.h"
 
 class ProblemInterface : public LOCA::LAPACK::Interface
 {
 private:
-    // number of standard degrees of freedom (in physical domain, not HBM)
-    // not constant because it's determined from the system files (mass, stiffness, damping matrix)
-    int mDOFCount;
-    // total number of harmonic waves
-    const int cHarmonicCount;
-    // in other words, the total number of degrees of freedom in the HBM system
-    int mDOFCountHBM;
-    // needed to transform the generic <0, 1> continuation parameter into a frequency value
-    const double cFrequencyStart;
-    const double cFrequencyEnd;
+    const Config cConfig;
+    const ProblemParams cProblemParams;
+    
     double mFrequency = 0;
     double mCurrentContParam = -1;
     bool mRecomputeDynamicStiffness = true;
@@ -60,7 +54,6 @@ private:
     // all nonlinearities, outer and inner combined
     std::vector<NonlinearBase*> mNonlinearities;
     
-    const bool cSaveWholeSolutions;
     bool mHasWholeSolutions = false;
     
     // aft implementation
@@ -72,7 +65,7 @@ public:
     static const std::string cContParameterName;
     
 public:
-    ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities, bool aSaveWholeSolutions = false);
+    ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities);
     ~ProblemInterface();
     
     virtual const NOX::LAPACK::Vector& getInitialGuess() override;
@@ -93,4 +86,5 @@ private:
     NOX::LAPACK::Vector* CreateExcitationRHS(double aFrequency);
     
     void CheckMatrixCount(const std::string& aMatrixName, const int& aMatrixCount, const int& aHarmonicWaveCount);
+    void CheckMatrixSize(const NOX::LAPACK::Matrix<double>& aMatrix, const std::string& aMatrixName);
 };

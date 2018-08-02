@@ -8,7 +8,8 @@
 
 NonlinearBase::~NonlinearBase()
 {
-    
+    if (mProblemParams != nullptr) 
+        delete mProblemParams;
 }
 void NonlinearBase::LoadFromFile(const std::string& aFilePath)
 {
@@ -17,17 +18,15 @@ void NonlinearBase::LoadFromFile(const std::string& aFilePath)
     throw "Can not load a nonlinearity from file \"" + aFilePath + "\"! This class does not support loading from files.";
 }
 
-void NonlinearBase::Init(AftBase* const aAft, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
+void NonlinearBase::Init(AftBase* const aAft, const ProblemParams& aProblemParams)
 {
     if (mIsInitialised) throw "This nonlinearity has already been initialised, can not initialise again!";
     if (mIsFinalised) throw "This nonlinearity has already been finalised! Fix the way you treat the object. It first needs to be initialised, then finalised!";
     
     cAft = aAft;
-    mHarmonicCoeffCount = aHarmonicCoeffCount;
+    mProblemParams = new ProblemParams(aProblemParams);
         
     mIsInitialised = true;
-    
-    mDofCountTimeDomain = aDofCountTimeDomain;
 }
 
 // frequency domain to frequency domain
@@ -39,11 +38,11 @@ const NOX::LAPACK::Vector& NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX
     
 // check 
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
-    if (mHarmonicCoeffCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
-    if (aX.length() % mHarmonicCoeffCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mHarmonicCoeffCount) + ")!";
+    if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
+    if (aX.length() % mProblemParams->HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams->HarmonicCount) + ")!";
     
     // in time domain
-    int lDofCount = aX.length() / mHarmonicCoeffCount;
+    int lDofCount = aX.length() / mProblemParams->HarmonicCount;
     
     const std::vector<NOX::LAPACK::Vector>& lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
     
@@ -58,7 +57,7 @@ const NOX::LAPACK::Vector& NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX
         
     for (int iDof = 0; iDof < lDofCount; iDof++)
     {
-        int lHarmIndex = GetHBMDofIndex(iDof, 0, mHarmonicCoeffCount);
+        int lHarmIndex = GetHBMDofIndex(iDof, 0, mProblemParams->HarmonicCount);
         lXTimeAvg(iDof) = aX(lHarmIndex);
     }
 //     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
@@ -73,10 +72,10 @@ const NOX::LAPACK::Vector& NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX
             // calculate the nonlinearity in time domain
             FResult lNonlinResult = ComputeFTimeDomain(lXTime, lXTimePrev);
             
-            if (!IsCorrectingX() && lNonlinResult.XCorrSet)
-                throw "The code logic of this class is wrong! The class says it's not correcting the X values, but at the same time sets corrections in it's F evaluations.";
+            if (!IsHistoryDependent() && lNonlinResult.XCorrSet)
+                throw "The code logic of this class is wrong! The class says it's not history dependent, but at the same time sets corrections to history in it's F evaluations.";
             
-            if (IsCorrectingX() && lNonlinResult.XCorrSet)
+            if (IsHistoryDependent() && lNonlinResult.XCorrSet)
                 lXTimePrev = lNonlinResult.XCorr;
             else
                 lXTimePrev = lXTime;
@@ -104,11 +103,11 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
     
     // check
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
-    if (mHarmonicCoeffCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
-    if (aX.length() % mHarmonicCoeffCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mHarmonicCoeffCount) + ")!";
+    if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
+    if (aX.length() % mProblemParams->HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams->HarmonicCount) + ")!";
     
     // in time domain
-    int lDofCount = aX.length() / mHarmonicCoeffCount;
+    int lDofCount = aX.length() / mProblemParams->HarmonicCount;
     
     const std::vector<NOX::LAPACK::Vector>& lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
     
@@ -123,7 +122,7 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
     
     for (int iDof = 0; iDof < lDofCount; iDof++)
     {
-        int lHarmIndex = GetHBMDofIndex(iDof, 0, mHarmonicCoeffCount);
+        int lHarmIndex = GetHBMDofIndex(iDof, 0, mProblemParams->HarmonicCount);
         lXTimeAvg(iDof) = aX(lHarmIndex);
     }
 //     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
@@ -133,14 +132,19 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
         for (int iIntPoint = 0; iIntPoint < lXTimeAll.size(); iIntPoint++)
         {
 //             lFftInvTime.Start();
-            NOX::LAPACK::Vector lXTime = lXTimeAll[iIntPoint];
+            const NOX::LAPACK::Vector& lXTime = lXTimeAll[iIntPoint];
 //             lFftInvTimeTotal += lFftInvTime.Stop();
             if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
-            // calculate the nonlinearity jacobian in time domain
-            NOX::LAPACK::Matrix<double> lNonlin = ComputeJacobianTimeDomain(lXTime, lXTimePrev);
+            if (iLoop == lLoopCount - 1)
+            {
+                // calculate the nonlinearity jacobian in time domain
+                NOX::LAPACK::Matrix<double> lNonlin = ComputeJacobianTimeDomain(lXTime, lXTimePrev);
+                
+                lJTimeAll.push_back(lNonlin);
+            }
             
-            if (IsCorrectingX())
+            if (IsHistoryDependent())
             {
                 // we use the correction from the F evaluation because in that we use the actual lXTime instead of some "fictional variations"
                 // like in finite difference.
@@ -149,33 +153,6 @@ const NOX::LAPACK::Matrix<double>& NonlinearBase::ComputeJacobian(const NOX::LAP
                 else lXTimePrev = lXTime;
             }
             else lXTimePrev = lXTime;
-            
-            if (iLoop == lLoopCount - 1)
-            {
-                lJTimeAll.push_back(lNonlin);
-//                 for (int iHarm = 0; iHarm < mHarmonicCoeffCount; iHarm++)
-//                 {
-//                     for (int jHarm = 0; jHarm < mHarmonicCoeffCount; jHarm++)
-//                     {
-//                         double lBProdIndex = GetBProductIndex(iHarm, jHarm, iIntPoint, mHarmonicCoeffCount, lIntPoints.size());
-//                         double lBProdValue = lBProducts[lBProdIndex];
-//                         
-//                         // we iterate over only the nonlinear dofs, because the rest of values in the lNonlinResult.FValues will be zeros
-//                         for (int iDof = 0; iDof < mNonzeroFPositions.size(); iDof++)
-//                         {
-//                             int lDof = mNonzeroFPositions[iDof];
-//                             int lHarmInd1 = GetHBMDofIndex(iDof, iHarm, mHarmonicCoeffCount);
-//                             
-//                             for (int jDof = 0; jDof < lDofCount; jDof++)
-//                             {
-//                                 int lHarmInd2 = GetHBMDofIndex(jDof, jHarm, mHarmonicCoeffCount);
-//                                 
-//                                 lReturnMatrix(lHarmInd1, lHarmInd2) += lBProdValue * lNonlin(lDof, jDof);
-//                             }
-//                         }
-//                     }
-//                 }
-            }
         }
     }
     
@@ -198,7 +175,7 @@ void NonlinearBase::Finalise()
         int lDof = mNonzeroFPositions[iDof];
         if (lDof < 0) throw "Dof index can not be negative!";
         // we can do this check here because at this point the object is already initialised
-        if (lDof >= mDofCountTimeDomain) throw "Dof index (" + std::to_string(lDof) + ") exceeds the size of the problem! (" + std::to_string(mDofCountTimeDomain) + ")";
+        if (lDof >= mProblemParams->DofCountPhysical) throw "Dof index (" + std::to_string(lDof) + ") exceeds the size of the problem! (" + std::to_string(mProblemParams->DofCountPhysical) + ")";
     }
 }
 bool NonlinearBase::IsFinalised() const
@@ -210,7 +187,7 @@ int NonlinearBase::DofCountTimeDomain() const
     if (!mIsInitialised)
         throw "Dof count is not set yet because the nonlinearity is not initialised!";
     
-    return mDofCountTimeDomain;
+    return mProblemParams->DofCountPhysical;
 }
 
 NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobianFiniteDifference(const NOX::LAPACK::Vector& aX, const std::function<NOX::LAPACK::Vector(const NOX::LAPACK::Vector&)>& aFEval, double aStep) const

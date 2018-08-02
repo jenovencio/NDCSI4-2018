@@ -5,19 +5,16 @@
 #include "../Functions.h"
 #include "../Misc.h"
 
-AftSimple::AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWaveCount, const int& aDofCountTime)
-    : AftBase(aIntegrationPointCount, aHarmonicWaveCount, aDofCountTime)
-{
-    if (cIntegrationPointCount <= 0) throw "Number of integration points must be positive!";
-    if (aHarmonicWaveCount <= 0) throw "Number of harmonic waves must be positive!";
-    
+AftSimple::AftSimple(const int& aIntegrationPointCount, const ProblemParams& aParams)
+    : AftBase(aIntegrationPointCount, aParams)
+{    
     mIntPointsRelative = GetRelativeTimePoints(cIntegrationPointCount);
     
-    double* lTempArray1 = new double[cIntegrationPointCount * cHarmonicCount];
+    double* lTempArray1 = new double[cIntegrationPointCount * cProblemParams.HarmonicCount];
     
     std::function<double(double)> lB;
     
-    for (int i = 0; i < cHarmonicCount; i++)
+    for (int i = 0; i < cProblemParams.HarmonicCount; i++)
     {
         int lWaveNumber = (i + 1) / 2;
         
@@ -27,7 +24,7 @@ AftSimple::AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWave
         
         for (int iIntPoint = 0; iIntPoint < cIntegrationPointCount; iIntPoint++)
         {
-            int lIndex = GetBValuesIndex(i, iIntPoint, cHarmonicCount, cIntegrationPointCount);
+            int lIndex = GetBValuesIndex(i, iIntPoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
             double lIntPointPos = mIntPointsRelative[iIntPoint];
             
             double lValue = lB(lIntPointPos);
@@ -36,14 +33,15 @@ AftSimple::AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWave
         }
     }
     
-    mBValues.assign(lTempArray1, lTempArray1 + cIntegrationPointCount * cHarmonicCount);
+    mBValues.assign(lTempArray1, lTempArray1 + cIntegrationPointCount * cProblemParams.HarmonicCount);
+    delete[] lTempArray1;
     
-    double* lTempArray2 = new double[cIntegrationPointCount * cHarmonicCount * cHarmonicCount];
+    double* lTempArray2 = new double[cIntegrationPointCount * cProblemParams.HarmonicCount * cProblemParams.HarmonicCount];
     
     std::function<double(double)> lB1;
     std::function<double(double)> lB2;
     
-    for (int i = 0; i < cHarmonicCount; i++)
+    for (int i = 0; i < cProblemParams.HarmonicCount; i++)
     {
         int lWaveNumber = (i + 1) / 2;
         
@@ -51,7 +49,7 @@ AftSimple::AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWave
         else if (i % 2 == 1)    lB1 = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
         else                    lB1 = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
         
-        for (int j = 0; j < cHarmonicCount; j++)
+        for (int j = 0; j < cProblemParams.HarmonicCount; j++)
         {
             int lWaveNumber2 = (j + 1) / 2;
             
@@ -61,7 +59,7 @@ AftSimple::AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWave
             
             for (int iIntPoint = 0; iIntPoint < cIntegrationPointCount; iIntPoint++)
             {
-                int lIndex = GetBProductIndex(i, j, iIntPoint, cHarmonicCount, cIntegrationPointCount);
+                int lIndex = GetBProductIndex(i, j, iIntPoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
                 double lIntPointPos = mIntPointsRelative[iIntPoint];
                 
                 double lProduct = lB1(lIntPointPos) * lB2(lIntPointPos);
@@ -69,31 +67,32 @@ AftSimple::AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWave
             }
         }
     }
-    mBProducts.assign(lTempArray2, lTempArray2 + cIntegrationPointCount * cHarmonicCount * cHarmonicCount);
+    mBProducts.assign(lTempArray2, lTempArray2 + cIntegrationPointCount * cProblemParams.HarmonicCount * cProblemParams.HarmonicCount);
+    delete[] lTempArray2;
     
     mTimeVectors.reserve(cIntegrationPointCount);
     
     for (int i = 0; i < cIntegrationPointCount; i++)
     {
-        mTimeVectors.push_back(NOX::LAPACK::Vector(cDofCountTime));
+        mTimeVectors.push_back(NOX::LAPACK::Vector(cProblemParams.DofCountPhysical));
     }
     
-    mFreqVector = NOX::LAPACK::Vector(cDofCountTime * cHarmonicCount);
-    mFreqMatrix = NOX::LAPACK::Matrix<double>(cDofCountTime * cHarmonicCount, cDofCountTime * cHarmonicCount);
+    mFreqVector = NOX::LAPACK::Vector(cProblemParams.DofCountHBM);
+    mFreqMatrix = NOX::LAPACK::Matrix<double>(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
 }
 
 const std::vector<NOX::LAPACK::Vector>& AftSimple::FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency)
 {
     for (int iTime = 0; iTime < cIntegrationPointCount; iTime++)
     {
-        for (int iDof = 0; iDof < cDofCountTime; iDof++)
+        for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
         {
             mTimeVectors[iTime](iDof) = 0.0;
             
-            for (int iHarm = 0; iHarm < cHarmonicCount; iHarm++)
+            for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
             {
-                int lHarmIndex = GetHBMDofIndex(iDof, iHarm, cHarmonicCount);
-                int lBIndex = GetBValuesIndex(iHarm, iTime, cHarmonicCount, cIntegrationPointCount);
+                int lHarmIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
+                int lBIndex = GetBValuesIndex(iHarm, iTime, cProblemParams.HarmonicCount, cIntegrationPointCount);
                 
                 mTimeVectors[iTime](iDof) += aXFreq(lHarmIndex) * mBValues[lBIndex];
             }
@@ -117,14 +116,14 @@ const NOX::LAPACK::Vector& AftSimple::TimeToFrequency(const std::vector<NOX::LAP
     {
         const NOX::LAPACK::Vector& lTimeVector = aXTime[iTimePoint];
         
-        for (int iDof = 0; iDof < cDofCountTime; iDof++)
+        for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
         {
             double lTimeValue = lTimeVector(iDof);
             
-            for (int iHarm = 0; iHarm < cHarmonicCount; iHarm++)
+            for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
             {
-                double lHBMIndex = GetHBMDofIndex(iDof, iHarm, cHarmonicCount);
-                double lBIndex = GetBValuesIndex(iHarm, iTimePoint, cHarmonicCount, cIntegrationPointCount);
+                double lHBMIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
+                double lBIndex = GetBValuesIndex(iHarm, iTimePoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
                 double lProjValue = lTimeValue * mBValues[lBIndex];
                 
                 mFreqVector(lHBMIndex) += lProjValue;
@@ -153,19 +152,19 @@ const NOX::LAPACK::Matrix<double>& AftSimple::TimeToFrequency(const std::vector<
     {
         const NOX::LAPACK::Matrix<double>& lTimeMatrix = aXTime[iTimePoint];
         
-        for (int jDof = 0; jDof < cDofCountTime; jDof++)
+        for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
         {
-            for (int iDof = 0; iDof < cDofCountTime; iDof++)
+            for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
             {
                 double lTimeValue = lTimeMatrix(iDof, jDof);
                 
-                for (int jHarm = 0; jHarm < cHarmonicCount; jHarm++)
+                for (int jHarm = 0; jHarm < cProblemParams.HarmonicCount; jHarm++)
                 {
-                    for (int iHarm = 0; iHarm < cHarmonicCount; iHarm++)
+                    for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
                     {
-                        double lHBMIndex1 = GetHBMDofIndex(iDof, iHarm, cHarmonicCount);
-                        double lHBMIndex2 = GetHBMDofIndex(jDof, jHarm, cHarmonicCount);
-                        double lBProdIndex = GetBProductIndex(iHarm, jHarm, iTimePoint, cHarmonicCount, cIntegrationPointCount);
+                        double lHBMIndex1 = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
+                        double lHBMIndex2 = GetHBMDofIndex(jDof, jHarm, cProblemParams.HarmonicCount);
+                        double lBProdIndex = GetBProductIndex(iHarm, jHarm, iTimePoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
                         double lProjValue = lTimeValue * mBProducts[lBProdIndex];
                         
                         mFreqMatrix(lHBMIndex1, lHBMIndex2) += lProjValue;

@@ -108,7 +108,7 @@ std::vector<int> CubicSpring::NonzeroFPositions() const
     
     return lReturnVector;
 }
-bool CubicSpring::IsCorrectingX() const
+bool CubicSpring::IsHistoryDependent() const
 {
     return false;
 }

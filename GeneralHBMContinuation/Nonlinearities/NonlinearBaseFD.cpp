@@ -1,11 +1,11 @@
 
 #include "NonlinearBaseFD.h"
 
-void NonlinearBaseFD::Init(AftBase* const aAft, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain)
+void NonlinearBaseFD::Init(AftBase* const aAft, const ProblemParams& aProblemParams)
 {
-    NonlinearBase::Init(aAft, aHarmonicCoeffCount, aDofCountTimeDomain);
+    NonlinearBase::Init(aAft, aProblemParams);
     
-    mFiniteDifferenceSteps = NOX::LAPACK::Matrix<double>(aDofCountTimeDomain, aDofCountTimeDomain);
+    mFiniteDifferenceSteps = NOX::LAPACK::Matrix<double>(aProblemParams.DofCountPhysical, aProblemParams.DofCountPhysical);
     
     SetFiniteDifferenceSteps(DEFAULT_FD_STEP);
 }

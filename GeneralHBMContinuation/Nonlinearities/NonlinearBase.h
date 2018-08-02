@@ -12,6 +12,7 @@ class NonlinearBase;
 #include "NOX_LAPACK_Vector.H"
 
 #include "../Aft/AftBase.h"
+#include "../ProblemParams.h"
 
 #define DEFAULT_FD_STEP 1e-8
 
@@ -33,12 +34,10 @@ private:
     // can not be const because it will be modifying itself inside (it's internal structures) during the transformations
     AftBase* cAft;
     
-    int mHarmonicCoeffCount;
+    // this is set in the Init call, do not touch it elsewhere!
+    ProblemParams* mProblemParams = nullptr;
     bool mIsFinalised = false;
     bool mIsInitialised = false;
-    
-    // this is set in the Init call, do not touch it elsewhere!
-    int mDofCountTimeDomain;
     
 public:
     ~NonlinearBase();
@@ -46,7 +45,7 @@ public:
     // returns the name of the class
     virtual std::string ClassName() const = 0;
     // the aDofCountTimeDomain argument was added for the derived classes, in case they need it. We don't really need it here
-    virtual void Init(AftBase* const aAft, const int& aHarmonicCoeffCount, const int& aDofCountTimeDomain);
+    virtual void Init(AftBase* const aAft, const ProblemParams& aProblemParams);
     // frequency domain to frequency domain
     const NOX::LAPACK::Vector& ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
     // frequency domain to frequency domain
@@ -84,7 +83,7 @@ protected:
     NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, double aStep = DEFAULT_FD_STEP) const;
     NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const NOX::LAPACK::Matrix<double>& aSteps) const;
     
-    virtual bool IsCorrectingX() const = 0;
+    virtual bool IsHistoryDependent() const = 0;
     
 private:
     

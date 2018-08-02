@@ -187,7 +187,7 @@ std::vector<int> FricElem3D::NonzeroFPositions() const
     
     return lReturnVector;
 }
-bool FricElem3D::IsCorrectingX() const
+bool FricElem3D::IsHistoryDependent() const
 {
     return true;
 }

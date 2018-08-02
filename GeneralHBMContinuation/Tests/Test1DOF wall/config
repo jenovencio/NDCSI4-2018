@@ -44,7 +44,7 @@ excitation
 
 # Start frequency
 >start
-0.001
+0.0001
 
 # End frequency
 >end

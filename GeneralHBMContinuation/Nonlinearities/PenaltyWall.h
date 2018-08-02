@@ -16,7 +16,7 @@ protected:
     virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
     virtual int NumberOfPrepLoops() const override;
     virtual std::vector<int> NonzeroFPositions() const override;
-    virtual bool IsCorrectingX() const override;
+    virtual bool IsHistoryDependent() const override;
 public:
     virtual void LoadFromFile(const std::string& aFilePath) override;
     virtual std::string ClassName() const override;

@@ -9,6 +9,7 @@ class Config;
 
 #include "MatrixDefinition.h"
 #include "Nonlinearities/NonlinearityDefinition.h"
+#include "ProblemParams.h"
 
 // the return after the throw is there just so the compiler knows what the function returns
 // it should never get to that point because of the throw
@@ -26,6 +27,7 @@ public:
     static const std::string KEY_DAMP;      // damping matrix def
     static const std::string KEY_STIFF;     // stiffness matrix def
     static const std::string KEY_EXC;       // excitation force def
+    static const std::string KEY_DOF;      // number of harmonice waves
     static const std::string KEY_HARM;      // number of harmonice waves
     static const std::string KEY_NONLIN;    // nonlinearities def
     static const std::string KEY_START;     // start continuation frequency
@@ -53,6 +55,7 @@ public:
     static Config LoadConfig(const std::string& aConfigFilePath);
     // print
     void Print() const;
+    
 public:
     
     std::string ConfigFilePath;
@@ -65,6 +68,8 @@ public:
     std::string ContinuationSettingsFile;
     std::vector<NonlinearityDefinition> Nonlinearities;
     
+    // number of physical degrees of freedom (i.e. in time domain)
+    int DofCount;
     // number of harmonic waves (first harmonic is the DC component)
     // that means that the number of harmonic dofs will be DOFCount * (2 * HarmonicCount - 1)
     int HarmonicWaveCount;

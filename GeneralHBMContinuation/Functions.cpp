@@ -50,7 +50,7 @@ std::map<std::string, std::vector<std::string>> ParseGeneralConfigFile(const std
 
 
 
-NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, int& aDim)
+NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath)
 {
     std::ifstream lInputFile(aFilePath);
     if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
@@ -58,8 +58,6 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, i
     int lDim;
     
     lInputFile >> lDim;
-    
-    aDim = lDim;
     
     NOX::LAPACK::Matrix<double> lReturnMatrix(lDim, lDim);
     
@@ -81,16 +79,14 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixFull(const std::string& aFilePath, i
     
     return lReturnMatrix;
 }
-NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath, int& aDim)
+NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath)
 {
     std::ifstream lInputFile(aFilePath);
     if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
     
     int lDim;
     lInputFile >> lDim;
-    
-    aDim = lDim;
-        
+            
     NOX::LAPACK::Matrix<double> lReturnMatrix(lDim, lDim);
     
     int lRow;
@@ -118,23 +114,21 @@ NOX::LAPACK::Matrix<double> LoadSquareMatrixSparse(const std::string& aFilePath,
     
     return lReturnMatrix;
 }
-NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, const std::string& aMatrixType, int& aDim)
+NOX::LAPACK::Matrix<double> LoadSquareMatrix(const std::string& aFilePath, const std::string& aMatrixType)
 {
     if (aMatrixType == FULL_STRING)
-        return LoadSquareMatrixFull(aFilePath, aDim);
+        return LoadSquareMatrixFull(aFilePath);
     else if (aMatrixType == SPARSE_STRING)
-        return LoadSquareMatrixSparse(aFilePath, aDim);
+        return LoadSquareMatrixSparse(aFilePath);
     else throw "Unknown matrix type: " + aMatrixType + " for file \"" + aFilePath + "\"!";
 }
-std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aDim, int& aHarmCoeffCount)
+std::vector<double> LoadExcitationForce(const std::string& aFilePath, int& aHarmCoeffCount)
 {
     std::ifstream lInputFile(aFilePath);
     if (!lInputFile.is_open()) throw "Unable to open file \"" + aFilePath + "\"!";
     
     int lDim;
     lInputFile >> lDim;
-    
-    aDim = lDim;
         
     int lHarmCount;
     lInputFile >> lHarmCount;

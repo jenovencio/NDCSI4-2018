@@ -10,6 +10,7 @@ const std::string Config::KEY_MASS      = "mass";
 const std::string Config::KEY_DAMP      = "damp";
 const std::string Config::KEY_STIFF     = "stiff";
 const std::string Config::KEY_EXC       = "exc";
+const std::string Config::KEY_DOF       = "dof";
 const std::string Config::KEY_HARM      = "harm";
 const std::string Config::KEY_NONLIN    = "nonlin";
 const std::string Config::KEY_START     = "start";
@@ -33,6 +34,7 @@ const std::map<std::string, std::function<std::vector<std::string>(const std::st
     { Config::KEY_STIFF,    THROW_NO_DEFAULT        },
     { Config::KEY_EXC,      THROW_NO_DEFAULT        },
     { Config::KEY_HARM,     THROW_NO_DEFAULT        },
+    { Config::KEY_DOF,      THROW_NO_DEFAULT        },
     { Config::KEY_NONLIN,   RET_EMPTY_STR_VEC       },
     { Config::KEY_START,    THROW_NO_DEFAULT        },
     { Config::KEY_END,      THROW_NO_DEFAULT        },
@@ -143,6 +145,9 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
         lReturnConfig.Nonlinearities.push_back(lNewDef);
     }
     
+    // number of physical dofs
+    lReturnConfig.DofCount = ParseOneLineInt(lConfigMap[KEY_DOF], "Dof count");
+    
     // number of harmonics
     lReturnConfig.HarmonicWaveCount = ParseOneLineInt(lConfigMap[KEY_HARM], "Harmonic count");
     
@@ -202,6 +207,7 @@ void Config::Print() const
     std::cout << "Config: " << std::endl;
     std::cout << "Config path: " << ConfigFilePath << std::endl;
     std::cout << "Config file name: " << ConfigFileName << std::endl;
+    std::cout << "Physical dof count: " << DofCount << std::endl;
     std::cout << "Harmonic waves count: " << HarmonicWaveCount << std::endl;
     std::cout << "Start frequency: " << FrequencyStart << std::endl;
     std::cout << "End frequency: " << FrequencyEnd << std::endl;

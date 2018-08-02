@@ -13,9 +13,8 @@
 
 const std::string ProblemInterface::cContParameterName = "generic_parameter";
 
-ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities, bool aSaveWholeSolutions)
- : cHarmonicCount(2 * aConfig.HarmonicWaveCount - 1), cNonlinearitiesOuter(aNonlinearities), cSaveWholeSolutions(aSaveWholeSolutions),
- cFrequencyStart(aConfig.FrequencyStart), cFrequencyEnd(aConfig.FrequencyEnd)
+ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities)
+ : cConfig(aConfig), cProblemParams(aConfig.DofCount, 2 * aConfig.HarmonicWaveCount - 1), cNonlinearitiesOuter(aNonlinearities)
 {
     int lDummy;
     
@@ -25,104 +24,48 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     
     for (int i = 0; i < aConfig.MassMatrices.size(); i++)
     {
-        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrices[i].File, aConfig.MassMatrices[i].Type, mDOFCount);
+        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrices[i].File, aConfig.MassMatrices[i].Type);
+        
+        CheckMatrixSize(lMatrix, "Mass matrix");
         
         mMassMatrices.push_back(lMatrix);
     }
     for (int i = 0; i < aConfig.DampingMatrices.size(); i++)
     {
-        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrices[i].File, aConfig.DampingMatrices[i].Type, mDOFCount);
+        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrices[i].File, aConfig.DampingMatrices[i].Type);
+        
+        CheckMatrixSize(lMatrix, "Damping matrix");
         
         mDampingMatrices.push_back(lMatrix);
     }
     for (int i = 0; i < aConfig.StiffnessMatrices.size(); i++)
     {
-        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrices[i].File, aConfig.StiffnessMatrices[i].Type, mDOFCount);
+        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrices[i].File, aConfig.StiffnessMatrices[i].Type);
+        
+        CheckMatrixSize(lMatrix, "Stiffness matrix");
         
         mStiffnessMatrices.push_back(lMatrix);
     }
     
     // ensure it's a negative value, so the function fills it with the value from the file
     mExcitationCoeffCount = -1;
-    mExcitationAmp = LoadExcitationForce(aConfig.ConfigFilePath + "/" + aConfig.ExcitationForceFile, lDummy, mExcitationCoeffCount);
-    if (mDOFCount != lDummy) throw "Mass matrix and excitation force have different dimensions!";
-    if (mExcitationCoeffCount > cHarmonicCount) throw "Number of excitation force coeffs (" + std::to_string(mExcitationCoeffCount) + ") can not be larger than number of coeffs used for the HBM (" + std::to_string(cHarmonicCount) + ")!";
-    
-    mDOFCountHBM = cHarmonicCount * mDOFCount;
-    
-    mInitGuess = NOX::LAPACK::Vector(mDOFCountHBM);
+    mExcitationAmp = LoadExcitationForce(aConfig.ConfigFilePath + "/" + aConfig.ExcitationForceFile, mExcitationCoeffCount);
+    if (cConfig.DofCount != mExcitationAmp.size() / mExcitationCoeffCount) throw "Excitation force's number of dofs is different from number of dofs specified in the configuration!";
+    if (mExcitationCoeffCount > cProblemParams.HarmonicCount) throw "Number of excitation force coeffs (" + std::to_string(mExcitationCoeffCount) + ") can not be larger than number of coeffs used for the HBM (" + std::to_string(cProblemParams.HarmonicCount) + ")!";
+        
+    mInitGuess = NOX::LAPACK::Vector(cProblemParams.DofCountHBM);
     
     int lIntPointCount = aConfig.IntPointCount;
     if (lIntPointCount < 1) throw "Integration point count must be a positive number!";
     
-//     mIntPointsRelative = GetRelativeTimePoints(lIntPointCount);
-//     
-//     double* lTempArray1 = new double[lIntPointCount * cHarmonicCount];
-//     
-//     std::function<double(double)> lB;
-//     
-//     for (int i = 0; i < cHarmonicCount; i++)
-//     {
-//         int lWaveNumber = (i + 1) / 2;
-//         
-//         if (i == 0)             lB = [](double aX) { return 1.0; };
-//         else if (i % 2 == 1)    lB = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
-//         else                    lB = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
-//         
-//         for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
-//         {
-//             int lIndex = GetBValuesIndex(i, iIntPoint, cHarmonicCount, lIntPointCount);
-//             double lIntPointPos = mIntPointsRelative[iIntPoint];
-//             
-//             double lValue = lB(lIntPointPos);
-//             
-//             lTempArray1[lIndex] = lValue;
-//         }
-//     }
-//     
-//     mBValues.assign(lTempArray1, lTempArray1 + lIntPointCount * cHarmonicCount);
-//     
-//     double* lTempArray2 = new double[lIntPointCount * cHarmonicCount * cHarmonicCount];
-//     
-//     std::function<double(double)> lB1;
-//     std::function<double(double)> lB2;
-//     
-//     for (int i = 0; i < cHarmonicCount; i++)
-//     {
-//         int lWaveNumber = (i + 1) / 2;
-//         
-//         if (i == 0)             lB1 = [](double aX) { return 1.0; };
-//         else if (i % 2 == 1)    lB1 = [lWaveNumber](double aX) { return std::cos(2 * PI * lWaveNumber * aX); };
-//         else                    lB1 = [lWaveNumber](double aX) { return std::sin(2 * PI * lWaveNumber * aX); };
-//         
-//         for (int j = 0; j < cHarmonicCount; j++)
-//         {
-//             int lWaveNumber2 = (j + 1) / 2;
-//             
-//             if (j == 0)             lB2 = [](double aX) { return 1.0; };
-//             else if (j % 2 == 1)    lB2 = [lWaveNumber2](double aX) { return std::cos(2 * PI * lWaveNumber2 * aX); };
-//             else                    lB2 = [lWaveNumber2](double aX) { return std::sin(2 * PI * lWaveNumber2 * aX); };
-//             
-//             for (int iIntPoint = 0; iIntPoint < lIntPointCount; iIntPoint++)
-//             {
-//                 int lIndex = GetBProductIndex(i, j, iIntPoint, cHarmonicCount, lIntPointCount);
-//                 double lIntPointPos = mIntPointsRelative[iIntPoint];
-//                 
-//                 double lProduct = lB1(lIntPointPos) * lB2(lIntPointPos);
-//                 lTempArray2[lIndex] = lProduct;
-//             }
-//         }
-//     }
-//     mBProducts.assign(lTempArray2, lTempArray2 + lIntPointCount * cHarmonicCount * cHarmonicCount);
-    
     // create the aft object
-    mAft = C_AftFactory.at(aConfig.AftType)(lIntPointCount, aConfig.HarmonicWaveCount, mDOFCount);
+    mAft = C_AftFactory.at(aConfig.AftType)(lIntPointCount, cProblemParams);
     
     // initialise the outer nonlinearities with data from this class
     // also finalise them
     for (int i = 0; i < cNonlinearitiesOuter.size(); i++)
     {
-        cNonlinearitiesOuter[i]->Init(mAft, cHarmonicCount, mDOFCount);
+        cNonlinearitiesOuter[i]->Init(mAft, cProblemParams);
         cNonlinearitiesOuter[i]->Finalise();
         
         // add the outer nonlinearity into the "all nonlinearities" vector
@@ -138,7 +81,7 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
         
         NonlinearBase* lNewNonlin = C_NonlinearitiesFactory.at(lType)();
         
-        lNewNonlin->Init(mAft, cHarmonicCount, mDOFCount);
+        lNewNonlin->Init(mAft, cProblemParams);
         lNewNonlin->LoadFromFile(aConfig.ConfigFilePath + "/" + lFilePath);
         lNewNonlin->Finalise();
         
@@ -151,8 +94,8 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     std::cout << "Problem interface successfully initialised" << std::endl;
     std::cout << BORDER << std::endl;
     std::cout << "Problem: " << std::endl;
-    std::cout << "Number of physical DOFs: " << mDOFCount << std::endl;
-    std::cout << "Total number of DOFs: " << mDOFCountHBM << std::endl;
+    std::cout << "Number of physical DOFs: " << cProblemParams.DofCountPhysical << std::endl;
+    std::cout << "Total number of DOFs: " << cProblemParams.DofCountHBM << std::endl;
     std::cout << "Number of nonlinearities loaded from files: " << aConfig.Nonlinearities.size() << std::endl;
     std::cout << "Number of nonlinearities added from external code: " << cNonlinearitiesOuter.size() << std::endl;
     std::cout << "Total number of nonlinearities: " << mNonlinearities.size() << std::endl;
@@ -249,7 +192,7 @@ void ProblemInterface::setParams(const LOCA::ParameterVector& aParams)
     if (lNewContParam != mCurrentContParam)
     {
         mCurrentContParam = lNewContParam;
-        mFrequency = mCurrentContParam * (cFrequencyEnd - cFrequencyStart) + cFrequencyStart;
+        mFrequency = mCurrentContParam * (cConfig.FrequencyEnd - cConfig.FrequencyStart) + cConfig.FrequencyStart;
         
 //         std::cout << "New continuation parameter set: " << mCurrentContParam << std::endl;
 //         std::cout << "Corresponding frequency value : " << mFrequency << std::endl;
@@ -260,14 +203,14 @@ void ProblemInterface::setParams(const LOCA::ParameterVector& aParams)
 }
 void ProblemInterface::printSolution(const NOX::LAPACK::Vector& aX, const double aConParam)
 {
-    double lFreq = aConParam * cFrequencyEnd + (1.0 - aConParam) * cFrequencyStart;
+    double lFreq = aConParam * cConfig.FrequencyEnd + (1.0 - aConParam) * cConfig.FrequencyStart;
     
     double lNorm = aX.norm();
     
     mSolutionFrequencies.push_back(lFreq);
     mSolutionNorms.push_back(lNorm);
     
-    if (cSaveWholeSolutions) 
+    if (cConfig.SaveWholeSolutions) 
     {
         mSolutions.push_back(aX);
         mHasWholeSolutions = true;
@@ -292,7 +235,7 @@ void ProblemInterface::WriteSolutionNorms(std::ostream& aStream) const
 }
 void ProblemInterface::WriteWholeSolutions(std::ostream& aStream) const
 {
-    if (!cSaveWholeSolutions) throw "Whole solutions were not saved, so they can not be outputted!";
+    if (!cConfig.SaveWholeSolutions) throw "Whole solutions were not saved, so they can not be outputted!";
     
     aStream.precision(std::numeric_limits<double>::max_digits10);
     
@@ -315,7 +258,7 @@ NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(doub
 {
     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
-    NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(mDOFCountHBM, mDOFCountHBM);
+    NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
     NOX::LAPACK::Matrix<double>& lReturnMatrixTemp = *lReturnMatrix;
     
 //     std::cout << "Harmonic count: " << cHarmonicCount << std::endl;
@@ -331,16 +274,16 @@ NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(doub
 //     std::cout << mStiffnessMatrix << std::endl;
     
     // row number in the physical domain
-    for (int iDof = 0; iDof < mDOFCount; iDof++)
+    for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
     {
         // harmonic by which we differentiate
         // we only need to iterate over the harmonic index once, because we are differentiating a linear expression,
         // i.e. we will get an "identity"
-        for (int iHarm = 0; iHarm < cHarmonicCount; iHarm++)
+        for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
         {
 //             std::cout << "Harm index: " << iHarm << " out of " << cHarmonicCount << std::endl;
             // dynamic matrix row index
-            int lRowIndex = GetHBMDofIndex(iDof, iHarm, cHarmonicCount);
+            int lRowIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
             
 //             std::cout << "Row index: " << lRowIndex << std::endl;
             
@@ -363,10 +306,10 @@ NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(doub
                 // DC harmonic
                 
                 // col number in the physical domain
-                for (int jDof = 0; jDof < mDOFCount; jDof++)
+                for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
                 {
                     // index for stiffness contribution
-                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cHarmonicCount);
+                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
 //                     std::cout << "DC col index: " << lColIndex << std::endl;
                     
                     lReturnMatrixTemp(lRowIndex, lColIndex) += lT * lStiffnessMatrix(iDof, jDof);
@@ -377,12 +320,12 @@ NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(doub
                 // cos wave
                 
                 // col number in the physical domain
-                for (int jDof = 0; jDof < mDOFCount; jDof++)
+                for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
                 {
                     // index for mass and stiffness contribution
-                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cHarmonicCount);
+                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
                     // index for damping contribution
-                    int lColIndex2 = GetHBMDofIndex(jDof, iHarm + 1, cHarmonicCount);
+                    int lColIndex2 = GetHBMDofIndex(jDof, iHarm + 1, cProblemParams.HarmonicCount);
                     
 //                     std::cout << "cos col index 1: " << lColIndex << std::endl;
 //                     std::cout << "cos col index 2: " << lColIndex2 << std::endl;
@@ -397,12 +340,12 @@ NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(doub
                 // sin wave
                 
                 // col number in the physical domain
-                for (int jDof = 0; jDof < mDOFCount; jDof++)
+                for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
                 {
                     // index for mass and stiffness contribution
-                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cHarmonicCount);
+                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
                     // index for damping contribution
-                    int lColIndex2 = GetHBMDofIndex(jDof, iHarm - 1, cHarmonicCount);
+                    int lColIndex2 = GetHBMDofIndex(jDof, iHarm - 1, cProblemParams.HarmonicCount);
                     
 //                     std::cout << "sin col index 1: " << lColIndex << std::endl;
 //                     std::cout << "sin col index 2: " << lColIndex2 << std::endl;
@@ -421,19 +364,19 @@ NOX::LAPACK::Vector* ProblemInterface::CreateExcitationRHS(double aFrequency)
 {
     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
-    NOX::LAPACK::Vector* lReturnVector = new NOX::LAPACK::Vector(mDOFCountHBM);
+    NOX::LAPACK::Vector* lReturnVector = new NOX::LAPACK::Vector(cProblemParams.DofCountHBM);
     NOX::LAPACK::Vector& lReturnVectorTemp = *lReturnVector;
     
     // period
     double lT = 2 * PI / aFrequency;
     
-    for (int iDof = 0; iDof < mDOFCount; iDof++)
+    for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
     {
         // The mExcitationCoeffCount is equal or less than cHarmonicCount
         for (int iHarm = 0; iHarm < mExcitationCoeffCount; iHarm++)
         {
             int lExcitationIndex = GetHBMDofIndex(iDof, iHarm, mExcitationCoeffCount);
-            int lSystemIndex = GetHBMDofIndex(iDof, iHarm, cHarmonicCount);
+            int lSystemIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
             
             double lForceAmp = mExcitationAmp[lExcitationIndex];
             
@@ -449,4 +392,12 @@ void ProblemInterface::CheckMatrixCount(const std::string& aMatrixName, const in
 {
     if (aMatrixCount != 1 && aMatrixCount != aHarmonicWaveCount)
         throw "Number of \"" + aMatrixName + "\" matrices must be either 1 or equal to number of harmonic waves (\"" + std::to_string(aHarmonicWaveCount) + "\"). Instead, \"" + std::to_string(aMatrixCount) + "\" matrices were provided!";
+}
+void ProblemInterface::CheckMatrixSize(const NOX::LAPACK::Matrix<double>& aMatrix, const std::string& aMatrixName)
+{
+    if (aMatrix.numCols() != cConfig.DofCount)
+        throw "Number of columns of \"" + aMatrixName + "\" does not equal to the number of dofs specified in the configuration!";
+    
+    if (aMatrix.numRows() != cConfig.DofCount)
+        throw "Number of rows of \"" + aMatrixName + "\" does not equal to the number of dofs specified in the configuration!";
 }

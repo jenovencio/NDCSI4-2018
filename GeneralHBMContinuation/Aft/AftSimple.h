@@ -24,7 +24,7 @@ private:
     NOX::LAPACK::Matrix<double> mFreqMatrix;
     
 public:
-    AftSimple(const int& aIntegrationPointCount, const int& aHarmonicWaveCount, const int& aDofCountTime);
+    AftSimple(const int& aIntegrationPointCount, const ProblemParams& aParams);
     
     virtual const std::vector<NOX::LAPACK::Vector>& FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency) override;
     

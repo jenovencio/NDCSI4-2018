@@ -31,7 +31,7 @@ protected:
     // that can potentially return a nonzero value in their F evaluation
     // this is just to speed up the F and jacobian computations (so we don't uselessly iterate over all dofs)
     virtual std::vector<int> NonzeroFPositions() const override;
-    virtual bool IsCorrectingX() const override;
+    virtual bool IsHistoryDependent() const override;
     
 public:
     void AddCubicSpring(const CubicSpringDef& aDef);
