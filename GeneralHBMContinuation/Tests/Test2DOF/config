@@ -3,6 +3,10 @@
 # LINEAR SYSTEM SETTINGS
 ########################
 
+# Number of physical degrees of freedom
+>dof
+2
+
 # Mass matrix file path and type (full or sparse)
 >mass
 mass

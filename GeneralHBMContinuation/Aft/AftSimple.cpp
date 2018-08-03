@@ -70,47 +70,51 @@ AftSimple::AftSimple(const int& aIntegrationPointCount, const ProblemParams& aPa
     mBProducts.assign(lTempArray2, lTempArray2 + cIntegrationPointCount * cProblemParams.HarmonicCount * cProblemParams.HarmonicCount);
     delete[] lTempArray2;
     
-    mTimeVectors.reserve(cIntegrationPointCount);
-    
-    for (int i = 0; i < cIntegrationPointCount; i++)
-    {
-        mTimeVectors.push_back(NOX::LAPACK::Vector(cProblemParams.DofCountPhysical));
-    }
-    
-    mFreqVector = NOX::LAPACK::Vector(cProblemParams.DofCountHBM);
-    mFreqMatrix = NOX::LAPACK::Matrix<double>(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
+//     mTimeVectors.reserve(cIntegrationPointCount);
+//     
+//     for (int i = 0; i < cIntegrationPointCount; i++)
+//     {
+//         mTimeVectors.push_back(NOX::LAPACK::Vector(cProblemParams.DofCountPhysical));
+//     }
+//     
+//     mFreqVector = NOX::LAPACK::Vector(cProblemParams.DofCountHBM);
+//     mFreqMatrix = NOX::LAPACK::Matrix<double>(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
 }
 
-const std::vector<NOX::LAPACK::Vector>& AftSimple::FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency)
+std::vector<NOX::LAPACK::Vector> AftSimple::FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency)
 {
+    std::vector<NOX::LAPACK::Vector> lReturnVector;
+    lReturnVector.reserve(cIntegrationPointCount);
+    
     for (int iTime = 0; iTime < cIntegrationPointCount; iTime++)
     {
+        NOX::LAPACK::Vector lTimeVector(cProblemParams.DofCountPhysical);
+        
         for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
-        {
-            mTimeVectors[iTime](iDof) = 0.0;
-            
+        {   
             for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
             {
                 int lHarmIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
                 int lBIndex = GetBValuesIndex(iHarm, iTime, cProblemParams.HarmonicCount, cIntegrationPointCount);
                 
-                mTimeVectors[iTime](iDof) += aXFreq(lHarmIndex) * mBValues[lBIndex];
+                lTimeVector(iDof) += aXFreq(lHarmIndex) * mBValues[lBIndex];
             }
         }
+        
+        lReturnVector.push_back(lTimeVector);
     }
     
-    return mTimeVectors;
+    return lReturnVector;
 }
 
-const NOX::LAPACK::Vector& AftSimple::TimeToFrequency(const std::vector<NOX::LAPACK::Vector>& aXTime, const double& aFrequency)
+NOX::LAPACK::Vector AftSimple::TimeToFrequency(const std::vector<NOX::LAPACK::Vector>& aXTime, const double& aFrequency)
 {
     // check 
     if (aXTime.size() != cIntegrationPointCount) throw "Number of vectors in the aXTime and number of time integration points don't match!";
     
     double lPeriod = 2 * PI / aFrequency;
     
-    // reset the "return" vector
-    for (int i = 0; i < mFreqVector.length(); i++) mFreqVector(i) = 0.0;
+    NOX::LAPACK::Vector lReturnVector(cProblemParams.DofCountHBM);
     
     for (int iTimePoint = 0; iTimePoint < cIntegrationPointCount; iTimePoint++)
     {
@@ -126,55 +130,66 @@ const NOX::LAPACK::Vector& AftSimple::TimeToFrequency(const std::vector<NOX::LAP
                 double lBIndex = GetBValuesIndex(iHarm, iTimePoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
                 double lProjValue = lTimeValue * mBValues[lBIndex];
                 
-                mFreqVector(lHBMIndex) += lProjValue;
+                lReturnVector(lHBMIndex) += lProjValue;
             }
         }
     }
     
-    mFreqVector.scale(lPeriod / cIntegrationPointCount);
+    lReturnVector.scale(lPeriod / cIntegrationPointCount);
     
-    return mFreqVector;
+    return lReturnVector;
 }
 
-const NOX::LAPACK::Matrix<double>& AftSimple::TimeToFrequency(const std::vector<NOX::LAPACK::Matrix<double>>& aXTime, const double& aFrequency)
+NOX::LAPACK::Matrix<double> AftSimple::TimeToFrequency(const std::vector<NOX::LAPACK::Matrix<double>>& aXTime, const double& aFrequency)
 {
     // check 
     if (aXTime.size() != cIntegrationPointCount) throw "Number of vectors in the aXTime and number of time integration points don't match!";
     
     double lPeriod = 2 * PI / aFrequency;
     
-    // reset the "return" matrix
-    for (int j = 0; j < mFreqMatrix.numCols(); j++)
-        for (int i = 0; i < mFreqMatrix.numRows(); i++) 
-            mFreqMatrix(i, j) = 0.0;
+    NOX::LAPACK::Matrix<double> lReturnMatrix(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
         
     for (int iTimePoint = 0; iTimePoint < cIntegrationPointCount; iTimePoint++)
     {
-        const NOX::LAPACK::Matrix<double>& lTimeMatrix = aXTime[iTimePoint];
+        const NOX::LAPACK::Matrix<double>& lInputMatrix = aXTime[iTimePoint];
+        
+        if (lInputMatrix.numCols() != cProblemParams.DofCountHBM) throw "Input matrix has wrong number of columns!";
+        if (lInputMatrix.numRows() != cProblemParams.DofCountPhysical) throw "Input matrix has wrong number of rows!";
         
         for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
         {
             for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
-            {
-                double lTimeValue = lTimeMatrix(iDof, jDof);
-                
+            {                
                 for (int jHarm = 0; jHarm < cProblemParams.HarmonicCount; jHarm++)
                 {
+                    int lInputCol = GetHBMDofIndex(jDof, jHarm, cProblemParams.HarmonicCount);
+                    double lInputValue = lInputMatrix(iDof, lInputCol);
+                    
                     for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
                     {
-                        double lHBMIndex1 = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
-                        double lHBMIndex2 = GetHBMDofIndex(jDof, jHarm, cProblemParams.HarmonicCount);
-                        double lBProdIndex = GetBProductIndex(iHarm, jHarm, iTimePoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
-                        double lProjValue = lTimeValue * mBProducts[lBProdIndex];
+                        double lHBMIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
                         
-                        mFreqMatrix(lHBMIndex1, lHBMIndex2) += lProjValue;
+                        double lBIndex = GetBValuesIndex(iHarm, iTimePoint, cProblemParams.HarmonicCount, cIntegrationPointCount);
+                        double lProjValue = lInputValue * mBValues[lBIndex];
+                        
+                        lReturnMatrix(lHBMIndex, lInputCol) += lProjValue;
                     }
                 }
             }
         }
     }
     
-    mFreqMatrix.scale(lPeriod / cIntegrationPointCount);
+    lReturnMatrix.scale(lPeriod / cIntegrationPointCount);
     
-    return mFreqMatrix;
+    return lReturnMatrix;
+}
+
+double AftSimple::GetBValue(const int& aBIndex, const int& aTimePointIndex)
+{
+    if (aBIndex < 0 || aBIndex >= cProblemParams.HarmonicCount) throw "Invalid B index!";
+    if (aTimePointIndex < 0 || aTimePointIndex >= cIntegrationPointCount) throw "Invalid time point index!";
+    
+    int lIndex = GetBValuesIndex(aBIndex, aTimePointIndex, cProblemParams.HarmonicCount, cIntegrationPointCount);
+    
+    return mBValues[lIndex];
 }

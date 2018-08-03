@@ -4,10 +4,9 @@
 #include "PenaltyWall.h"
 #include "../Misc.h"
 
-FResult PenaltyWall::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
+NOX::LAPACK::Vector PenaltyWall::ComputeFTDInner(const NOX::LAPACK::Vector& aX) const
 {
-    FResult lReturnResult;
-    lReturnResult.FValues = NOX::LAPACK::Vector(aX.length());
+    NOX::LAPACK::Vector lReturnVector(aX.length());
     
     for (int iWall = 0; iWall < mWalls.size(); iWall++)
     {
@@ -23,12 +22,12 @@ FResult PenaltyWall::ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX
 //         
 //         STOP
         
-        lReturnResult.FValues(lDof) += std::abs(lDiff) * lStiffCoeff;
+        lReturnVector(lDof) += std::abs(lDiff) * lStiffCoeff;
     }
     
-    return lReturnResult;
+    return lReturnVector;
 }
-NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const
+NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) const
 {   
     NOX::LAPACK::Matrix<double> lReturnMatrix(aX.length(), aX.length());
     
@@ -51,36 +50,28 @@ NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LA
     return lReturnMatrix;
 }
 
-int PenaltyWall::NumberOfPrepLoops() const
-{
-    return 0;
-}
-std::vector<int> PenaltyWall::NonzeroFPositions() const
-{
-    std::set<int> lUnique;
-    std::vector<int> lReturnVector;
-    
-    for (int iSpring = 0; iSpring < mWalls.size(); iSpring++)
-    {
-        int lDof = mWalls[iSpring].DofIndex;
-        
-        if (lDof >= 0)
-        {
-            const bool lIsIn = lUnique.find(lDof) != lUnique.end();
-            if (!lIsIn)
-            {
-                lReturnVector.push_back(lDof);
-                lUnique.insert(lDof);
-            }
-        }
-    }
-    
-    return lReturnVector;
-}
-bool PenaltyWall::IsHistoryDependent() const
-{
-    return false;
-}
+// std::vector<int> PenaltyWall::NonzeroFPositions() const
+// {
+//     std::set<int> lUnique;
+//     std::vector<int> lReturnVector;
+//     
+//     for (int iSpring = 0; iSpring < mWalls.size(); iSpring++)
+//     {
+//         int lDof = mWalls[iSpring].DofIndex;
+//         
+//         if (lDof >= 0)
+//         {
+//             const bool lIsIn = lUnique.find(lDof) != lUnique.end();
+//             if (!lIsIn)
+//             {
+//                 lReturnVector.push_back(lDof);
+//                 lUnique.insert(lDof);
+//             }
+//         }
+//     }
+//     
+//     return lReturnVector;
+// }
 
 void PenaltyWall::LoadFromFile(const std::string& aFilePath)
 {
