@@ -1,4 +1,16 @@
-function [F,ur,ID] = FricElem3D2ts(x,w)
+function [F,ur] = FricElem3D2ts(x,w)
+
+% ***INPUT***
+%       x = vector of displacements in time at t = tn for all nodes
+%       w = vector of displacements in time at t = tn-1 for all nodes
+% ***OUTPUT***
+%       F = friction force in time
+%       ur = updated displacements in time at t = tn which become
+%       displacement at t = tn-1 in the next time step
+%       ID = vector of contact state 
+%           ID = 0, --------> separation
+%           ID = 1, --------> stick
+%           ID = 2, --------> slip
 
 % --------- test data ----------------
 
@@ -13,12 +25,8 @@ N_node = length(x)/dpn; % total number of nodes
 kn  = 50;
 ktx = 50;           % tangential stiffness in x-direction
 kty = 50;           % tangential stiffness in y-direction
-% dof's per node are only 2, there is only one dof in tangential direction
-% if dpn == 2
-%     kt = kt(1,1);       
-% end
 
-N0 = 70;
+N0 = 20;
 mu = 0.2;
 
 ux =  zeros(1, N_node);
@@ -31,6 +39,8 @@ Tx =  zeros(1, N_node);
 Ty =  zeros(1, N_node);
 N  =  zeros(1, N_node);
 F = zeros(dpn, N_node);
+ID = zeros(2, N_node);          % contact condition identification
+
 % arrange dof's in tangential plane 'u' and normal direction 'v'
 for n = 1:N_node
     % dof's at the current time step
@@ -53,31 +63,35 @@ for n = 1:N_node
     if N(n) <= 0
         Tx(n) = 0;
         Ty(n) = 0;
-        IDx(n) = 0;         % separation phase
-        IDy(n) = 0;         
+        ID(1,n) = 0;         % separation 
+        ID(2,n) = 0;         % separation
         uxr(n) = ux(n);
         uyr(n) = uy(n);
+        ur(:,n) = [uxr(n); uyr(n)];
     else
         Coul(n) = mu*N(n); 
         Tx(n) = ktx *( ux(n) - uxr(n) );
         Ty(n) = kty *( uy(n) - uyr(n) );
-        IDx(n) = 1;         % stick phase
-        IDy(n) = 1;
+        ID(1,n) = 1;         % stick phase
+        ID(2,n) = 1;
+       
         if abs(Tx(n)) > Coul(n)
             Tx(n) = sign(Tx(n)).*Coul(n);
             uxr(n) = ux(n) - Tx(n)/ktx;
-            IDx(n) = 2;     % slip phase         
+            ID(1,n) = 2;     % x slip         
         end
+        
         if abs(Ty(n)) > Coul(n)
             Ty(n) = sign(Ty(n)).*Coul(n);
             uyr(n) = uy(n) - Ty(n)/kty;
-            IDy(n) = 2;     % slip phase  
+            ID(2,n) = 2;     % y slip 
         end
         % updated to remove the static normal load
         %F(:,n) = [Tx(n); Ty(n); N(n)-N0]; 
         F(:,n) = [Tx(n); Ty(n); N(n)];
         ur(:,n) = [uxr(n); uyr(n)];
-        ID = [IDx(n); IDy(n)];
+        id = ID(:,n);
+        
     end
 end
 end
