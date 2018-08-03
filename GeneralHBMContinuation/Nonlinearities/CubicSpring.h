@@ -24,9 +24,9 @@ private:
 protected:
 
     // time domain to time domain
-    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) const override;
+    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) override;
     // time domain to time domain
-    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) const override;
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) override;
     // returns indices of dofs (in time domain) that are nonlinear, i.e.
     // that can potentially return a nonzero value in their F evaluation
     // this is just to speed up the F and jacobian computations (so we don't uselessly iterate over all dofs)

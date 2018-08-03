@@ -4,7 +4,7 @@
 #include "PenaltyWall.h"
 #include "../Misc.h"
 
-NOX::LAPACK::Vector PenaltyWall::ComputeFTDInner(const NOX::LAPACK::Vector& aX) const
+NOX::LAPACK::Vector PenaltyWall::ComputeFTDInner(const NOX::LAPACK::Vector& aX)
 {
     NOX::LAPACK::Vector lReturnVector(aX.length());
     
@@ -27,7 +27,7 @@ NOX::LAPACK::Vector PenaltyWall::ComputeFTDInner(const NOX::LAPACK::Vector& aX) 
     
     return lReturnVector;
 }
-NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) const
+NOX::LAPACK::Matrix<double> PenaltyWall::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX)
 {   
     NOX::LAPACK::Matrix<double> lReturnMatrix(aX.length(), aX.length());
     

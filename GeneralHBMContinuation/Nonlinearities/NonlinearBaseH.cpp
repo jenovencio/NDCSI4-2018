@@ -3,7 +3,7 @@
 #include "../Functions.h"
 
 // frequency domain to frequency domain
-NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) const 
+NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) 
 {
     AftBase& lAft = *cAft;
     
@@ -13,7 +13,7 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
     if (aX.length() % mProblemParams->HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams->HarmonicCount) + ")!";
     
     // in time domain
-    int lDofCount = aX.length() / mProblemParams->HarmonicCount;
+    int lDofCount = mProblemParams->DofCountPhysical;
     
     std::vector<NOX::LAPACK::Vector> lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
     
@@ -34,6 +34,8 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
     }
 //     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
     
+    InitFComputation(aX);
+    
     for (int iLoop = 0; iLoop < lLoopCount; iLoop++)
     {
         for (int iTimePoint = 0; iTimePoint < lXTimeAll.size(); iTimePoint++)
@@ -42,16 +44,8 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
             if (iTimePoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
             // calculate the nonlinearity in time domain
-            FResult lNonlinResult = ComputeFTD(lXTime, lXTimePrev, iTimePoint);
-            
-            if (!IsHistoryDependent() && lNonlinResult.XCorrSet)
-                throw "The code logic of this class is wrong! The class says it's not history dependent, but at the same time sets corrections to history in it's F evaluations.";
-            
-            if (IsHistoryDependent() && lNonlinResult.XCorrSet)
-                lXTimePrev = lNonlinResult.XCorr;
-            else
-                lXTimePrev = lXTime;
-            
+            FResult lNonlinResult = ComputeFTD(lXTime, iTimePoint);
+                        
             if (iLoop == lLoopCount - 1)
             {
                 lFTimeAll.push_back(lNonlinResult.FValues);
@@ -67,7 +61,7 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
     return lReturnVector;
 }
 // frequency domain to frequency domain
-NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
+NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPACK::Vector& aX, const double& aFrequency)
 {
     AftBase& lAft = *cAft;
     
@@ -75,28 +69,16 @@ NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPA
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
     if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
     if (aX.length() % mProblemParams->HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams->HarmonicCount) + ")!";
-    
-    // in time domain
-    int lDofCount = aX.length() / mProblemParams->HarmonicCount;
-    
+        
     const std::vector<NOX::LAPACK::Vector>& lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
     
     std::vector<NOX::LAPACK::Matrix<double>> lJTimeAll;
+    
     lJTimeAll.reserve(lXTimeAll.size());
-    
-    NOX::LAPACK::Vector lXTimePrev;
-    NOX::LAPACK::Matrix<double> lJTimePrev = GetFirstJ();
-    
+        
     int lLoopCount = NumberOfPrepLoops() + 1; // number of loop over the period
     
-    NOX::LAPACK::Vector lXTimeAvg(lDofCount);
-    
-    for (int iDof = 0; iDof < lDofCount; iDof++)
-    {
-        int lHarmIndex = GetHBMDofIndex(iDof, 0, mProblemParams->HarmonicCount);
-        lXTimeAvg(iDof) = aX(lHarmIndex);
-    }
-//     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
+    InitJComputation(aX);
     
     for (int iLoop = 0; iLoop < lLoopCount; iLoop++)
     {
@@ -104,26 +86,14 @@ NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPA
         {
 //             lFftInvTime.Start();
             const NOX::LAPACK::Vector& lXTime = lXTimeAll[iIntPoint];
-//             lFftInvTimeTotal += lFftInvTime.Stop();
-            if (iIntPoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
             // calculate the nonlinearity jacobian in time domain (derivatives by fourier coefficients)
-            NOX::LAPACK::Matrix<double> lNonlin = ComputeDFDH(lXTime, lXTimePrev, lJTimePrev, iIntPoint);
+            NOX::LAPACK::Matrix<double> lNonlin = ComputeDFDH(lXTime, iIntPoint);
             
             if (iLoop == lLoopCount - 1)
             {
                 lJTimeAll.push_back(lNonlin);
             }
-            
-            if (IsHistoryDependent())
-            {
-                FResult lFResult = ComputeFTD(lXTime, lXTimePrev, iIntPoint);
-                if (lFResult.XCorrSet) lXTimePrev = lFResult.XCorr;
-                else lXTimePrev = lXTime;
-                
-                lJTimePrev = lNonlin;
-            }
-            else lXTimePrev = lXTime;
         }
     }
     

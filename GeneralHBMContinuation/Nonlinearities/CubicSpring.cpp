@@ -6,7 +6,7 @@
 #include "../Misc.h"
 
 
-NOX::LAPACK::Vector CubicSpring::ComputeFTDInner(const NOX::LAPACK::Vector& aX) const
+NOX::LAPACK::Vector CubicSpring::ComputeFTDInner(const NOX::LAPACK::Vector& aX)
 {
     NOX::LAPACK::Vector lReturnVector(aX.length());
     
@@ -35,7 +35,7 @@ NOX::LAPACK::Vector CubicSpring::ComputeFTDInner(const NOX::LAPACK::Vector& aX) 
     return lReturnVector;
 }
 
-NOX::LAPACK::Matrix<double> CubicSpring::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) const
+NOX::LAPACK::Matrix<double> CubicSpring::ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX)
 {
     NOX::LAPACK::Matrix<double> lReturnMatrix(aX.length(), aX.length());
     

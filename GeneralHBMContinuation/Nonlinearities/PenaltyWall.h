@@ -12,9 +12,9 @@ private:
 protected:
     
     // time domain to time domain
-    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) const override;
+    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) override;
     // time domain to time domain
-    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) const override;
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) override;
 //     virtual std::vector<int> NonzeroFPositions() const override;
 public:
     virtual void LoadFromFile(const std::string& aFilePath) override;

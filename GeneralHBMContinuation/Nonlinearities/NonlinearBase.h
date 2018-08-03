@@ -35,9 +35,9 @@ private:
     
 protected:
     // frequency domain to frequency domain
-    virtual NOX::LAPACK::Vector ComputeFInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) const = 0;
+    virtual NOX::LAPACK::Vector ComputeFInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) = 0;
     // frequency domain to frequency domain
-    virtual NOX::LAPACK::Matrix<double> ComputeJacobianInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) const = 0;
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobianInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) = 0;
 public:
     ~NonlinearBase();
     virtual void LoadFromFile(const std::string& aFilePath);
@@ -45,9 +45,9 @@ public:
     virtual std::string ClassName() const = 0;
     virtual void Init(AftBase* const aAft, const ProblemParams& aProblemParams);
     // frequency domain to frequency domain
-    NOX::LAPACK::Vector ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
+    NOX::LAPACK::Vector ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency);
     // frequency domain to frequency domain
-    NOX::LAPACK::Matrix<double> ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const;
+    NOX::LAPACK::Matrix<double> ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency);
     // "locks" the nonlinearity to any changes (logically, not actually of course)
     // the point is, after this method is called, the nonlinearity should not change anymore (in terms of it's mathematical definition at least),
     // so for instance for a cubic spring nonlinearity, no springs should be added or removed, etc.

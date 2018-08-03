@@ -35,7 +35,7 @@ public:
     
 protected:
     // compute forces in time domain
-    virtual FResult ComputeFTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const int& aTimePointIndex) const final 
+    virtual FResult ComputeFTD(const NOX::LAPACK::Vector& aX, const int& aTimePointIndex) final 
     {
         FResult lReturnResult;
         lReturnResult.XCorrSet = false;
@@ -44,13 +44,20 @@ protected:
         
         return lReturnResult;
     }
-    virtual NOX::LAPACK::Matrix<double> ComputeDFDH(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const NOX::LAPACK::Matrix<double>& aJPrev, const int& aTimePointIndex) const final;
+    virtual NOX::LAPACK::Matrix<double> ComputeDFDH(const NOX::LAPACK::Vector& aX, const int& aTimePointIndex) final;
     // time domain to time domain
-    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) const = 0;
+    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) = 0;
     // time domain to time domain
-    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) const = 0;
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) = 0;
     
     virtual int NumberOfPrepLoops() const final { return 0; }
+    
+    // signals that there will be a series of calls to ComputeFTD following (time step after time step, possibly multiple cycles)
+    // with the given "value" in frequency domain
+    virtual void InitFComputation(const NOX::LAPACK::Vector& aX) final { }
+    // signals that there will be a series of calls to ComputeDFDH following (time step after time step, possibly multiple cycles)
+    // with the given "value" in frequency domain
+    virtual void InitJComputation(const NOX::LAPACK::Vector& aX) final { }
     // returns indices of elements in the F vector (in time domain) that are nonzero, i.e.
     // where some nonlinearity occurs
     // this is just to speed up the F and jacobian computations in the frequency domain (so we don't uselessly iterate over all elements)
@@ -67,8 +74,6 @@ protected:
 //     // Same functions as above, but using the ComputeF as the aFEval function (in time domain)
 //     NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, double aStep = DEFAULT_FD_STEP) const;
 //     NOX::LAPACK::Matrix<double> ComputeJacobianFiniteDifferenceTD(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const NOX::LAPACK::Matrix<double>& aSteps) const;
-    
-    virtual bool IsHistoryDependent() const final { return false; }
     
 };
 

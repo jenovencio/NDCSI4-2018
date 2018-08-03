@@ -23,7 +23,7 @@ void NonlinearBaseTD::Finalise()
 //     }
 }
 
-NOX::LAPACK::Matrix<double> NonlinearBaseTD::ComputeDFDH(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev, const NOX::LAPACK::Matrix<double>& aJPrev, const int& aTimePointIndex) const
+NOX::LAPACK::Matrix<double> NonlinearBaseTD::ComputeDFDH(const NOX::LAPACK::Vector& aX, const int& aTimePointIndex)
 {
     // check
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";

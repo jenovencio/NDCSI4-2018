@@ -25,14 +25,14 @@ void NonlinearBase::Init(AftBase* const aAft, const ProblemParams& aProblemParam
     mIsInitialised = true;
 }
 // frequency domain to frequency domain
-NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
+NOX::LAPACK::Vector NonlinearBase::ComputeF(const NOX::LAPACK::Vector& aX, const double& aFrequency)
 {
     CheckStatus();
     
     return ComputeFInner(aX, aFrequency);
 }
 // frequency domain to frequency domain
-NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency) const
+NOX::LAPACK::Matrix<double> NonlinearBase::ComputeJacobian(const NOX::LAPACK::Vector& aX, const double& aFrequency)
 {
     CheckStatus();
     
