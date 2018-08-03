@@ -1,0 +1,9 @@
+/COM,ANSYS RELEASE Release 18.1      BUILD 18.1      UP20170403       11:20:28
+
+ *** WARNING ***                         CP =       0.641   TIME= 11:20:29
+ Element shape checking is currently inactive.  Issue SHPP,ON or         
+ SHPP,WARN to reactivate, if desired.                                    
+
+ *** ERROR ***                           CP =       0.688   TIME= 11:20:29
+ Newton-Raphson iterative solution is not available for cyclic symmetry  
+ analysis (CYCLIC command) with non-cyclic loading.                      
