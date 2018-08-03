@@ -38,9 +38,9 @@ for a in np.arange(angle,360,angle):
 
 def update(i):
     for m in meshes:
-        ax = amfe.plot3Dmesh(m, ax=ax1, boundaries=True, alpha=0.2, color='blue', scale = 1000, plot_nodes=True)
+        ax = amfe.plot3Dmesh(m, ax=ax1, boundaries=True, alpha=0.2, color='blue', scale = 1000, plot_nodes=False)
     
-    ax.view_init(0 + i, 0 )
+    ax.view_init(0 + i, 0  )
     plt.draw()
     ax.set_aspect('equal', adjustable='box')
     #xlim = ax.get_xlim()
@@ -51,9 +51,9 @@ def update(i):
     min_ = min(xlim[0],ylim[0],zlim[0])
     max_ = max(xlim[1],ylim[1],zlim[1])
     lim = (min_,max_)
-    ax.set_xlim(lim)
-    ax.set_ylim(lim)
-    ax.set_zlim(lim)
+    #ax.set_xlim(lim)
+    #ax.set_ylim(lim)
+    #ax.set_zlim(lim)
 
     #ax.set_zlim(xlim)
     plt.axis('off')
@@ -63,10 +63,10 @@ def create_gif():
     # FuncAnimation will call the 'update' function for each frame; here
     # animating over 10 frames, with an interval of 200ms between frames.
     Writer = animation.writers['imagemagick']
-    writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+    writer = Writer(fps=20, metadata=dict(artist='Me'), bitrate=1800)
 
-    anim = FuncAnimation(fig, update, frames=np.arange(0, 180, 5), interval=200)
-    anim.save('geometry.gif', dpi=400, writer=writer)
+    anim = FuncAnimation(fig, update, frames=np.arange(0, 180, 45), interval=200)
+    anim.save('geometry_v1.gif', dpi=200, writer=writer)
 
 
 if __name__ == '__main__':
