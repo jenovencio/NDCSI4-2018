@@ -8,7 +8,7 @@ UX = [0; 1.0; 0; 0] ;
 UY = [1; 1.0; 0.2; 0.05] ;
 UY = [0; 2.0; 0; 0] ;
 UZ = [0.5; 0.5; 0.1; 0.1] ;
-% UZ = [0; 1.0; 0; 0] ;
+UZ = [0; 1.0; 0; 0] ;
 
 
 ux = myInvFFT(UX,nStep);
@@ -25,7 +25,7 @@ uy = [uy; uy; uy];
 % uy = zeros(length(uy),1);
 v = myInvFFT(UZ,nStep);
 v = [v; v; v];
-v = zeros(length(v),1);
+% v = zeros(length(v),1);
 % N = N0*ones(1,length(v));
 % w1 = zeros(length(ux),1);
 % w2 = zeros(length(uy),1);

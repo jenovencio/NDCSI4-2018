@@ -77,14 +77,8 @@ for n = 1:N_node
         d(n) = sqrt( (ux(n)-uxr(n))^2 + (uy(n)-uyr(n))^2 );        % direction cosine
         
         if JacOpt == 1
+            Jac(n,1) = 1;
             
-            dfxdX(n,1) = kt * ( cos(nh(1)*(nt)*CM) - cos(nh(1)*(nt-1)*CM) ) + dfxdXr(n,1); 
-            Jac(n,1) = kt + Jac_r(n,1); 
-%             dfxdY(n,1) = dfxdYr(n,1);
-%             dfxdZ(n,(2*nH+1)+1) = dfxdZr(n,(2*nH+1)+1);             
-%                          
-%             dfydX(n,(2*nH+1)+1) = kt * ( cos(nh(1)*(nt)*CM) - cos(nh(1)*(nt-1)*CM) )...
-%                              + dfxdXr(n,1); 
             for j = 2:(2*nH+1)   
                 % in stick condition
                 if mod(j,2) == 0
