@@ -40,7 +40,7 @@ def update(i):
     for m in meshes:
         ax = amfe.plot3Dmesh(m, ax=ax1, boundaries=True, alpha=0.2, color='blue', scale = 1000, plot_nodes=False)
     
-    ax.view_init(0 + i, 0  )
+    ax.view_init(0 + i, -90 )
     plt.draw()
     ax.set_aspect('equal', adjustable='box')
     #xlim = ax.get_xlim()
@@ -65,7 +65,7 @@ def create_gif():
     Writer = animation.writers['imagemagick']
     writer = Writer(fps=20, metadata=dict(artist='Me'), bitrate=1800)
 
-    anim = FuncAnimation(fig, update, frames=np.arange(0, 180, 45), interval=200)
+    anim = FuncAnimation(fig, update, frames=np.arange(0, 180, 20), interval=2000)
     anim.save('geometry_v1.gif', dpi=200, writer=writer)
 
 
