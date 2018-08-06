@@ -4,8 +4,22 @@ function [f, ur, Jac] = Fric3Dcoup_Jac( x, w, Jac_r, nH, nt, Nt)
 % Jacobian at one time step for all nodes in the displacement vector x.
 % The function's inputs and outputs are:
 
-% INPUTS: 
+% *** INPUTS  ***
+%       x = vector of displacements in time at t = tn for all nodes
+%       w = vector of displacements in time at t = tn-1 for all nodes or
+%       displacements of the slider (or corrected displacements at t = tn)
 
+% *** OUTPUTS ***
+%       F = friction force in time - tangential and normal
+%       ur = updated displacements in time at t = tn which become
+%       displacement at t = tn-1 in the next time step
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% written by:           ZEESHAN SAEED
+% in:                   IMPERIAL COLLEGE LONDON
+% for:                  ND-CSI Project 4, EXPERTISE Demonstrator
+% when:                 August, 2018
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % sample x
@@ -41,7 +55,7 @@ Coul = zeros(1, N_node);
 Tx =  zeros(1, N_node);
 Ty =  zeros(1, N_node);
 N  =  zeros(1, N_node);
-F = zeros(dpn, N_node);
+f = zeros(dpn, N_node);
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

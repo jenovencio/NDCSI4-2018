@@ -45,8 +45,8 @@ for nt = 1:length(ux)
         
     U = [u(:,nt); v(nt)];
     W = [w(:,nt); 0];
-    [f(:,nt),w(:,nt)] = FricElem3D2tsCoup(U,W);
-    
+%     [f(:,nt),w(:,nt)] = FricElem3D2tsCoup(U,W);
+    [f(:,nt),w(:,nt)] = FricElem3D2ts(U,W);
 %     [Jac] = JacFric3D2tsCoup(
 
 nloop = ceil(nt/nStep);
