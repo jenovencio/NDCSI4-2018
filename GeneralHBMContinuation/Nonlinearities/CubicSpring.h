@@ -3,7 +3,7 @@ class CubicSpring;
 struct CubicSpringDef;
 
 #pragma once
-#include "NonlinearBase.h"
+#include "NonlinearBaseTD.h"
 
 struct CubicSpringDef
 {
@@ -15,23 +15,22 @@ public:
     double StiffnessCoeff;
 };
 
-class CubicSpring : public NonlinearBase
+class CubicSpring : public NonlinearBaseTD
 {
     
 private:
     std::vector<CubicSpringDef> mSprings;
     
 protected:
-    // frequency domain to frequency domain
-    virtual FResult ComputeFTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
-    // frequency domain to frequency domain
-    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aXPrev) const override;
-    virtual int NumberOfPrepLoops() const override;
+
+    // time domain to time domain
+    virtual NOX::LAPACK::Vector ComputeFTDInner(const NOX::LAPACK::Vector& aX) override;
+    // time domain to time domain
+    virtual NOX::LAPACK::Matrix<double> ComputeJacobianTimeDomain(const NOX::LAPACK::Vector& aX) override;
     // returns indices of dofs (in time domain) that are nonlinear, i.e.
     // that can potentially return a nonzero value in their F evaluation
     // this is just to speed up the F and jacobian computations (so we don't uselessly iterate over all dofs)
-    virtual std::vector<int> NonzeroFPositions() const override;
-    virtual bool IsHistoryDependent() const override;
+//     virtual std::vector<int> NonzeroFPositions() const override;
     
 public:
     void AddCubicSpring(const CubicSpringDef& aDef);

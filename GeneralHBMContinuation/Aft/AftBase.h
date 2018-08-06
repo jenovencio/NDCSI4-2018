@@ -24,8 +24,14 @@ public:
             if (aProblemParams.HarmonicCount <= 0) throw "Number of harmonic coefficients must be positive!";
         }
     
-    virtual const std::vector<NOX::LAPACK::Vector>& FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency) = 0;
+    virtual std::vector<NOX::LAPACK::Vector> FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency) = 0;
     
-    virtual const NOX::LAPACK::Vector& TimeToFrequency(const std::vector<NOX::LAPACK::Vector>& aXTime, const double& aFrequency) = 0;
-    virtual const NOX::LAPACK::Matrix<double>& TimeToFrequency(const std::vector<NOX::LAPACK::Matrix<double>>& aXTime, const double& aFrequency) = 0;
+    // dft of results in time domain
+    virtual NOX::LAPACK::Vector TimeToFrequency(const std::vector<NOX::LAPACK::Vector>& aXTime, const double& aFrequency) = 0;
+    // dft of results in time domain
+    // the matrices are expected to be derivatives of forces in time domain by harmonic coefficients
+    // so their size should be: (dof) x (dof * harm)
+    virtual NOX::LAPACK::Matrix<double> TimeToFrequency(const std::vector<NOX::LAPACK::Matrix<double>>& aXTime, const double& aFrequency) = 0;
+    // get value of a harmonic function for a particular time point
+    virtual double GetBValue(const int& aBIndex, const int& aTimePointIndex) = 0;
 };

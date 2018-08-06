@@ -84,7 +84,7 @@ link_directories(${TRILINOS_BUILD_PACKAGES}anasazi/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src)
 link_directories(${TRILINOS_BUILD_PACKAGES}nox/src-loca/src-lapack)
 
-add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/CubicSpring.cpp Nonlinearities/NonlinearBaseFD.cpp ContinuationWrapper.cpp Nonlinearities/FricElem3D.cpp Nonlinearities/FricElem1D.cpp Nonlinearities/PenaltyWall.cpp TestingFunctions.cpp Time.cpp Config.cpp Aft/AftSimple.cpp Aft/AftFftw.cpp)
+add_executable(generalhbmcontinuation main.cpp Functions.cpp ProblemInterface.cpp Nonlinearities/NonlinearBase.cpp Nonlinearities/NonlinearBaseH.cpp Nonlinearities/NonlinearBaseTD.cpp Nonlinearities/NonlinearBaseTDHD.cpp Nonlinearities/CubicSpring.cpp Nonlinearities/NonlinearBaseFD.cpp ContinuationWrapper.cpp Nonlinearities/FricElem3D.cpp Nonlinearities/FricElem1D.cpp Nonlinearities/PenaltyWall.cpp TestingFunctions.cpp Time.cpp Config.cpp Aft/AftSimple.cpp Aft/AftFftw.cpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "HBMCont.exe")
 
