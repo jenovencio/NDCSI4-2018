@@ -1,0 +1,102 @@
+
+########################
+# LINEAR SYSTEM SETTINGS
+########################
+
+# Number of physical degrees of freedom
+> dof
+1
+
+# Mass matrix file path and type (full or sparse)
+>mass
+mass
+full
+
+# Damping matrix file path and type (full or sparse)
+>damp
+damping
+full
+
+# Stiffness matrix file path and type (full or sparse)
+>stiff
+stiffness
+full
+
+# Excitation force file path
+>exc
+excitation
+
+##############
+# HBM SETTINGS
+##############
+
+# Number of harmonic waves
+>harm
+6
+
+# Number of integration points
+>int
+10000
+
+#######################
+# CONTINUATION SETTINGS
+#######################
+
+# Max continuation steps
+>stepscont
+500000
+
+# Start frequency
+>start
+0.0001
+
+# End frequency
+>end
+8
+
+# Max newton steps
+>stepsnewt
+4
+
+# Newton norm F
+>normnewt
+1e-9
+
+# Initial step size
+>stepinit
+1e-4
+
+# Minimum step size
+>stepmin
+1e-12
+
+# Maximum step size
+>stepmax
+1e-3
+
+
+# Predictor type (Constant, Tangent, Secant)
+>pred
+Tangent
+
+# Scale arc length
+>scale arc
+1
+
+################
+# NONLINEARITIES
+################
+
+# Nonlinearities definitions file
+>nonlin
+nonlinearities_files/wall
+penalty wall
+
+########
+# OUTPUT
+########
+
+# Store whole solutions
+>whole
+0
+
