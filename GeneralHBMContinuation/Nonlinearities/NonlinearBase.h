@@ -26,8 +26,8 @@ protected:
     // can not be const because it will be modifying itself inside (it's internal structures) during the transformations
     AftBase* cAft;
     
-    // this is set in the Init call, do not touch it elsewhere!
-    ProblemParams* mProblemParams = nullptr;
+    // this is set in the Init call, do not modify it elsewhere!
+    ProblemParams mProblemParams;
     
 private:
     bool mIsFinalised = false;
@@ -39,7 +39,7 @@ protected:
     // frequency domain to frequency domain
     virtual NOX::LAPACK::Matrix<double> ComputeJacobianInner(const NOX::LAPACK::Vector& aX, const double& aFrequency) = 0;
 public:
-    ~NonlinearBase();
+    virtual ~NonlinearBase() { }
     virtual void LoadFromFile(const std::string& aFilePath);
     // returns the name of the class
     virtual std::string ClassName() const = 0;

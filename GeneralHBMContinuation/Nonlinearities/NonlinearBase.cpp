@@ -1,12 +1,6 @@
 
 #include "NonlinearBase.h"
 
-NonlinearBase::~NonlinearBase()
-{
-    if (mProblemParams != nullptr) 
-        delete mProblemParams;
-}
-
 void NonlinearBase::LoadFromFile(const std::string& aFilePath)
 {
     std::string lTypeName = ClassName();
@@ -20,7 +14,7 @@ void NonlinearBase::Init(AftBase* const aAft, const ProblemParams& aProblemParam
     if (mIsFinalised) throw "This nonlinearity has already been finalised! Fix the way you treat the object. It first needs to be initialised, then finalised!";
     
     cAft = aAft;
-    mProblemParams = new ProblemParams(aProblemParams);
+    mProblemParams = aProblemParams;
         
     mIsInitialised = true;
 }
@@ -54,7 +48,7 @@ int NonlinearBase::DofCountTimeDomain() const
     if (!mIsInitialised)
         throw "Dof count is not set yet because the nonlinearity is not initialised!";
     
-    return mProblemParams->DofCountPhysical;
+    return mProblemParams.DofCountPhysical;
 }
 
 void NonlinearBase::CheckStatus() const

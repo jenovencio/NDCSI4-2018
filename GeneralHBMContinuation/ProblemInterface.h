@@ -12,6 +12,7 @@ class ProblemInterface;
 #include "ProblemParams.h"
 #include "Nonlinearities/NonlinearBase.h"
 #include "Aft/AftBase.h"
+#include "DSBuilder/DSBuilderBase.h"
 
 class ProblemInterface : public LOCA::LAPACK::Interface
 {
@@ -29,9 +30,9 @@ private:
     NOX::LAPACK::Vector* mExcitationRHS = nullptr;
     
     // we can have either one matrix for all harmonic or one matrix for each harmonic (nothing in between)
-    std::vector<NOX::LAPACK::Matrix<double>> mMassMatrices;
-    std::vector<NOX::LAPACK::Matrix<double>> mDampingMatrices;
-    std::vector<NOX::LAPACK::Matrix<double>> mStiffnessMatrices;
+//     std::vector<NOX::LAPACK::Matrix<double>> mMassMatrices;
+//     std::vector<NOX::LAPACK::Matrix<double>> mDampingMatrices;
+//     std::vector<NOX::LAPACK::Matrix<double>> mStiffnessMatrices;
     // amplitudes of the excitation force, for each dof and harmonic wave (DC, cos, sin)
     std::vector<double> mExcitationAmp;
     // number of excitation coeffs for each physical dof (can be less than the number of coeffs used for the HBM)
@@ -59,6 +60,9 @@ private:
     // aft implementation
     // delete this pointer
     AftBase* mAft = nullptr;
+    // dyn stiff matrix creation implementation
+    // delete this pointer
+    DSBuilderBase* mDSBuilder = nullptr;
     
 public:
     // name of the generic continuation parameter that will go between 0 and 1

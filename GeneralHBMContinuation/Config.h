@@ -43,6 +43,7 @@ public:
     static const std::string KEY_PRED;      // continuation predictor
     static const std::string KEY_SCALEARC;  // scaleing for arc length continuation
     static const std::string KEY_AFT;       // aft type
+    static const std::string KEY_DSBUILD;   // dynamic stiffness matrix builder type
     
     // list of parameter keys and functions that return default values for those  parameters
     // the argument passed into the function should be the parameter name 
@@ -81,7 +82,10 @@ public:
     int IntPointCount;
     // should the interface store the whole solutions? (all harmonic coefficients)
     bool SaveWholeSolutions;
+    // type of aft used
     std::string AftType;
+    // type of the dynamic stiffness matrix builder used
+    std::string DSBuilderType;
     
     // continuation settings
     int MaxStepsContinuation;

@@ -27,11 +27,11 @@ NOX::LAPACK::Matrix<double> NonlinearBaseTD::ComputeDFDH(const NOX::LAPACK::Vect
 {
     // check
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
-    if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
+    if (mProblemParams.HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
     
-    int lDofCount = mProblemParams->DofCountPhysical;
+    int lDofCount = mProblemParams.DofCountPhysical;
     
-    NOX::LAPACK::Matrix<double> lReturnMatrix(lDofCount, mProblemParams->DofCountHBM);
+    NOX::LAPACK::Matrix<double> lReturnMatrix(lDofCount, mProblemParams.DofCountHBM);
     
     const NOX::LAPACK::Matrix<double>& lJTimeDomain = ComputeJacobianTimeDomain(aX);
     
@@ -41,12 +41,12 @@ NOX::LAPACK::Matrix<double> NonlinearBaseTD::ComputeDFDH(const NOX::LAPACK::Vect
         {
             double lTimeValue = lJTimeDomain(iDof, jDof);
             
-            for (int jHarm = 0; jHarm < mProblemParams->HarmonicCount; jHarm++)
+            for (int jHarm = 0; jHarm < mProblemParams.HarmonicCount; jHarm++)
             {
                 double lBValue = cAft->GetBValue(jHarm, aTimePointIndex);
                 double lHarmValue = lTimeValue * lBValue;
                 
-                int lColIndexHBM = GetHBMDofIndex(jDof, jHarm, mProblemParams->HarmonicCount);
+                int lColIndexHBM = GetHBMDofIndex(jDof, jHarm, mProblemParams.HarmonicCount);
                 lReturnMatrix(iDof, lColIndexHBM) = lHarmValue;
             }
         }

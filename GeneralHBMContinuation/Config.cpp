@@ -5,6 +5,7 @@
 #include "Functions.hpp"
 #include "Nonlinearities/NonlinearitiesFactory.h"
 #include "Aft/AftFactory.h"
+#include "DSBuilder/DSBuilderFactory.h"
 
 const std::string Config::KEY_MASS      = "mass";
 const std::string Config::KEY_DAMP      = "damp";
@@ -26,6 +27,7 @@ const std::string Config::KEY_STEPMAX   = "stepmax";
 const std::string Config::KEY_PRED      = "pred";
 const std::string Config::KEY_SCALEARC  = "scalearc";
 const std::string Config::KEY_AFT       = "aft";
+const std::string Config::KEY_DSBUILD   = "dsbuild";
 
 const std::map<std::string, std::function<std::vector<std::string>(const std::string&)>> Config::C_ConfigDefinition = 
 {
@@ -49,6 +51,7 @@ const std::map<std::string, std::function<std::vector<std::string>(const std::st
     { Config::KEY_PRED,     RET_ONE_STR("Tangent")  },
     { Config::KEY_SCALEARC, RET_ONE_STR("1")        },
     { Config::KEY_AFT,      RET_ONE_STR("Simple")   },
+    { Config::KEY_DSBUILD,      RET_ONE_STR("Simple")   },
 };
 
 Config Config::LoadConfig(const std::string& aConfigFilePath)
@@ -198,6 +201,12 @@ Config Config::LoadConfig(const std::string& aConfigFilePath)
     lReturnConfig.AftType = lTempLines[0];
     CheckString(lReturnConfig.AftType, C_AftFactory, KEY_AFT);
     
+    // dynamics stiffness matrix builder type
+    lTempLines = lConfigMap[KEY_DSBUILD];
+    if (lTempLines.size() != 1) throw "DS builder type definition must have exactly one line!";
+    lReturnConfig.DSBuilderType = lTempLines[0];
+    CheckString(lReturnConfig.DSBuilderType, C_DSBuilderFactory, KEY_DSBUILD);
+    
     return lReturnConfig;
 }
 
@@ -219,6 +228,7 @@ void Config::Print() const
     PrintMatrixDefinitions(DampingMatrices);
     std::cout << "Stiffness matrix files: " << std::endl;
     PrintMatrixDefinitions(StiffnessMatrices);
+    std::cout << "DS builder: " << DSBuilderType << std::endl;
     std::cout << "Excitation force file: " << ExcitationForceFile << std::endl;
     std::cout << "Nonlinearities files: " << std::endl;
     PrintNonlinearityDefinitions(Nonlinearities);

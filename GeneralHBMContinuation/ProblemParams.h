@@ -6,9 +6,9 @@ struct ProblemParams;
 struct ProblemParams
 {
 public:
-    const int DofCountPhysical;
-    const int HarmonicCount;
-    const int DofCountHBM;
+    int DofCountPhysical;
+    int HarmonicCount;
+    int DofCountHBM;
     
     ProblemParams(const int& aDofPhysicalCount, const int& aHarmonicCount)
         : DofCountPhysical(aDofPhysicalCount), HarmonicCount(aHarmonicCount), DofCountHBM(aDofPhysicalCount * aHarmonicCount)
@@ -17,6 +17,10 @@ public:
     
     ProblemParams(const ProblemParams& aOther)
         : ProblemParams(aOther.DofCountPhysical, aOther.HarmonicCount)
+    {
+    }
+    ProblemParams()
+        : ProblemParams(0, 0)
     {
     }
 };

@@ -8,11 +8,11 @@ NOX::LAPACK::Matrix<double> NonlinearBaseTDHD::ComputeDFDH(const NOX::LAPACK::Ve
 {
     // check
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
-    if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
+    if (mProblemParams.HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
     
-    int lDofCount = mProblemParams->DofCountPhysical;
+    int lDofCount = mProblemParams.DofCountPhysical;
     
-    NOX::LAPACK::Matrix<double> lReturnMatrix(lDofCount, mProblemParams->DofCountHBM);
+    NOX::LAPACK::Matrix<double> lReturnMatrix(lDofCount, mProblemParams.DofCountHBM);
     
     
     return lReturnMatrix;

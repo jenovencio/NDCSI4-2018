@@ -9,11 +9,11 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
     
 // check 
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
-    if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
-    if (aX.length() % mProblemParams->HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams->HarmonicCount) + ")!";
+    if (mProblemParams.HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
+    if (aX.length() % mProblemParams.HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams.HarmonicCount) + ")!";
     
     // in time domain
-    int lDofCount = mProblemParams->DofCountPhysical;
+    int lDofCount = mProblemParams.DofCountPhysical;
     
     std::vector<NOX::LAPACK::Vector> lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
     
@@ -29,7 +29,7 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
         
     for (int iDof = 0; iDof < lDofCount; iDof++)
     {
-        int lHarmIndex = GetHBMDofIndex(iDof, 0, mProblemParams->HarmonicCount);
+        int lHarmIndex = GetHBMDofIndex(iDof, 0, mProblemParams.HarmonicCount);
         lXTimeAvg(iDof) = aX(lHarmIndex);
     }
 //     std::cout << "XTimeAvg: " << lXTimeAvg << std::endl;
@@ -67,8 +67,8 @@ NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPA
     
     // check
 //     if (aFrequency <= 0) throw "Frequency must be a positive value!";
-    if (mProblemParams->HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
-    if (aX.length() % mProblemParams->HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams->HarmonicCount) + ")!";
+    if (mProblemParams.HarmonicCount <= 0) throw "Number of harmonic coefficients must be a positive integer!";
+    if (aX.length() % mProblemParams.HarmonicCount != 0) throw "Size of the problem in frequency domain (" + std::to_string(aX.length()) + ") is not divisible by number of harmonic coefficients (" + std::to_string(mProblemParams.HarmonicCount) + ")!";
         
     const std::vector<NOX::LAPACK::Vector>& lXTimeAll = lAft.FrequencyToTime(aX, aFrequency);
     

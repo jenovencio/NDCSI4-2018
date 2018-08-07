@@ -23,6 +23,7 @@ public:
             if (cIntegrationPointCount <= 0) throw "Number of integration points must be positive!";
             if (aProblemParams.HarmonicCount <= 0) throw "Number of harmonic coefficients must be positive!";
         }
+    virtual ~AftBase() { };
     
     virtual std::vector<NOX::LAPACK::Vector> FrequencyToTime(const NOX::LAPACK::Vector& aXFreq, const double& aFrequency) = 0;
     

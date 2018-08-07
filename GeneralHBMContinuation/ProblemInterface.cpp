@@ -10,42 +10,43 @@
 #include "Misc.h"
 #include "Nonlinearities/NonlinearitiesFactory.h"
 #include "Aft/AftFactory.h"
+#include "DSBuilder/DSBuilderFactory.h"
 
 const std::string ProblemInterface::cContParameterName = "generic_parameter";
 
 ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities)
  : cConfig(aConfig), cProblemParams(aConfig.DofCount, 2 * aConfig.HarmonicWaveCount - 1), cNonlinearitiesOuter(aNonlinearities)
 {
-    int lDummy;
-    
-    CheckMatrixCount("mass", aConfig.MassMatrices.size(), aConfig.HarmonicWaveCount);
-    CheckMatrixCount("damping", aConfig.DampingMatrices.size(), aConfig.HarmonicWaveCount);
-    CheckMatrixCount("stiffness", aConfig.StiffnessMatrices.size(), aConfig.HarmonicWaveCount);
-    
-    for (int i = 0; i < aConfig.MassMatrices.size(); i++)
-    {
-        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrices[i].File, aConfig.MassMatrices[i].Type);
-        
-        CheckMatrixSize(lMatrix, "Mass matrix");
-        
-        mMassMatrices.push_back(lMatrix);
-    }
-    for (int i = 0; i < aConfig.DampingMatrices.size(); i++)
-    {
-        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrices[i].File, aConfig.DampingMatrices[i].Type);
-        
-        CheckMatrixSize(lMatrix, "Damping matrix");
-        
-        mDampingMatrices.push_back(lMatrix);
-    }
-    for (int i = 0; i < aConfig.StiffnessMatrices.size(); i++)
-    {
-        NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrices[i].File, aConfig.StiffnessMatrices[i].Type);
-        
-        CheckMatrixSize(lMatrix, "Stiffness matrix");
-        
-        mStiffnessMatrices.push_back(lMatrix);
-    }
+//     int lDummy;
+//     
+//     CheckMatrixCount("mass", aConfig.MassMatrices.size(), aConfig.HarmonicWaveCount);
+//     CheckMatrixCount("damping", aConfig.DampingMatrices.size(), aConfig.HarmonicWaveCount);
+//     CheckMatrixCount("stiffness", aConfig.StiffnessMatrices.size(), aConfig.HarmonicWaveCount);
+//     
+//     for (int i = 0; i < aConfig.MassMatrices.size(); i++)
+//     {
+//         NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrices[i].File, aConfig.MassMatrices[i].Type);
+//         
+//         CheckMatrixSize(lMatrix, "Mass matrix");
+//         
+//         mMassMatrices.push_back(lMatrix);
+//     }
+//     for (int i = 0; i < aConfig.DampingMatrices.size(); i++)
+//     {
+//         NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrices[i].File, aConfig.DampingMatrices[i].Type);
+//         
+//         CheckMatrixSize(lMatrix, "Damping matrix");
+//         
+//         mDampingMatrices.push_back(lMatrix);
+//     }
+//     for (int i = 0; i < aConfig.StiffnessMatrices.size(); i++)
+//     {
+//         NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrices[i].File, aConfig.StiffnessMatrices[i].Type);
+//         
+//         CheckMatrixSize(lMatrix, "Stiffness matrix");
+//         
+//         mStiffnessMatrices.push_back(lMatrix);
+//     }
     
     // ensure it's a negative value, so the function fills it with the value from the file
     mExcitationCoeffCount = -1;
@@ -60,6 +61,8 @@ ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<Nonl
     
     // create the aft object
     mAft = C_AftFactory.at(aConfig.AftType)(lIntPointCount, cProblemParams);
+    mDSBuilder = C_DSBuilderFactory.at(aConfig.DSBuilderType)();
+    mDSBuilder->Init(aConfig, cProblemParams);
     
     // initialise the outer nonlinearities with data from this class
     // also finalise them
@@ -112,6 +115,12 @@ ProblemInterface::~ProblemInterface()
     // delete the inner nonlinearities (loaded from files)
     for (int i = 0; i < mNonlinearitiesInner.size(); i++)
         delete mNonlinearitiesInner[i];
+    
+    if (mAft != nullptr)
+        delete mAft;
+    
+    if (mDSBuilder != nullptr)
+        delete mDSBuilder;
 }
 
 const NOX::LAPACK::Vector& ProblemInterface::getInitialGuess()
@@ -257,108 +266,110 @@ bool ProblemInterface::HasWholeSolutions() const
 NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(double aFrequency)
 {
     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
-    
-    NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
-    NOX::LAPACK::Matrix<double>& lReturnMatrixTemp = *lReturnMatrix;
-    
-//     std::cout << "Harmonic count: " << cHarmonicCount << std::endl;
-    
-    // period
-    double lT = 2 * PI / aFrequency;
-    
-//     std::cout << "Mass matrix: " << std::endl;
-//     std::cout << mMassMatrix << std::endl;
-//     std::cout << "Damping matrix: " << std::endl;
-//     std::cout << mDampingMatrix << std::endl;
-//     std::cout << "Stiffness matrix: " << std::endl;
-//     std::cout << mStiffnessMatrix << std::endl;
-    
-    // row number in the physical domain
-    for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
-    {
-        // harmonic by which we differentiate
-        // we only need to iterate over the harmonic index once, because we are differentiating a linear expression,
-        // i.e. we will get an "identity"
-        for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
-        {
-//             std::cout << "Harm index: " << iHarm << " out of " << cHarmonicCount << std::endl;
-            // dynamic matrix row index
-            int lRowIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
-            
-//             std::cout << "Row index: " << lRowIndex << std::endl;
-            
-            int lWaveNumber;
-            if (iHarm == 0) lWaveNumber = 0;
-            else if (iHarm % 2 == 1) lWaveNumber = (iHarm + 1) / 2; // cos wave
-            else lWaveNumber = (iHarm + 1) / 2; // sin wave
-            
-            NOX::LAPACK::Matrix<double>& lMassMatrix = mMassMatrices[0];
-            if (mMassMatrices.size() > 1) lMassMatrix = mMassMatrices[lWaveNumber];
-            
-            NOX::LAPACK::Matrix<double>& lDampingMatrix = mDampingMatrices[0];
-            if (mDampingMatrices.size() > 1) lDampingMatrix = mDampingMatrices[lWaveNumber];
-            
-            NOX::LAPACK::Matrix<double>& lStiffnessMatrix = mStiffnessMatrices[0];
-            if (mStiffnessMatrices.size() > 1) lStiffnessMatrix = mStiffnessMatrices[lWaveNumber];
-            
-            if (iHarm == 0)
-            {
-                // DC harmonic
-                
-                // col number in the physical domain
-                for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
-                {
-                    // index for stiffness contribution
-                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
-//                     std::cout << "DC col index: " << lColIndex << std::endl;
-                    
-                    lReturnMatrixTemp(lRowIndex, lColIndex) += lT * lStiffnessMatrix(iDof, jDof);
-                }
-            }
-            else if (iHarm % 2 == 1)
-            {
-                // cos wave
-                
-                // col number in the physical domain
-                for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
-                {
-                    // index for mass and stiffness contribution
-                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
-                    // index for damping contribution
-                    int lColIndex2 = GetHBMDofIndex(jDof, iHarm + 1, cProblemParams.HarmonicCount);
-                    
-//                     std::cout << "cos col index 1: " << lColIndex << std::endl;
-//                     std::cout << "cos col index 2: " << lColIndex2 << std::endl;
-                    
-                    lReturnMatrixTemp(lRowIndex, lColIndex) += lT / 2 * lStiffnessMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex) -= lT / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * lMassMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex2) += lT / 2 * aFrequency * lWaveNumber * lDampingMatrix(iDof, jDof);
-                }
-            }
-            else
-            {
-                // sin wave
-                
-                // col number in the physical domain
-                for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
-                {
-                    // index for mass and stiffness contribution
-                    int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
-                    // index for damping contribution
-                    int lColIndex2 = GetHBMDofIndex(jDof, iHarm - 1, cProblemParams.HarmonicCount);
-                    
-//                     std::cout << "sin col index 1: " << lColIndex << std::endl;
-//                     std::cout << "sin col index 2: " << lColIndex2 << std::endl;
-                    
-                    lReturnMatrixTemp(lRowIndex, lColIndex) += lT / 2 * lStiffnessMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex) -= lT / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * lMassMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex2) -= lT / 2 * aFrequency * lWaveNumber * lDampingMatrix(iDof, jDof);
-                }
-            }
-        }
-    }
-    
+    NOX::LAPACK::Matrix<double>* lReturnMatrix = mDSBuilder->CreateDynamicStiffnessMatrix(aFrequency);
     return lReturnMatrix;
+//     
+//     NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
+//     NOX::LAPACK::Matrix<double>& lReturnMatrixTemp = *lReturnMatrix;
+//     
+// //     std::cout << "Harmonic count: " << cHarmonicCount << std::endl;
+//     
+//     // period
+//     double lT = 2 * PI / aFrequency;
+//     
+// //     std::cout << "Mass matrix: " << std::endl;
+// //     std::cout << mMassMatrix << std::endl;
+// //     std::cout << "Damping matrix: " << std::endl;
+// //     std::cout << mDampingMatrix << std::endl;
+// //     std::cout << "Stiffness matrix: " << std::endl;
+// //     std::cout << mStiffnessMatrix << std::endl;
+//     
+//     // row number in the physical domain
+//     for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
+//     {
+//         // harmonic by which we differentiate
+//         // we only need to iterate over the harmonic index once, because we are differentiating a linear expression,
+//         // i.e. we will get an "identity"
+//         for (int iHarm = 0; iHarm < cProblemParams.HarmonicCount; iHarm++)
+//         {
+// //             std::cout << "Harm index: " << iHarm << " out of " << cHarmonicCount << std::endl;
+//             // dynamic matrix row index
+//             int lRowIndex = GetHBMDofIndex(iDof, iHarm, cProblemParams.HarmonicCount);
+//             
+// //             std::cout << "Row index: " << lRowIndex << std::endl;
+//             
+//             int lWaveNumber;
+//             if (iHarm == 0) lWaveNumber = 0;
+//             else if (iHarm % 2 == 1) lWaveNumber = (iHarm + 1) / 2; // cos wave
+//             else lWaveNumber = (iHarm + 1) / 2; // sin wave
+//             
+//             NOX::LAPACK::Matrix<double>& lMassMatrix = mMassMatrices[0];
+//             if (mMassMatrices.size() > 1) lMassMatrix = mMassMatrices[lWaveNumber];
+//             
+//             NOX::LAPACK::Matrix<double>& lDampingMatrix = mDampingMatrices[0];
+//             if (mDampingMatrices.size() > 1) lDampingMatrix = mDampingMatrices[lWaveNumber];
+//             
+//             NOX::LAPACK::Matrix<double>& lStiffnessMatrix = mStiffnessMatrices[0];
+//             if (mStiffnessMatrices.size() > 1) lStiffnessMatrix = mStiffnessMatrices[lWaveNumber];
+//             
+//             if (iHarm == 0)
+//             {
+//                 // DC harmonic
+//                 
+//                 // col number in the physical domain
+//                 for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
+//                 {
+//                     // index for stiffness contribution
+//                     int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
+// //                     std::cout << "DC col index: " << lColIndex << std::endl;
+//                     
+//                     lReturnMatrixTemp(lRowIndex, lColIndex) += lT * lStiffnessMatrix(iDof, jDof);
+//                 }
+//             }
+//             else if (iHarm % 2 == 1)
+//             {
+//                 // cos wave
+//                 
+//                 // col number in the physical domain
+//                 for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
+//                 {
+//                     // index for mass and stiffness contribution
+//                     int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
+//                     // index for damping contribution
+//                     int lColIndex2 = GetHBMDofIndex(jDof, iHarm + 1, cProblemParams.HarmonicCount);
+//                     
+// //                     std::cout << "cos col index 1: " << lColIndex << std::endl;
+// //                     std::cout << "cos col index 2: " << lColIndex2 << std::endl;
+//                     
+//                     lReturnMatrixTemp(lRowIndex, lColIndex) += lT / 2 * lStiffnessMatrix(iDof, jDof);
+//                     lReturnMatrixTemp(lRowIndex, lColIndex) -= lT / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * lMassMatrix(iDof, jDof);
+//                     lReturnMatrixTemp(lRowIndex, lColIndex2) += lT / 2 * aFrequency * lWaveNumber * lDampingMatrix(iDof, jDof);
+//                 }
+//             }
+//             else
+//             {
+//                 // sin wave
+//                 
+//                 // col number in the physical domain
+//                 for (int jDof = 0; jDof < cProblemParams.DofCountPhysical; jDof++)
+//                 {
+//                     // index for mass and stiffness contribution
+//                     int lColIndex = GetHBMDofIndex(jDof, iHarm, cProblemParams.HarmonicCount);
+//                     // index for damping contribution
+//                     int lColIndex2 = GetHBMDofIndex(jDof, iHarm - 1, cProblemParams.HarmonicCount);
+//                     
+// //                     std::cout << "sin col index 1: " << lColIndex << std::endl;
+// //                     std::cout << "sin col index 2: " << lColIndex2 << std::endl;
+//                     
+//                     lReturnMatrixTemp(lRowIndex, lColIndex) += lT / 2 * lStiffnessMatrix(iDof, jDof);
+//                     lReturnMatrixTemp(lRowIndex, lColIndex) -= lT / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * lMassMatrix(iDof, jDof);
+//                     lReturnMatrixTemp(lRowIndex, lColIndex2) -= lT / 2 * aFrequency * lWaveNumber * lDampingMatrix(iDof, jDof);
+//                 }
+//             }
+//         }
+//     }
+//     
+//     return lReturnMatrix;
 }
 NOX::LAPACK::Vector* ProblemInterface::CreateExcitationRHS(double aFrequency)
 {
