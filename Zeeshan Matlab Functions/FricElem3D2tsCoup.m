@@ -24,7 +24,7 @@ kty = 50;           % tangential stiffness in y-direction
 %     kt = kt(1,1);       
 % end
 
-N0 = 50;
+N0 = 150;
 mu = 0.2;
 
 ux =  zeros(1, N_node);
