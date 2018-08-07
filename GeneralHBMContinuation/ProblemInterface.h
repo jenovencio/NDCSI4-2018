@@ -29,10 +29,6 @@ private:
     // current excitation RHS (for the last used frequency)
     NOX::LAPACK::Vector* mExcitationRHS = nullptr;
     
-    // we can have either one matrix for all harmonic or one matrix for each harmonic (nothing in between)
-//     std::vector<NOX::LAPACK::Matrix<double>> mMassMatrices;
-//     std::vector<NOX::LAPACK::Matrix<double>> mDampingMatrices;
-//     std::vector<NOX::LAPACK::Matrix<double>> mStiffnessMatrices;
     // amplitudes of the excitation force, for each dof and harmonic wave (DC, cos, sin)
     std::vector<double> mExcitationAmp;
     // number of excitation coeffs for each physical dof (can be less than the number of coeffs used for the HBM)

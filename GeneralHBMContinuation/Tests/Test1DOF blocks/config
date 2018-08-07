@@ -9,17 +9,31 @@
 
 # Mass matrix file path and type (full or sparse)
 >mass
-mass
+mass1
+full
+mass2
+full
+mass3
 full
 
 # Damping matrix file path and type (full or sparse)
 >damp
-damping
+damping1
+full
+damping2
+full
+damping3
 full
 
 # Stiffness matrix file path and type (full or sparse)
 >stiff
-stiffness
+stiffness0
+full
+stiffness1
+full
+stiffness2
+full
+stiffness3
 full
 
 # Excitation force file path
@@ -41,6 +55,10 @@ excitation
 # Aft implementation
 >aft
 Simple
+
+# Dynamic stiffness builder type
+>dsbuild
+Block
 
 #######################
 # CONTINUATION SETTINGS

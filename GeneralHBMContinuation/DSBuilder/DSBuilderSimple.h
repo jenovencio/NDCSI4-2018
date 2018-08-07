@@ -14,5 +14,6 @@ private:
 public:
     virtual void Init(const Config& aConfig, const ProblemParams& aParams) override;
     
+protected:
     virtual NOX::LAPACK::Matrix<double>* CreateDynamicStiffnessMatrixInner(const double& aFrequency) override;
 };

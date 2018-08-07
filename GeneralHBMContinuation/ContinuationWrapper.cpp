@@ -13,6 +13,7 @@
 #include "Config.h"
 #include "Functions.h"
 #include "ProblemInterface.h"
+#include "Time.h"
 
 ContinuationWrapper::~ContinuationWrapper()
 {
@@ -152,7 +153,13 @@ LOCA::Abstract::Iterator::IteratorStatus ContinuationWrapper::RunContinuation()
     
     mInterface->ClearSolutions();
     
+    Time lTime;
+    lTime.Start();
+    
     LOCA::Abstract::Iterator::IteratorStatus lReturnStatus = mStepper->run();
+    
+    double lElapsed = lTime.Stop();
+    std::cout << "Continuation elapsed time: " << lElapsed << " ms" << std::endl;
     
     mCurrentStepperRan = true;
     return lReturnStatus;

@@ -6,6 +6,7 @@
 
 #include "DSBuilderBase.h"
 #include "DSBuilderSimple.h"
+#include "DSBuilderBlock.h"
 
 // just simple creation functions (should do new because the returned pointer will be deleted later)
 const std::map<std::string, std::function<DSBuilderBase*()>> C_DSBuilderFactory = 
@@ -15,6 +16,13 @@ const std::map<std::string, std::function<DSBuilderBase*()>> C_DSBuilderFactory 
         []()
         { 
             return new DSBuilderSimple();
+        }
+    },
+    { 
+        std::string("Block"),    
+        []()
+        { 
+            return new DSBuilderBlock();
         }
     },
 };

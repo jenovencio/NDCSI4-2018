@@ -14,6 +14,7 @@ class DSBuilderBase
 private:
     bool mIsInitialised = false;
 protected:
+    // assigned in Init, do not modify anywhere else
     ProblemParams mProblemParams;
 public:
     virtual ~DSBuilderBase() { }

@@ -5,16 +5,16 @@ void DSBuilderSimple::Init(const Config& aConfig, const ProblemParams& aParams)
 {
     DSBuilderBase::Init(aConfig, aParams);
     
-    if (aConfig.MassMatrices.size() != 1) throw "Exactly 1 mass matrix muse be provided for this dynamic stiffness builder!";
-    if (aConfig.DampingMatrices.size() != 1) throw "Exactly 1 damping matrix muse be provided for this dynamic stiffness builder!";
-    if (aConfig.StiffnessMatrices.size() != 1) throw "Exactly 1 stiffness matrix muse be provided for this dynamic stiffness builder!";
+    if (aConfig.MassMatrices.size() != 1) throw "Exactly 1 mass matrix must be provided for this dynamic stiffness builder!";
+    if (aConfig.DampingMatrices.size() != 1) throw "Exactly 1 damping matrix must be provided for this dynamic stiffness builder!";
+    if (aConfig.StiffnessMatrices.size() != 1) throw "Exactly 1 stiffness matrix must be provided for this dynamic stiffness builder!";
     
     mMassMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrices[0].File, aConfig.MassMatrices[0].Type);
     mDampingMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrices[0].File, aConfig.DampingMatrices[0].Type);
     mStiffnessMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrices[0].File, aConfig.StiffnessMatrices[0].Type);
     
-    CheckMatrixSize(mDampingMatrix, aParams.DofCountPhysical, "Damping");
     CheckMatrixSize(mMassMatrix, aParams.DofCountPhysical, "Mass");
+    CheckMatrixSize(mDampingMatrix, aParams.DofCountPhysical, "Damping");
     CheckMatrixSize(mStiffnessMatrix, aParams.DofCountPhysical, "Stiffness");
 }
 
