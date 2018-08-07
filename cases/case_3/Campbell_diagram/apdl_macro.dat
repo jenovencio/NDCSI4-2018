@@ -1,15 +1,13 @@
 !$variables$
 ! This variable will be modified by python
-Filename = $apdl_pre_file$ ! file with mesh and boundary conditions
-Filepath = $file_directory$ ! path to the file with mesh and boundary conditions
-NumHid = $number_of_harmonics$ ! number of harmonic index to compute
-Nmodes = $number_of_modes$ ! number of modes to compute per Harmonic index
-rotSpeed = $rotational_speed$
-
+Filename = 'real_sector_course_prep' ! file with mesh and boundary conditions
+Filepath = 'C:\NDCSI\framework\cases\case_3\Campbell_diagram' ! path to the file with mesh and boundary conditions
+NumHid = 2 ! number of harmonic index to compute
+Nmodes = 4 ! number of modes to compute per Harmonic index
+rotSpeed = 1
 !$static_prep$
 ! reading a initial db case create by workbench
 /INPUT,Filename,'dat',,, 0 
-
 !$static_solu$
 /com,****************************************************************************
 /com,*************************    SOLUTION       ********************************
@@ -37,7 +35,6 @@ outres,strs,all
 outres,epel,all
 outres,eppl,all
 rescontrol, define, all, 1
-
 omega,rotSpeed,0,0
 PSTRES, ON
 solve
@@ -65,44 +62,37 @@ set,last
 *vwrite,NodalInfo(1,1),NodalInfo(1,2),NodalInfo(1,3),NodalInfo(1,4),NodalInfo(1,5),NodalInfo(1,6),NodalInfo(1,7) 
 (f8.0,f11.5,f11.5,f11.5,f11.5,f11.5,f11.5) 
 *cfclose 
-
-
 !$modal_prep$
 !-----------------------------------------------------------
 !  Prestressed modal analysis
 !-----------------------------------------------------------
 /prep7
-/assign,rstp,file,rst  
-
+/assign,rstp,file,rst
 !$modal_solu$
 /solu
+
 antype,,restart,,,perturbation
 perturb,modal,,CURRENT,DZEROKEEP          ! pre-stress modal analysis, only keep zero bcs in case future MSUP
+
 solve, elform                                       ! Generate matrices needed for perturbation analysis
 modopt,lanb,Nmodes
 outres,erase
 outres,all,none
 outres,nsol,all
 mxpand  
-
 ! defining harmonic index to calculate
 CYCOPT,HINDEX,0,NumHid,1
 solve
 fini
-
-
-
 !-----------------------------------------------------------
 !  Write modes to txt file 
 !-----------------------------------------------------------
 !$modal_post$
 /post1
-
 allsel 
 *get,NumNd,node,,count ! total node number 
 NumHid1 = NumHid + 1 
 *dim,freq_mode,,Nmodes,NumHid1
-
 *do,j,1,NumHid1
 *do,i,1,Nmodes
 *get,NumNd,node,,count !total node number 
@@ -116,24 +106,24 @@ set,j,i
 *vget,NodalInfo(1,5),node,,u,x 
 *vget,NodalInfo(1,6),node,,u,y 
 *vget,NodalInfo(1,7),node,,u,z 
-! writing modes shapes per harmonic    
-!*cfopen,Harm_%j-1%_mode%i%,txt 
-!*vwrite 
-!('Node Num X Y Z UX UY UZ') 
-!*vwrite,NodalInfo(1,1),NodalInfo(1,2),NodalInfo(1,3),NodalInfo(1,4),NodalInfo(1,5),NodalInfo(1,6),NodalInfo(1,7) 
-!(f8.0,f11.5,f11.5,f11.5, E15.5, E15.5, E15.5) 
-!*cfclose 
-!/CYCEXPAND
-!plotting modes
-!/view,1,1,1,1
-!/vup,1,z
-!/show,png
-!plnsol,u,sum
-!/show,close
+! writing modes shapes per harmonic
+*cfopen,Harm_%j%_mode%i%,txt 
+*vwrite 
+('Node Num X Y Z UX UY UZ') 
+*vwrite,NodalInfo(1,1),NodalInfo(1,2),NodalInfo(1,3),NodalInfo(1,4),NodalInfo(1,5),NodalInfo(1,6),NodalInfo(1,7) 
+(f8.0,f11.5,f11.5,f11.5, E15.5, E15.5, E15.5) 
+*cfclose 
+
+/view,1,1,1,1
+/vup,1,z
+/show,png
+!eplot
+plnsol,u,sum
+/show,close
 
 *enddo 
 ! writting frequencies per harmonic
-*cfopen,Frequency_harm_%j-1%,txt 
+*cfopen,Frequency_harm_%j%,txt 
 *vwrite 
 ('Frequency') 
 *vwrite,freq_mode(1,j)
@@ -142,12 +132,6 @@ set,j,i
 *enddo
 
 
-! plot mesh
-/RGB,INDEX,100,100,100, 0
-/RGB,INDEX, 80, 80, 80,13
-/RGB,INDEX, 60, 60, 60,14
-/RGB,INDEX, 0, 0, 0,15
-/CYCEXPAND
 /view,1,1,1,1
 /vup,1,z
 /show,png
