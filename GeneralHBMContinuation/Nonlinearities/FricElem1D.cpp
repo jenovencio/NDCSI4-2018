@@ -45,7 +45,7 @@ FResult FricElem1D::ComputeFAndC(const NOX::LAPACK::Vector& aX, const NOX::LAPAC
 }
 JResult FricElem1D::ComputeDerivatives(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aC) const
 {
-    
+    // TODO compute the derivatives
 }
 NOX::LAPACK::Vector FricElem1D::InitC(const NOX::LAPACK::Vector& aX) const
 {
