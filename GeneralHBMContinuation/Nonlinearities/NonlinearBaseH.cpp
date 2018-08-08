@@ -44,11 +44,11 @@ NOX::LAPACK::Vector NonlinearBaseH::ComputeFInner(const NOX::LAPACK::Vector& aX,
             if (iTimePoint == 0 && iLoop == 0) lXTimePrev = lXTimeAvg;
             
             // calculate the nonlinearity in time domain
-            FResult lNonlinResult = ComputeFTD(lXTime, iTimePoint);
+            NOX::LAPACK::Vector lNonlinResult = ComputeFTD(lXTime, iTimePoint);
                         
             if (iLoop == lLoopCount - 1)
             {
-                lFTimeAll.push_back(lNonlinResult.FValues);
+                lFTimeAll.push_back(lNonlinResult);
             }
         }
     }

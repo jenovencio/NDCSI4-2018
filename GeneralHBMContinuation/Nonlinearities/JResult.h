@@ -10,9 +10,9 @@ public:
     // derivatives of forces by current time displacements
     NOX::LAPACK::Matrix<double> DFbyDX;
     // derivatives of forces by previous time displacements (corrected)
-    NOX::LAPACK::Matrix<double> DFbyDXp;
+    NOX::LAPACK::Matrix<double> DFbyDC;
     // derivatives of current corrected previous time displacements by current time displacements
     NOX::LAPACK::Matrix<double> DGbyDX;
     // derivatives of current corrected previous time displacements by previous time displacements
-    NOX::LAPACK::Matrix<double> DGbyDXp;
+    NOX::LAPACK::Matrix<double> DGbyDC;
 };

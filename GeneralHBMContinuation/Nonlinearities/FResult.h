@@ -7,8 +7,8 @@ struct FResult;
 struct FResult
 {
 public:
-    NOX::LAPACK::Vector FValues;
-    // correction of the provided X
-    NOX::LAPACK::Vector XCorr;
-    bool XCorrSet = false;
+    // forces
+    NOX::LAPACK::Vector F;
+    // "correction", parameter used for the next time step
+    NOX::LAPACK::Vector C;
 };

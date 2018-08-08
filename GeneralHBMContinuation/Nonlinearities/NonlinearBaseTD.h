@@ -12,7 +12,6 @@ class NonlinearBaseTD;
 #include "NonlinearBaseH.h"
 #include "../Aft/AftBase.h"
 #include "../ProblemParams.h"
-#include "FResult.h"
 
 #define DEFAULT_FD_STEP 1e-8
 
@@ -35,14 +34,9 @@ public:
     
 protected:
     // compute forces in time domain
-    virtual FResult ComputeFTD(const NOX::LAPACK::Vector& aX, const int& aTimePointIndex) final 
+    virtual NOX::LAPACK::Vector ComputeFTD(const NOX::LAPACK::Vector& aX, const int& aTimePointIndex) final 
     {
-        FResult lReturnResult;
-        lReturnResult.XCorrSet = false;
-        
-        lReturnResult.FValues = ComputeFTDInner(aX);
-        
-        return lReturnResult;
+        return ComputeFTDInner(aX);
     }
     virtual NOX::LAPACK::Matrix<double> ComputeDFDH(const NOX::LAPACK::Vector& aX, const int& aTimePointIndex) final;
     // time domain to time domain

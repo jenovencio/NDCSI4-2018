@@ -14,7 +14,7 @@
 const std::map<std::string, std::function<NonlinearBase*()>> C_NonlinearitiesFactory = 
 {
     { std::string("cubic spring"), []() { return new CubicSpring(); } },
-//     { std::string("fric elem 1D"), []() { return new FricElem1D(); } },
+    { std::string("fric elem 1D"), []() { return new FricElem1D(); } },
 //     { std::string("fric elem 3D"), []() { return new FricElem3D(); } },
     { std::string("penalty wall"), []() { return new PenaltyWall(); } },
 };
