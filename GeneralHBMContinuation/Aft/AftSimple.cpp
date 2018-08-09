@@ -112,7 +112,8 @@ NOX::LAPACK::Vector AftSimple::TimeToFrequency(const std::vector<NOX::LAPACK::Ve
     // check 
     if (aXTime.size() != cIntegrationPointCount) throw "Number of vectors in the aXTime and number of time integration points don't match!";
     
-    double lPeriod = 2 * PI / aFrequency;
+    // period
+    double lT = 2 * PI / aFrequency;
     
     NOX::LAPACK::Vector lReturnVector(cProblemParams.DofCountHBM);
     
@@ -135,7 +136,9 @@ NOX::LAPACK::Vector AftSimple::TimeToFrequency(const std::vector<NOX::LAPACK::Ve
         }
     }
     
-    lReturnVector.scale(lPeriod / cIntegrationPointCount);
+    // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+    // is divided by it
+    lReturnVector.scale(1.0 / cIntegrationPointCount);
     
     return lReturnVector;
 }
@@ -145,7 +148,8 @@ NOX::LAPACK::Matrix<double> AftSimple::TimeToFrequency(const std::vector<NOX::LA
     // check 
     if (aXTime.size() != cIntegrationPointCount) throw "Number of vectors in the aXTime and number of time integration points don't match!";
     
-    double lPeriod = 2 * PI / aFrequency;
+    // period
+//     double lT = 2 * PI / aFrequency;
     
     NOX::LAPACK::Matrix<double> lReturnMatrix(cProblemParams.DofCountHBM, cProblemParams.DofCountHBM);
         
@@ -179,7 +183,9 @@ NOX::LAPACK::Matrix<double> AftSimple::TimeToFrequency(const std::vector<NOX::LA
         }
     }
     
-    lReturnMatrix.scale(lPeriod / cIntegrationPointCount);
+    // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+    // is divided by it
+    lReturnMatrix.scale(1.0 / cIntegrationPointCount);
     
     return lReturnMatrix;
 }

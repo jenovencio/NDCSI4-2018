@@ -1,0 +1,6 @@
+
+# friction element definitions
+# 1 element must have it's definition on 1 line
+# dof id, contact stiffness, normal load, friction coefficient (mu)
+
+0 1 2e0 0.2

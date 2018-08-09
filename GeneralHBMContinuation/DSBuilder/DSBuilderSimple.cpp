@@ -20,7 +20,7 @@ void DSBuilderSimple::Init(const Config& aConfig, const ProblemParams& aParams)
 
 NOX::LAPACK::Matrix<double>* DSBuilderSimple::CreateDynamicStiffnessMatrixInner(const double& aFrequency)
 {
-    if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
+//     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
     NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(mProblemParams.DofCountHBM, mProblemParams.DofCountHBM);
     NOX::LAPACK::Matrix<double>& lReturnMatrixTemp = *lReturnMatrix;
@@ -28,7 +28,7 @@ NOX::LAPACK::Matrix<double>* DSBuilderSimple::CreateDynamicStiffnessMatrixInner(
 //     std::cout << "Harmonic count: " << cHarmonicCount << std::endl;
     
     // period
-    double lT = 2 * PI / aFrequency;
+//     double lT = 2 * PI / aFrequency;
     
 //     std::cout << "Mass matrix: " << std::endl;
 //     std::cout << mMassMatrix << std::endl;
@@ -67,7 +67,9 @@ NOX::LAPACK::Matrix<double>* DSBuilderSimple::CreateDynamicStiffnessMatrixInner(
                     int lColIndex = GetHBMDofIndex(jDof, iHarm, mProblemParams.HarmonicCount);
 //                     std::cout << "DC col index: " << lColIndex << std::endl;
                     
-                    lReturnMatrixTemp(lRowIndex, lColIndex) += lT * mStiffnessMatrix(iDof, jDof);
+                    // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+                    // is divided by it
+                    lReturnMatrixTemp(lRowIndex, lColIndex) += 1.0 * mStiffnessMatrix(iDof, jDof);
                 }
             }
             else if (iHarm % 2 == 1)
@@ -85,9 +87,11 @@ NOX::LAPACK::Matrix<double>* DSBuilderSimple::CreateDynamicStiffnessMatrixInner(
 //                     std::cout << "cos col index 1: " << lColIndex << std::endl;
 //                     std::cout << "cos col index 2: " << lColIndex2 << std::endl;
                     
-                    lReturnMatrixTemp(lRowIndex, lColIndex) += lT / 2 * mStiffnessMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex) -= lT / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * mMassMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex2) += lT / 2 * aFrequency * lWaveNumber * mDampingMatrix(iDof, jDof);
+                    // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+                    // is divided by it
+                    lReturnMatrixTemp(lRowIndex, lColIndex) += 1.0 / 2 * mStiffnessMatrix(iDof, jDof);
+                    lReturnMatrixTemp(lRowIndex, lColIndex) -= 1.0 / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * mMassMatrix(iDof, jDof);
+                    lReturnMatrixTemp(lRowIndex, lColIndex2) += 1.0 / 2 * aFrequency * lWaveNumber * mDampingMatrix(iDof, jDof);
                 }
             }
             else
@@ -105,9 +109,11 @@ NOX::LAPACK::Matrix<double>* DSBuilderSimple::CreateDynamicStiffnessMatrixInner(
 //                     std::cout << "sin col index 1: " << lColIndex << std::endl;
 //                     std::cout << "sin col index 2: " << lColIndex2 << std::endl;
                     
-                    lReturnMatrixTemp(lRowIndex, lColIndex) += lT / 2 * mStiffnessMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex) -= lT / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * mMassMatrix(iDof, jDof);
-                    lReturnMatrixTemp(lRowIndex, lColIndex2) -= lT / 2 * aFrequency * lWaveNumber * mDampingMatrix(iDof, jDof);
+                    // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+                    // is divided by it
+                    lReturnMatrixTemp(lRowIndex, lColIndex) += 1.0 / 2 * mStiffnessMatrix(iDof, jDof);
+                    lReturnMatrixTemp(lRowIndex, lColIndex) -= 1.0 / 2 * aFrequency * aFrequency * lWaveNumber * lWaveNumber * mMassMatrix(iDof, jDof);
+                    lReturnMatrixTemp(lRowIndex, lColIndex2) -= 1.0 / 2 * aFrequency * lWaveNumber * mDampingMatrix(iDof, jDof);
                 }
             }
         }

@@ -16,38 +16,7 @@ const std::string ProblemInterface::cContParameterName = "generic_parameter";
 
 ProblemInterface::ProblemInterface(const Config& aConfig, const std::vector<NonlinearBase*>& aNonlinearities)
  : cConfig(aConfig), cProblemParams(aConfig.DofCount, 2 * aConfig.HarmonicWaveCount - 1), cNonlinearitiesOuter(aNonlinearities)
-{
-//     int lDummy;
-//     
-//     CheckMatrixCount("mass", aConfig.MassMatrices.size(), aConfig.HarmonicWaveCount);
-//     CheckMatrixCount("damping", aConfig.DampingMatrices.size(), aConfig.HarmonicWaveCount);
-//     CheckMatrixCount("stiffness", aConfig.StiffnessMatrices.size(), aConfig.HarmonicWaveCount);
-//     
-//     for (int i = 0; i < aConfig.MassMatrices.size(); i++)
-//     {
-//         NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.MassMatrices[i].File, aConfig.MassMatrices[i].Type);
-//         
-//         CheckMatrixSize(lMatrix, "Mass matrix");
-//         
-//         mMassMatrices.push_back(lMatrix);
-//     }
-//     for (int i = 0; i < aConfig.DampingMatrices.size(); i++)
-//     {
-//         NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.DampingMatrices[i].File, aConfig.DampingMatrices[i].Type);
-//         
-//         CheckMatrixSize(lMatrix, "Damping matrix");
-//         
-//         mDampingMatrices.push_back(lMatrix);
-//     }
-//     for (int i = 0; i < aConfig.StiffnessMatrices.size(); i++)
-//     {
-//         NOX::LAPACK::Matrix<double> lMatrix = LoadSquareMatrix(aConfig.ConfigFilePath + "/" + aConfig.StiffnessMatrices[i].File, aConfig.StiffnessMatrices[i].Type);
-//         
-//         CheckMatrixSize(lMatrix, "Stiffness matrix");
-//         
-//         mStiffnessMatrices.push_back(lMatrix);
-//     }
-    
+{    
     // ensure it's a negative value, so the function fills it with the value from the file
     mExcitationCoeffCount = -1;
     mExcitationAmp = LoadExcitationForce(aConfig.ConfigFilePath + "/" + aConfig.ExcitationForceFile, mExcitationCoeffCount);
@@ -265,19 +234,19 @@ bool ProblemInterface::HasWholeSolutions() const
 
 NOX::LAPACK::Matrix<double>* ProblemInterface::CreateDynamicStiffnessMatrix(double aFrequency)
 {
-    if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
+//     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     NOX::LAPACK::Matrix<double>* lReturnMatrix = mDSBuilder->CreateDynamicStiffnessMatrix(aFrequency);
     return lReturnMatrix;
 }
 NOX::LAPACK::Vector* ProblemInterface::CreateExcitationRHS(double aFrequency)
 {
-    if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
+//     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
     NOX::LAPACK::Vector* lReturnVector = new NOX::LAPACK::Vector(cProblemParams.DofCountHBM);
     NOX::LAPACK::Vector& lReturnVectorTemp = *lReturnVector;
     
     // period
-    double lT = 2 * PI / aFrequency;
+//     double lT = 2 * PI / aFrequency;
     
     for (int iDof = 0; iDof < cProblemParams.DofCountPhysical; iDof++)
     {
@@ -289,8 +258,10 @@ NOX::LAPACK::Vector* ProblemInterface::CreateExcitationRHS(double aFrequency)
             
             double lForceAmp = mExcitationAmp[lExcitationIndex];
             
-            if (iHarm == 0) lReturnVectorTemp(lSystemIndex) = lForceAmp * lT;
-            else lReturnVectorTemp(lSystemIndex) = lForceAmp * lT / 2;
+            // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+            // is divided by it
+            if (iHarm == 0) lReturnVectorTemp(lSystemIndex) = lForceAmp * 1.0;
+            else lReturnVectorTemp(lSystemIndex) = lForceAmp * 1.0 / 2;
         }
     }
     

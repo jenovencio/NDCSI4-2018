@@ -32,11 +32,11 @@ excitation
 
 # Number of harmonic waves
 >harm
-20
+5
 
 # Number of integration points
 >int
-4000
+400
 
 # Aft implementation
 >aft
@@ -52,23 +52,23 @@ Simple
 
 # Start frequency
 >start
-0
+30
 
 # End frequency
 >end
-30
+0
 
 # Max newton steps
 >stepsnewt
-8
+20
 
 # Newton norm F
 >normnewt
-1e-8
+1e-5
 
 # Initial step size
 >stepinit
-1e-5
+1e-8
 
 # Minimum step size
 >stepmin
@@ -91,6 +91,8 @@ Tangent
 >nonlin
 nonlinearities_files/cubic_spring
 cubic spring
+nonlinearities_files/friction
+fric elem 1D
 
 ########
 # OUTPUT

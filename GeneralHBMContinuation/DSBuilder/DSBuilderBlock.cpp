@@ -40,7 +40,7 @@ void DSBuilderBlock::Init(const Config& aConfig, const ProblemParams& aParams)
 
 NOX::LAPACK::Matrix<double>* DSBuilderBlock::CreateDynamicStiffnessMatrixInner(const double& aFrequency)
 {
-    if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
+//     if (aFrequency <= 0) throw "Frequency must be a positive value! (attempted to set " + std::to_string(aFrequency) + ")";
     
     NOX::LAPACK::Matrix<double>* lReturnMatrix = new NOX::LAPACK::Matrix<double>(mProblemParams.DofCountHBM, mProblemParams.DofCountHBM);
     NOX::LAPACK::Matrix<double>& lReturnMatrixTemp = *lReturnMatrix;
@@ -48,7 +48,7 @@ NOX::LAPACK::Matrix<double>* DSBuilderBlock::CreateDynamicStiffnessMatrixInner(c
 //     std::cout << "Harmonic count: " << cHarmonicCount << std::endl;
     
     // period
-    double lT = 2 * PI / aFrequency;
+//     double lT = 2 * PI / aFrequency;
         
     // row number in the physical domain
     for (int iDof = 0; iDof < mProblemParams.DofCountPhysical; iDof++)
@@ -59,7 +59,9 @@ NOX::LAPACK::Matrix<double>* DSBuilderBlock::CreateDynamicStiffnessMatrixInner(c
             int lRow = GetHBMDofIndex(iDof, 0, mProblemParams.HarmonicCount);
             int lCol = GetHBMDofIndex(jDof, 0, mProblemParams.HarmonicCount);
             
-            lReturnMatrixTemp(lRow, lCol) += lT * mStiffnessMatrixDC(iDof, jDof);
+            // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+            // is divided by it
+            lReturnMatrixTemp(lRow, lCol) += 1.0 * mStiffnessMatrixDC(iDof, jDof);
         }
         
         // nonzero harmonics
@@ -70,14 +72,16 @@ NOX::LAPACK::Matrix<double>* DSBuilderBlock::CreateDynamicStiffnessMatrixInner(c
             if (mDampingMatricesDyn.size() > 0) lDampingMatrix = mDampingMatricesDyn[iHarmWave - 1];
             NOX::LAPACK::Matrix<double>& lStiffnessMatrix = mStiffnessMatricesDyn[iHarmWave - 1];
                         
-            std::function<double(double, double, double)> lFunc = [aFrequency, iHarmWave, lT](double aMass, double aDamp, double aStiff)
+            std::function<double(double, double, double)> lFunc = [aFrequency, iHarmWave](double aMass, double aDamp, double aStiff)
             {
                 double lValue =
                     aStiff + 
                     aDamp * aFrequency * iHarmWave - 
                     aMass * aFrequency * aFrequency * iHarmWave * iHarmWave;
                     
-                return lT / 2 * lValue;
+                // we don't multiply by the period because the whole system that we solve (both linear and nonlinear parts) 
+                // is divided by it
+                return 1.0 / 2 * lValue;
             };
             
             // left top block
