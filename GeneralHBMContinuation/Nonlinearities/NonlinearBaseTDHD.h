@@ -15,7 +15,8 @@ private:
     // "correction", history dependence parameter, which cycles through the forces evaluations
     NOX::LAPACK::Vector mC;
     NOX::LAPACK::Matrix<double> mDGbyDH;
-        
+    bool mIsFirst = false;
+    
 protected:
     
     // compute forces in time domain
@@ -31,7 +32,7 @@ protected:
     // the aC parameter comes from the previous F evaluation (for previous time step)
     virtual JResult ComputeDerivatives(const NOX::LAPACK::Vector& aX, const NOX::LAPACK::Vector& aC) const = 0;
     virtual NOX::LAPACK::Vector InitC(const NOX::LAPACK::Vector& aX) const = 0;
-    virtual NOX::LAPACK::Matrix<double> InitDGbyDH(const NOX::LAPACK::Vector& aX) const = 0;
+    virtual NOX::LAPACK::Matrix<double> InitDGbyDH(const NOX::LAPACK::Vector& aX) const { return NOX::LAPACK::Matrix<double>(mProblemParams.DofCountPhysical, mProblemParams.DofCountHBM); }
     
     // signals that there will be a series of calls to ComputeFTD following (time step after time step, possibly multiple cycles)
     // with the given "value" in frequency domain

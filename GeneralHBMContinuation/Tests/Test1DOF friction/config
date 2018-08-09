@@ -3,6 +3,10 @@
 # LINEAR SYSTEM SETTINGS
 ########################
 
+# Number of physical degrees of freedom
+>dof
+1
+
 # Mass matrix file path and type (full or sparse)
 >mass
 mass
@@ -28,11 +32,11 @@ excitation
 
 # Number of harmonic waves
 >harm
-2
+10
 
 # Number of integration points
 >int
-10000
+1000
 
 # Aft implementation
 >aft
@@ -48,11 +52,11 @@ Simple
 
 # Start frequency
 >start
-0.01
+8
 
 # End frequency
 >end
-8
+0.001
 
 # Max newton steps
 >stepsnewt
@@ -64,7 +68,7 @@ Simple
 
 # Initial step size
 >stepinit
-1e-3
+1e-5
 
 # Minimum step size
 >stepmin
@@ -72,7 +76,7 @@ Simple
 
 # Maximum step size
 >stepmax
-4e-3
+4e-4
 
 
 # Predictor type (Constant, Tangent, Secant)
@@ -94,5 +98,5 @@ fric elem 1D
 
 # Store whole solutions
 >whole
-0
+1
 

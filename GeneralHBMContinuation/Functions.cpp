@@ -8,19 +8,15 @@
 
 std::map<std::string, std::vector<std::string>> ParseGeneralConfigFile(const std::string& aFilePath)
 {
-    std::ifstream lInputFile(aFilePath);
-    if (!lInputFile.is_open()) throw std::string("Unable to open file \"" + aFilePath + "\"!");
-    
     std::map<std::string, std::vector<std::string>> lReturnMap;
     
-    bool lIsValidLine = true;
+    std::vector<std::string> lAllValidLines = ReadAllValidLines(aFilePath);
     
     std::string lLastKey = "";
     
-    while (true)
+    for (int iLine = 0; iLine < lAllValidLines.size(); iLine++)
     {
-        std::string lLine = GetNextValidLine(lInputFile, lIsValidLine);
-        if (!lIsValidLine) break;
+        std::string lLine = lAllValidLines[iLine];
         
         if (lLine[0] == KEY_PREFIX_CHAR)
         {
@@ -39,13 +35,32 @@ std::map<std::string, std::vector<std::string>> ParseGeneralConfigFile(const std
         }
         else
         {
-            if (lLastKey.size() == 0) throw "First valid line in the configuration file must be a key definition!";
+            if (lLastKey.size() == 0) throw "First valid line in the configuration file must be a key definition! Key definition starts with the \'" + std::to_string(KEY_PREFIX_CHAR) + "\' character.";
             
             lReturnMap[lLastKey].push_back(lLine);
         }
     }
     
     return lReturnMap;
+}
+std::vector<std::string> ReadAllValidLines(const std::string& aFilePath)
+{
+    std::ifstream lInputFile(aFilePath);
+    if (!lInputFile.is_open()) throw std::string("Unable to open file \"" + aFilePath + "\"!");
+    
+    std::vector<std::string> lReturnVector;
+    
+    bool lIsValidLine = true;
+    
+    while (true)
+    {
+        std::string lLine = GetNextValidLine(lInputFile, lIsValidLine);
+        if (!lIsValidLine) break;
+        
+        lReturnVector.push_back(lLine);
+    }
+    
+    return lReturnVector;
 }
 
 

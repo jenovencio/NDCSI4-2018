@@ -10,6 +10,9 @@
 #include "Nonlinearities/NonlinearityDefinition.h"
 
 std::map<std::string, std::vector<std::string>> ParseGeneralConfigFile(const std::string& aFilePath);
+// reads all the lines in the file, skipping the comment lines and empty lines
+// and returns these lines as a vector of strings
+std::vector<std::string> ReadAllValidLines(const std::string& aFilePath);
 // nox lapack matrices are stored as col major
 // Access the (i,j) entry of A
 // T& operator()(int i, int j) { return entries[i + (p*j)]; }
@@ -35,3 +38,4 @@ void CheckString(const std::string& aString, const std::map<std::string, T>& aPo
 std::vector<double> GetRelativeTimePoints(const int& aTimePointCount);
 NOX::LAPACK::Vector GetAverage(const std::vector<NOX::LAPACK::Vector>& aVectors);
 std::string SkipWhiteSpaces(const std::string& aString);
+

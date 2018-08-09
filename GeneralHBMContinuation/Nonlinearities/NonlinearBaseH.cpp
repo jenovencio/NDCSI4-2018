@@ -75,7 +75,7 @@ NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPA
     std::vector<NOX::LAPACK::Matrix<double>> lJTimeAll;
     
     lJTimeAll.reserve(lXTimeAll.size());
-        
+    
     int lLoopCount = NumberOfPrepLoops() + 1; // number of loop over the period
     
     InitJComputation(aX);
@@ -89,6 +89,9 @@ NOX::LAPACK::Matrix<double> NonlinearBaseH::ComputeJacobianInner(const NOX::LAPA
             
             // calculate the nonlinearity jacobian in time domain (derivatives by fourier coefficients)
             NOX::LAPACK::Matrix<double> lNonlin = ComputeDFDH(lXTime, iIntPoint);
+            
+            if (lNonlin.numRows() != mProblemParams.DofCountPhysical || lNonlin.numCols() != mProblemParams.DofCountHBM)
+                throw "Invalid DFDH size!";
             
             if (iLoop == lLoopCount - 1)
             {
