@@ -1,0 +1,35 @@
+# solver attribute file written for AI*Environment on Wed Jul 25 9:32:47 AM GMT Daylight Time 2018
+## solver ANSYS
+begin family TOP_LOW
+	begin solver Ansys
+	end solver Ansys
+end family TOP_LOW
+begin family DIRICHLET
+	begin solver Ansys
+	end solver Ansys
+end family DIRICHLET
+begin family HIGH
+	begin solver Ansys
+	end solver Ansys
+end family HIGH
+begin family SOLID_1_1_SOLID
+	begin solver Ansys
+	end solver Ansys
+end family SOLID_1_1_SOLID
+begin family TOP_HIGH
+	begin solver Ansys
+	end solver Ansys
+end family TOP_HIGH
+begin family LOW
+	begin solver Ansys
+	end solver Ansys
+end family LOW
+begin family SOLID_1_1
+	begin solver Ansys
+	end solver Ansys
+end family SOLID_1_1
+begin family TOP
+	begin solver Ansys
+	end solver Ansys
+end family TOP
+

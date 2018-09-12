@@ -1,0 +1,21 @@
+*************************************                                           
+**HEADING                                                                        
+**ICEM - ABAQUS INTERFACES VERSION 4.3.1                                          
+*************************************                                           
+*INCLUDE, INPUT=simple_sector_mesh.inp
+
+*Material, name =STEEL
+*ELASTIC
+2e11, 0.3
+*DENSITY
+7850.0
+*Solid Section, elset =SOLID_1_1_SOLID_ELSET, material = STEEL
+*NSET,NSET=Nall,GENERATE
+1,7030
+
+*STEP
+*FREQUENCY, SOLVER=MATRIXSTORAGE
+30
+*NODE OUTPUT
+U
+*END STEP

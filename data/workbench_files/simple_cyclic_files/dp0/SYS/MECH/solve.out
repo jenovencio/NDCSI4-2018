@@ -1,0 +1,764 @@
+
+ ANSYS Academic Teaching Advanced                  
+
+
+ *------------------------------------------------------------------*
+ |                                                                  |
+ |   W E L C O M E   T O   T H E   A N S Y S (R)  P R O G R A M     |
+ |                                                                  |
+ *------------------------------------------------------------------*
+
+
+
+
+ ***************************************************************
+ *            ANSYS Release 18.1     LEGAL NOTICES             *
+ ***************************************************************
+ *                                                             *
+ * Copyright 2017 SAS IP, Inc.  All rights reserved.           *
+ * Unauthorized use, distribution or duplication is            *
+ * prohibited.                                                 *
+ *                                                             *
+ * Ansys is a registered trademark of ANSYS, Inc. or its       *
+ * subsidiaries in the United States or other countries.       *
+ * See the ANSYS, Inc. online documentation or the ANSYS, Inc. *
+ * documentation CD or online help for the complete Legal      *
+ * Notice.                                                     *
+ *                                                             *
+ ***************************************************************
+ *                                                             *
+ * THIS ANSYS SOFTWARE PRODUCT AND PROGRAM DOCUMENTATION       *
+ * INCLUDE TRADE SECRETS AND CONFIDENTIAL AND PROPRIETARY      *
+ * PRODUCTS OF ANSYS, INC., ITS SUBSIDIARIES, OR LICENSORS.    *
+ * The software products and documentation are furnished by    *
+ * ANSYS, Inc. or its subsidiaries under a software license    *
+ * agreement that contains provisions concerning               *
+ * non-disclosure, copying, length and nature of use,          *
+ * compliance with exporting laws, warranties, disclaimers,    *
+ * limitations of liability, and remedies, and other           *
+ * provisions.  The software products and documentation may be *
+ * used, disclosed, transferred, or copied only in accordance  *
+ * with the terms and conditions of that software license      *
+ * agreement.                                                  *
+ *                                                             *
+ * ANSYS, Inc. is a UL registered                              *
+ * ISO 9001:2008 company.                                      *
+ *                                                             *
+ ***************************************************************
+ *                                                             *
+ * This product is subject to U.S. laws governing export and   *
+ * re-export.                                                  *
+ *                                                             *
+ * For U.S. Government users, except as specifically granted   *
+ * by the ANSYS, Inc. software license agreement, the use,     *
+ * duplication, or disclosure by the United States Government  *
+ * is subject to restrictions stated in the ANSYS, Inc.        *
+ * software license agreement and FAR 12.212 (for non-DOD      *
+ * licenses).                                                  *
+ *                                                             *
+ ***************************************************************
+
+ Release 18.1
+     
+ Point Releases and Patches installed:   
+     
+ ANSYS, Inc. Products Release 18.1   
+ ANSYS Mechanical Products Release 18.1  
+ ANSYS Customization Files for User Programmable Features Release 18.1   
+ ANSYS Autodyn Release 18.1  
+ ANSYS LS-DYNA Release 18.1  
+ ANSYS AIM Release 18.1  
+ ANSYS CFX (includes ANSYS CFD-Post) Release 18.1
+ ANSYS Fluent (includes ANSYS CFD-Post) Release 18.1 
+ ANSYS TurboGrid Release 18.1
+ ANSYS FENSAP-ICE Release 18.1   
+ ANSYS Polyflow (includes ANSYS CFD-Post) Release 18.1   
+ ANSYS CFD-Post only Release 18.1
+ ANSYS Forte Release 18.1
+ ANSYS Chemkin Release 18.1  
+ ANSYS ICEM CFD Release 18.1 
+ ANSYS Aqwa Release 18.1 
+ ANSYS Viewer Release 18.1   
+ ANSYS Icepak (includes ANSYS CFD-Post) Release 18.1 
+ ANSYS Remote Solve Manager Standalone Services Release 18.1 
+ AutoCAD Release 18.1
+ ACIS Release 18.1   
+ Catia, Version 4 Release 18.1   
+ Catia, Version 5 Release 18.1   
+ Catia, Version 6 Release 18.1   
+ Creo Elements/Direct Modeling Release 18.1  
+ Inventor Release 18.1   
+ JTOpen Release 18.1 
+ NX Release 18.1 
+ Parasolid Release 18.1  
+ Creo Parametric Release 18.1
+ Solid Edge Release 18.1 
+ SolidWorks Release 18.1 
+ ANSYS, Inc. License Manager Release 18.1
+
+
+          *****  ANSYS COMMAND LINE ARGUMENTS  *****
+  BATCH MODE REQUESTED (-b)    = NOLIST
+  INPUT FILE COPY MODE (-c)    = COPY
+  DISTRIBUTED MEMORY PARALLEL REQUESTED
+       2 PARALLEL PROCESSES REQUESTED WITH SINGLE THREAD PER PROCESS
+    TOTAL OF     2 CORES REQUESTED
+  DESIGNXPLORER REQUESTED
+  MPI OPTION                   = INTELMPI
+  INPUT FILE NAME              = C:\Projects\data\workbench_files\_ProjectScratch\Scr41C0\dummy.dat
+  OUTPUT FILE NAME             = C:\Projects\data\workbench_files\_ProjectScratch\Scr41C0\solve.out
+  START-UP FILE MODE           = NOREAD
+  STOP FILE MODE               = NOREAD
+
+ RELEASE= Release 18.1         BUILD= 18.1      UP20170403   VERSION=WINDOWS x64 
+ CURRENT JOBNAME=file0  11:50:05  JUL 16, 2018 CP=      0.203
+
+
+ PARAMETER _DS_PROGRESS =     999.0000000    
+
+ /INPUT FILE= ds.dat  LINE=       0
+
+
+
+ *** NOTE ***                            CP =       0.328   TIME= 11:50:05
+ The /CONFIG,NOELDB command is not valid in a Distributed ANSYS          
+ solution.  Command is ignored.                                          
+
+ *GET  _WALLSTRT  FROM  ACTI  ITEM=TIME WALL  VALUE=  11.8347222    
+
+ TITLE= 
+ simple_cyclic--Modal (B5)                                                     
+
+  ACT Extensions:
+      MechanicalDropTest, 2.0
+      f0fd899f-9d88-4f46-8cf1-36bf5c218d65, wbex
+  
+
+ SET PARAMETER DIMENSIONS ON  _WB_PROJECTSCRATCH_DIR
+  TYPE=STRI  DIMENSIONS=      248        1        1
+
+ PARAMETER _WB_PROJECTSCRATCH_DIR(1) = C:\Projects\data\workbench_files\_ProjectScratch\Scr41C0\
+
+ SET PARAMETER DIMENSIONS ON  _WB_SOLVERFILES_DIR
+  TYPE=STRI  DIMENSIONS=      248        1        1
+
+ PARAMETER _WB_SOLVERFILES_DIR(1) = C:\Projects\data\workbench_files\simple_cyclic_files\dp0\SYS\MECH\
+
+ SET PARAMETER DIMENSIONS ON  _WB_USERFILES_DIR
+  TYPE=STRI  DIMENSIONS=      248        1        1
+
+ PARAMETER _WB_USERFILES_DIR(1) = C:\Projects\data\workbench_files\simple_cyclic_files\user_files\
+ --- Data in consistent NMM units. See Solving Units in the help system for more
+
+ MPA UNITS SPECIFIED FOR INTERNAL    
+  LENGTH      = MILLIMETERS (mm)
+  MASS        = TONNE (Mg)
+  TIME        = SECONDS (sec)
+  TEMPERATURE = CELSIUS (C)
+  TOFFSET     = 273.0
+  FORCE       = NEWTON (N)
+  HEAT        = MILLIJOULES (mJ)
+
+ INPUT  UNITS ARE ALSO SET TO MPA 
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:05  JUL 16, 2018 CP=      0.344
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+
+          ***** ANSYS ANALYSIS DEFINITION (PREP7) *****
+ *********** Nodes for the whole assembly ***********
+ *********** Elements for Body 1 "Solid" ***********
+ *********** Send User Defined Coordinate System(s) ***********
+ *********** Set Reference Temperature ***********
+ *********** Send Materials ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Send Named Selection as Node Component ***********
+ *********** Node Rotations ***********
+ *********** Create Periodic/Cyclic Symmetry ***********
+
+ LIST CYCLIC SYMMETRY SOLUTION OPTION STATUS
+
+ LIST OF CYCLIC SYMMETRY HARMONIC INDICES TO BE SOLVED
+        0 THROUGH   0
+
+ ALL CYCLIC SYMMETRY EDGE COMPONENT PAIRS
+     TO USE ALL ACTIVE DEGREES OF FREEDOM
+
+ CYCLIC SYMMETRY SPECIFIED DISTANCE TOLERANCE (RELATIVE) = 0.10000E-03
+
+ LOADINGS FOR STATIC CYCLIC SYMMETRY ARE TO BE APPLIED TO ALL SECTORS.
+
+ USER WILL APPLY NODAL ROTATIONS TO ALL EDGE COMPONENT NODES
+     (ALL AUTOMATIC ROTATIONS SUPPRESSED)
+
+
+ ***** ROUTINE COMPLETED *****  CP =         0.344
+
+
+ --- Number of total nodes = 3379
+ --- Number of contact elements = 0
+ --- Number of spring elements = 0
+ --- Number of bearing elements = 0
+ --- Number of solid elements = 568
+ --- Number of condensed parts = 0
+ --- Number of total elements = 568
+
+ *GET  _WALLBSOL  FROM  ACTI  ITEM=TIME WALL  VALUE=  11.8347222    
+
+ *****  ANSYS SOLUTION ROUTINE  *****
+
+
+ PERFORM A MODAL ANALYSIS
+  THIS WILL BE A NEW ANALYSIS
+
+
+ USE SYM. BLOCK LANCZOS MODE EXTRACTION METHOD
+  EXTRACT    6 MODES
+  NORMALIZE THE MODE SHAPES TO THE MASS MATRIX
+
+ ERASE THE CURRENT DATABASE OUTPUT CONTROL TABLE.
+
+
+ WRITE ALL  ITEMS TO THE DATABASE WITH A FREQUENCY OF NONE
+   FOR ALL APPLICABLE ENTITIES
+
+ WRITE NSOL ITEMS TO THE DATABASE WITH A FREQUENCY OF ALL 
+   FOR ALL APPLICABLE ENTITIES
+
+
+ EXPAND ALL EXTRACTED MODES
+  DO NOT CALCULATE ELEMENT RESULTS
+
+ *GET  ANSINTER_  FROM  ACTI  ITEM=INT        VALUE=  0.00000000    
+
+ *IF  ANSINTER_                         ( =   0.00000     )  NE  
+      0                                 ( =   0.00000     )  THEN    
+
+ *ENDIF
+
+ *** SELECTION OF ELEMENT TECHNOLOGIES FOR APPLICABLE ELEMENTS ***
+      --- GIVE SUGGESTIONS AND RESET THE KEY OPTIONS ---
+
+ ELEMENT TYPE    1 IS SOLID186. KEYOPT(2)=0 IS SUGGESTED AND HAS BEEN RESET.
+  KEYOPT(1-12)=    0    0    0    0    0    0    0    0    0    0    0    0
+
+
+
+ *** WARNING ***                         CP =       0.375   TIME= 11:50:05
+ Element shape checking is currently inactive.  Issue SHPP,ON or         
+ SHPP,WARN to reactivate, if desired.                                    
+
+ *** NOTE ***                            CP =       0.375   TIME= 11:50:05
+ The model data was checked and warning messages were found.             
+  Please review output or errors file (                                  
+ C:\Projects\data\workbench_files\_ProjectScratch\Scr41C0\file0.err )    
+ for these warning messages.                                             
+
+ *** WARNING ***                         CP =       0.375   TIME= 11:50:05
+ No constraints have been defined using the D command.                   
+
+ GENERATE CYCLIC SYMMETRY CONSTRAINT EQUATIONS 
+     USING USER-SUPPLIED LOW TO HIGH NODE XREF ARRAY = _CYCLICMAP                      
+
+ NUMBER OF CONSTRAINT EQUATIONS GENERATED=   222
+   (USING USER SUPPLIED EDGE NODE MAPPING)
+
+ *****  ANSYS SOLVE    COMMAND  *****
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:05  JUL 16, 2018 CP=      0.406
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+
+                       S O L U T I O N   O P T I O N S
+
+   PROBLEM DIMENSIONALITY. . . . . . . . . . . . .3-D                  
+   CYCLIC SYMMETRY SECTOR ANGLE. . . . . . . . . .   90.000     DEGREES
+   DEGREES OF FREEDOM. . . . . . UX   UY   UZ  
+   ANALYSIS TYPE . . . . . . . . . . . . . . . . .MODAL                
+      EXTRACTION METHOD. . . . . . . . . . . . . .BLOCK LANCZOS
+   OFFSET TEMPERATURE FROM ABSOLUTE ZERO . . . . .  273.15    
+   NUMBER OF MODES TO EXTRACT. . . . . . . . . . .     6
+   USE CYCLIC MODES IN SUBSEQUENT MSUP ANALYSIS. .YES
+   GLOBALLY ASSEMBLED MATRIX . . . . . . . . . . .SYMMETRIC  
+   NUMBER OF MODES TO EXPAND . . . . . . . . . . .ALL
+   ELEMENT RESULTS CALCULATION . . . . . . . . . .OFF
+
+ *** NOTE ***                            CP =       0.406   TIME= 11:50:05
+ The conditions for direct assembly have been met.  No .emat or .erot    
+ files will be produced.                                                 
+
+  
+  
+     D I S T R I B U T E D   D O M A I N   D E C O M P O S E R
+  
+  ...Number of elements: 568
+  ...Number of nodes:    6758
+  ...Decompose to 2 CPU domains
+  ...Element load balance ratio =     1.000
+
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     1
+   CYCLIC SYMMETRY HARMONIC INDEX. . . . . . . . .     0
+   THERMAL STRAINS INCLUDED IN THE LOAD VECTOR . .   YES
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS
+      ITEM     FREQUENCY   COMPONENT
+       ALL       NONE               
+      NSOL        ALL               
+
+
+
+
+            **** CENTER OF MASS, MASS, AND MASS MOMENTS OF INERTIA ****
+
+  CALCULATIONS ASSUME ELEMENT MASS AT ELEMENT CENTROID
+
+  TOTAL MASS =  0.16304E-03
+
+                           MOM. OF INERTIA         MOM. OF INERTIA
+  CENTER OF MASS            ABOUT ORIGIN        ABOUT CENTER OF MASS
+
+  XC = -0.30302E-03      IXX =   0.2229          IXX =   0.1441E-01
+  YC =   35.405          IYY =   0.3588E-01      IYY =   0.3180E-01
+  ZC =   5.0000          IZZ =   0.2480          IZZ =   0.4366E-01
+                         IXY =   0.6573E-06      IXY =  -0.1092E-05
+                         IYZ =  -0.2886E-01      IYZ =   0.4989E-16
+                         IZX =   0.2470E-06      IZX =  -0.1543E-17
+
+
+  *** MASS SUMMARY BY ELEMENT TYPE ***
+
+  TYPE      MASS
+     1  0.163040E-03
+
+ Range of element maximum matrix coefficients in global coordinates
+ Maximum = 1107350.59 at element 728.                                    
+ Minimum = 401403.808 at element 733.                                    
+
+   *** ELEMENT MATRIX FORMULATION TIMES
+     TYPE    NUMBER   ENAME      TOTAL CP  AVE CP
+
+        1      1136  SOLID186      0.281   0.000248
+ Time at end of element matrix formulation CP = 0.6875.                  
+
+  BLOCK LANCZOS CALCULATION OF UP TO    6 EIGENVECTORS.
+  NUMBER OF EQUATIONS              =         9915
+  MAXIMUM WAVEFRONT                =          243
+  MAXIMUM MODES STORED             =            6
+  MINIMUM EIGENVALUE               =  0.00000E+00
+  MAXIMUM EIGENVALUE               =  0.10000E+31
+
+
+  Local memory allocated for solver              =     26.901 MB
+  Local memory required for in-core solution     =     25.631 MB
+  Local memory required for out-of-core solution =     11.444 MB
+
+  Total memory allocated for solver              =     51.140 MB
+  Total memory required for in-core solution     =     48.724 MB
+  Total memory required for out-of-core solution =     21.751 MB
+
+ *** NOTE ***                            CP =       1.125   TIME= 11:50:06
+ The Distributed Sparse Matrix Solver used by the Block Lanczos          
+ eigensolver is currently running in the in-core memory mode.  This      
+ memory mode uses the most amount of memory in order to avoid using the  
+ hard drive as much as possible, which most often results in the         
+ fastest solution time.  This mode is recommended if enough physical     
+ memory is present to accommodate all of the solver data.                
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:06  JUL 16, 2018 CP=      1.297
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+ NEGATIVE FREQUENCY OF -0.2951E-02 SET TO ZERO
+
+ *** FREQUENCIES FROM BLOCK LANCZOS ITERATION ***
+
+  MODE    FREQUENCY (HERTZ)      
+
+
+    1     0.000000000000    
+    2    0.3037344133453E-02
+    3     5155.071458924    
+    4     9996.568507120    
+    5     13661.84758254    
+    6     14570.38242637    
+
+
+  ***** PARTICIPATION FACTOR AND MODAL MASS CALCULATION *****   HARMONIC INDEX=    0
+
+ GLOBAL                GLOBAL      PARTICIPATION
+  MODE   FREQUENCY    DIRECTION       FACTOR      EFFECTIVE MASS   MODAL MASS
+     1   0.00000         UZ         0.17151E-01     0.29416E-03      4.0000    
+                       ROTZ        -0.22052         0.48630E-01
+     2  0.303734E-02     UZ        -0.56497E-02     0.31920E-04      4.0000    
+                       ROTZ        -0.66945         0.44816    
+     3   5155.07         UZ        -0.78054E-10     0.60924E-20      4.0000    
+                       ROTZ         0.28180E-08     0.79408E-17
+     4   9996.57         UZ         0.50363E-09     0.25365E-18      4.0000    
+                       ROTZ         0.58777E-08     0.34547E-16
+     5   13661.8         UZ         0.97734E-09     0.95519E-18      4.0000    
+                       ROTZ         0.15740E-07     0.24774E-15
+     6   14570.4         UZ         0.14330E-08     0.20534E-17      4.0000    
+                       ROTZ         0.11693E-07     0.13672E-15
+
+
+ *** ANSYS BINARY FILE STATISTICS
+  BUFFER SIZE USED= 16384
+        7.562 MB WRITTEN ON ASSEMBLED MATRIX FILE: file0.full
+        0.375 MB WRITTEN ON MODAL MATRIX FILE: file0.mode
+        0.625 MB WRITTEN ON RESULTS FILE: file0.rst
+
+ GENERATE CYCLIC SYMMETRY CONSTRAINT EQUATIONS 
+     USING USER-SUPPLIED LOW TO HIGH NODE XREF ARRAY = _CYCLICMAP                      
+
+ NUMBER OF CONSTRAINT EQUATIONS GENERATED=   444
+   (USING USER SUPPLIED EDGE NODE MAPPING)
+
+ *****  ANSYS SOLVE    COMMAND  *****
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:06  JUL 16, 2018 CP=      1.344
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     2
+   CYCLIC SYMMETRY HARMONIC INDEX. . . . . . . . .     1
+   THERMAL STRAINS INCLUDED IN THE LOAD VECTOR . .   YES
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS
+      ITEM     FREQUENCY   COMPONENT
+       ALL       NONE               
+      NSOL        ALL               
+
+
+  BLOCK LANCZOS CALCULATION OF UP TO    6 EIGENVECTORS.
+  NUMBER OF EQUATIONS              =        19830
+  MAXIMUM WAVEFRONT                =          243
+  MAXIMUM MODES STORED             =            6
+  MINIMUM EIGENVALUE               =  0.00000E+00
+  MAXIMUM EIGENVALUE               =  0.10000E+31
+
+
+  Local memory allocated for solver              =     53.226 MB
+  Local memory required for in-core solution     =     50.712 MB
+  Local memory required for out-of-core solution =     20.590 MB
+
+  Total memory allocated for solver              =    104.465 MB
+  Total memory required for in-core solution     =     99.528 MB
+  Total memory required for out-of-core solution =     40.780 MB
+
+ *** NOTE ***                            CP =       1.984   TIME= 11:50:07
+ The Distributed Sparse Matrix Solver used by the Block Lanczos          
+ eigensolver is currently running in the in-core memory mode.  This      
+ memory mode uses the most amount of memory in order to avoid using the  
+ hard drive as much as possible, which most often results in the         
+ fastest solution time.  This mode is recommended if enough physical     
+ memory is present to accommodate all of the solver data.                
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:07  JUL 16, 2018 CP=      2.344
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+ NEGATIVE FREQUENCY OF -0.6214E-02 SET TO ZERO
+ NEGATIVE FREQUENCY OF -0.5883E-02 SET TO ZERO
+
+ *** FREQUENCIES FROM BLOCK LANCZOS ITERATION ***
+
+  MODE    FREQUENCY (HERTZ)      
+
+
+    1     0.000000000000    
+    2     0.000000000000    
+    3    0.4699140137281E-02
+    4    0.5034212665414E-02
+    5     7469.804584823    
+    6     7469.804701177    
+
+
+  ***** PARTICIPATION FACTOR AND MODAL MASS CALCULATION *****   HARMONIC INDEX=    1
+
+ GLOBAL                GLOBAL      PARTICIPATION
+  MODE   FREQUENCY    DIRECTION       FACTOR      EFFECTIVE MASS   MODAL MASS
+     7   0.00000         UX         0.81296E-02     0.66090E-04      2.0000    
+                         UY        -0.57408E-03     0.32957E-06
+                       ROTX         0.98804E-01     0.97622E-02
+                       ROTY         0.10919         0.11923E-01
+     8   0.00000         UX        -0.63133E-03     0.39858E-06      2.0000    
+                         UY        -0.79194E-02     0.62718E-04
+                       ROTX         0.51425         0.26445    
+                       ROTY        -0.15379E-01     0.23653E-03
+     9  0.469914E-02     UX        -0.98213E-02     0.96459E-04      2.0000    
+                         UY        -0.29045E-03     0.84363E-07
+                       ROTX         0.37873E-01     0.14344E-02
+                       ROTY         0.85391E-02     0.72917E-04
+    10  0.503421E-02     UX        -0.31867E-03     0.10155E-06      2.0000    
+                         UY         0.99959E-02     0.99917E-04
+                       ROTX         0.33264         0.11065    
+                       ROTY        -0.56138E-02     0.31514E-04
+    11   7469.80         UX        -0.77795E-10     0.60521E-20      2.0000    
+                         UY         0.12096E-09     0.14631E-19
+                       ROTX         0.14102         0.19887E-01
+                       ROTY         0.10558         0.11147E-01
+    12   7469.80         UX        -0.15285E-09     0.23362E-19      2.0000    
+                         UY         0.58313E-11     0.34004E-22
+                       ROTX        -0.11006         0.12113E-01
+                       ROTY         0.14441         0.20853E-01
+
+ GENERATE CYCLIC SYMMETRY CONSTRAINT EQUATIONS 
+     USING USER-SUPPLIED LOW TO HIGH NODE XREF ARRAY = _CYCLICMAP                      
+
+ NUMBER OF CONSTRAINT EQUATIONS GENERATED=   222
+   (USING USER SUPPLIED EDGE NODE MAPPING)
+
+ *****  ANSYS SOLVE    COMMAND  *****
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:07  JUL 16, 2018 CP=      2.359
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+
+                      L O A D   S T E P   O P T I O N S
+
+   LOAD STEP NUMBER. . . . . . . . . . . . . . . .     3
+   CYCLIC SYMMETRY HARMONIC INDEX. . . . . . . . .     2
+   THERMAL STRAINS INCLUDED IN THE LOAD VECTOR . .   YES
+   PRINT OUTPUT CONTROLS . . . . . . . . . . . . .NO PRINTOUT
+   DATABASE OUTPUT CONTROLS
+      ITEM     FREQUENCY   COMPONENT
+       ALL       NONE               
+      NSOL        ALL               
+
+
+  BLOCK LANCZOS CALCULATION OF UP TO    6 EIGENVECTORS.
+  NUMBER OF EQUATIONS              =         9915
+  MAXIMUM WAVEFRONT                =          243
+  MAXIMUM MODES STORED             =            6
+  MINIMUM EIGENVALUE               =  0.00000E+00
+  MAXIMUM EIGENVALUE               =  0.10000E+31
+
+
+  Local memory allocated for solver              =     26.901 MB
+  Local memory required for in-core solution     =     25.631 MB
+  Local memory required for out-of-core solution =     11.444 MB
+
+  Total memory allocated for solver              =     51.140 MB
+  Total memory required for in-core solution     =     48.724 MB
+  Total memory required for out-of-core solution =     21.751 MB
+
+ *** NOTE ***                            CP =       2.984   TIME= 11:50:07
+ The Distributed Sparse Matrix Solver used by the Block Lanczos          
+ eigensolver is currently running in the in-core memory mode.  This      
+ memory mode uses the most amount of memory in order to avoid using the  
+ hard drive as much as possible, which most often results in the         
+ fastest solution time.  This mode is recommended if enough physical     
+ memory is present to accommodate all of the solver data.                
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:08  JUL 16, 2018 CP=      3.156
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+
+ *** FREQUENCIES FROM BLOCK LANCZOS ITERATION ***
+
+  MODE    FREQUENCY (HERTZ)      
+
+
+    1     2562.133882191    
+    2     3575.417412805    
+    3     3621.219021505    
+    4     10462.55055108    
+    5     13747.46877930    
+    6     16401.40507363    
+
+
+   ***** MODAL MASS CALCULATION *****   HARMONIC INDEX=    2
+
+  MODE   FREQUENCY       MODAL MASS
+    13   2562.13           4.0000    
+    14   3575.42           4.0000    
+    15   3621.22           4.0000    
+    16   10462.6           4.0000    
+    17   13747.5           4.0000    
+    18   16401.4           4.0000    
+ *************** Write FE CONNECTORS *********
+
+ WRITE OUT CONSTRAINT EQUATIONS TO FILE= file.ce                                                                                                                                                                                                                                                             
+
+ *GET  _NMODALSOLPROC  FROM  ACTI  ITEM=NUMC       VALUE=  2.00000000    
+
+ FINISH SOLUTION PROCESSING
+
+
+ ***** ROUTINE COMPLETED *****  CP =         3.250
+
+
+
+ PRINTOUT RESUMED BY /GOP
+
+ *GET  _WALLASOL  FROM  ACTI  ITEM=TIME WALL  VALUE=  11.8355556    
+
+ *** ANSYS - ENGINEERING ANALYSIS SYSTEM  RELEASE Release 18.1     18.1     ***
+ DISTRIBUTED ANSYS Academic Teaching Advanced                  
+
+ 00226479  VERSION=WINDOWS x64   11:50:08  JUL 16, 2018 CP=      3.250
+
+ simple_cyclic--Modal (B5)                                                     
+
+
+
+          ***** ANSYS RESULTS INTERPRETATION (POST1) *****
+
+ *** NOTE ***                            CP =       3.250   TIME= 11:50:08
+ Reading results into the database (SET command) will update the current 
+ displacement and force boundary conditions in the database with the     
+ values from the results file for that load set.  Note that any          
+ subsequent solutions will use these values unless action is taken to    
+ either SAVE the current values or not overwrite them (/EXIT,NOSAVE).    
+
+ Set Encoding of XML File to:ISO-8859-1
+
+ Set Output of XML File to:
+     PARM,     ,     ,     ,     ,     ,     ,     ,     ,     ,     ,     ,
+         ,     ,     ,     ,     ,     ,     ,
+
+ DATABASE WRITTEN ON FILE  parm.xml                                                                                                                                                                                                                                                            
+
+ EXIT THE ANSYS POST1 DATABASE PROCESSOR
+
+
+ ***** ROUTINE COMPLETED *****  CP =         3.250
+
+
+
+ PRINTOUT RESUMED BY /GOP
+
+ *GET  _WALLDONE  FROM  ACTI  ITEM=TIME WALL  VALUE=  11.8355556    
+
+ PARAMETER _PREPTIME =     0.000000000    
+
+ PARAMETER _SOLVTIME =     3.000000000    
+
+ PARAMETER _POSTTIME =     0.000000000    
+
+ PARAMETER _TOTALTIM =     3.000000000    
+
+ EXIT ANSYS WITHOUT SAVING DATABASE
+
+
+ NUMBER OF WARNING MESSAGES ENCOUNTERED=          2
+ NUMBER OF ERROR   MESSAGES ENCOUNTERED=          0
+
++--------- D I S T R I B U T E D   A N S Y S   S T A T I S T I C S ------------+
+
+Release: Release 18.1       Build: 18.1       Update: UP20170403   Platform: WINDOWS x64 
+Date Run: 07/16/2018   Time: 11:50     Process ID: 11952
+Operating System: Windows 10  (Build: 15063)
+
+Processor Model: Intel(R) Core(TM) i7-7600U CPU @ 2.80GHz
+
+Compiler: Intel(R) FORTRAN Compiler Version 15.0.7  (Build: 20160518)
+          Intel(R) C/C++ Compiler Version 15.0.7  (Build: 20160518)
+          Intel(R) Math Kernel Library Version 11.3.3 Product Build 20160413
+
+Number of machines requested            :    1
+Total number of cores available         :    4
+Number of physical cores available      :    2
+Number of processes requested           :    2
+Number of threads per process requested :    1
+Total number of cores requested         :    2 (Distributed Memory Parallel)               
+MPI Type: INTELMPI
+MPI Version: Intel(R) MPI Library 5.1.3 for Windows* OS
+
+
+GPU Acceleration: Not Requested
+
+Job Name: file0
+Input File: dummy.dat
+
+  Core                Machine Name   Working Directory
+  ----------------------------------------------------
+     0   TUMWLAM-MWIN126.ads.mwn.d   C:\Projects\data\workbench_files\_ProjectScratch\Scr41C0
+     1   TUMWLAM-MWIN126.ads.mwn.d   C:\Projects\data\workbench_files\_ProjectScratch\Scr41C0
+ 
+Latency time from master to core    1 =    1.213 microseconds
+ 
+Communication speed from master to core    1 =  4698.92 MB/sec
+
+Total CPU time for main thread                    :        2.6 seconds
+Total CPU time summed for all threads             :        3.6 seconds
+
+Elapsed time spent pre-processing model (/PREP7)  :        0.0 seconds
+Elapsed time spent solution - preprocessing       :        0.0 seconds
+Elapsed time spent computing solution             :        2.3 seconds
+Elapsed time spent solution - postprocessing      :        0.1 seconds
+Elapsed time spent post-processing model (/POST1) :        0.0 seconds
+ 
+Eigensolver used                                  :            Block Lanczos
+Equation solver computational rate                :    23336.3 Mflops
+
+Maximum total memory used                         :      303.0 MB
+Maximum total memory allocated                    :     3136.0 MB
+Total physical memory available                   :         16 GB
+
++------ E N D   D I S T R I B U T E D   A N S Y S   S T A T I S T I C S -------+
+
+
+ *---------------------------------------------------------------------------*
+ |                                                                           |
+ |                       DISTRIBUTED ANSYS RUN COMPLETED                     |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ | Ansys Release 18.1          Build 18.1         UP20170403     WINDOWS x64 |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ | Database Requested(-db)  1024 MB    Scratch Memory Requested      1024 MB |
+ | Maximum Database Used       4 MB    Maximum Scratch Memory Used    156 MB |
+ |                                                                           |
+ |---------------------------------------------------------------------------|
+ |                                                                           |
+ |        CP Time      (sec) =          3.578       Time  =  11:50:08        |
+ |        Elapsed Time (sec) =         49.000       Date  =  07/16/2018      |
+ |                                                                           |
+ *---------------------------------------------------------------------------*

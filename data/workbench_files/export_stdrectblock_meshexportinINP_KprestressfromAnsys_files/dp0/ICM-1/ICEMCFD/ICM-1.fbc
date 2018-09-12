@@ -1,0 +1,10 @@
+# family_boco file written by ICEM CFD by SIV0021 on Thu Jul 12 15:38:24 Central Europe Daylight Time 2018
+## solver ANSYS Fluent
+"SYS-1_1_1_SOLID"
+"SYS-1_2_1_SOLID"
+"SYS-1_3_1_SOLID"
+"SYS-1_1_1"
+"SYS-1_2_1"
+"SYS-1_3_1"
+"PART0"
+

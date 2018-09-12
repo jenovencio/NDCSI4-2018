@@ -1,0 +1,10 @@
+# family_boco file written for AI*Environment on Thu Jul 12 18:53:54 Central Europe Daylight Time 2018
+# solver Abaqus
+"SYS_1_1_SOLID"
+"FACEWITHFORCES"
+"FACEDIRICHLETBOUNDARY"
+"FACEFORCEFORPRESTRESS"
+"SYS_1_1"
+
+"SYS_1_1_SOLID" "SOLID3D" 0 0
+

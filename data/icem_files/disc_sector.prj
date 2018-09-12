@@ -1,0 +1,6 @@
+# ANSYS ICEM CFD Project settings
+array set file_name {
+	project_dir .
+	tetin disc_sector.tin
+	domain disc_sector.uns
+}

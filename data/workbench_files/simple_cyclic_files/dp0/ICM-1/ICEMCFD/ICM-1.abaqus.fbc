@@ -1,0 +1,11 @@
+# family_boco file written for AI*Environment on Mon Jul 16 9:20:00 PM GMT Daylight Time 2018
+# solver Abaqus
+"SOLID_1_1_SOLID"
+"LOW"
+"HIGH"
+"TOP"
+"DIRICHLET"
+"SOLID_1_1"
+
+"SOLID_1_1_SOLID" "SOLID3D" 0 0
+
